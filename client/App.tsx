@@ -50,6 +50,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/components/CartContext";
 import Home from "./pages/Home/page";
 import About from "./pages/About";
+import { TeamPage }  from "./pages/OurTeam";
 import Store from "./pages/Store";
 import CeoVision from "./pages/CeoVision";
 import Contact from "./pages/Contact";
@@ -73,6 +74,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
+            <Route path="/our-team" element={<TeamPage />} />
             <Route path="/store" element={<Store />} />
             <Route path="/ceo-vision" element={<CeoVision />} />
             <Route path="/contact" element={<Contact />} />
