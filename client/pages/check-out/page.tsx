@@ -299,7 +299,7 @@ export default function Success() {
         setOrder(parsedOrder);
 
         // Send to backend
-        fetch("https://merfume-backend-1.onrender.com/api/send-orders", {
+        fetch("https://5170dd6c9895.ngrok-free.app/api/send-orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: savedOrder,
@@ -399,3 +399,4 @@ export default function Success() {
     </div>
   );
 }
+
