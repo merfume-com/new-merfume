@@ -124,7 +124,7 @@ export const TeamPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       {/* Header */}
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-5xl font-bold text-luxury-black mb-6 tracking-tight">
           MEET OUR TEAM
         </h1>
