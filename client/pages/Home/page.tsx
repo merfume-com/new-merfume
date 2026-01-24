@@ -18,7 +18,7 @@ export default function Home() {
               <img
                 src="https://cdn.builder.io/api/v1/assets/df01e345c2d146ff8c27b0570e833c11/merfume-logo-74e35c?format=webp&width=800"
                 alt="Merfume - Luxury Perfumes"
-                className="h-32 md:h-40 lg:h-48 w-auto mx-auto drop-shadow-lg"
+                className="h-30 md:h-38 lg:h-46 w-auto mx-auto drop-shadow-lg -mt-10"
               />
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight">
