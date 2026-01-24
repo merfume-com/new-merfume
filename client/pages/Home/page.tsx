@@ -259,7 +259,7 @@ export default function Home() {
   useEffect(() => {
     // Set offer start time to today 9:30 AM
     const today = new Date();
-    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 30, 0, 0);
+    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 10, 0, 0);
     
     // If current time is before 9:30 AM, start from today 9:30
     // If after 9:30 AM, start from tomorrow 9:30
