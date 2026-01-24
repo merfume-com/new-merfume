@@ -414,13 +414,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
 
-  const API_BASE_URL = "https://merfume-backend-1.onrender.com";//${API_BASE_URL}
+  const API_BASE_URL = "https://5170dd6c9895.ngrok-free.app";//${API_BASE_URL}
 
   const fetchCartItems = useCallback(async () => {
     if (!cartToken) return;
 
     try {
-      const response = await fetch('https://merfume-backend-1.onrender.com/api/cart/items', {
+      const response = await fetch('https://5170dd6c9895.ngrok-free.app/api/cart/items', {
         headers: {
           'Content-Type': 'application/json',
           'Cart-Token': cartToken,
@@ -442,7 +442,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   if (!cartToken) return;
 
   try {
-    const response = await fetch(`https://merfume-backend-1.onrender.com/api/cart/remove/${cartId}`, {
+    const response = await fetch(`https://5170dd6c9895.ngrok-free.app/api/cart/remove/${cartId}`, {
       method: 'DELETE',
       headers: {
         'Cart-Token': cartToken,
@@ -469,7 +469,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const response = await fetch(
-        `https://merfume-backend-1.onrender.com/api/cart/update/${itemId}?quantity=${quantity}`,
+        `http://localhost:8080/api/cart/update/${itemId}?quantity=${quantity}`,
         {
           method: 'PUT',
           headers: {
@@ -494,7 +494,7 @@ const clearCart = async () => {
   if (!cartToken) return;
 
   try {
-    const response = await fetch('https://merfume-backend-1.onrender.com/api/cart/clear', {
+    const response = await fetch('https://5170dd6c9895.ngrok-free.app/api/cart/clear', {
       method: 'DELETE',
       headers: {
         'Cart-Token': cartToken,
@@ -517,7 +517,7 @@ const clearCart = async () => {
 
     try {
       // First create the order in your backend
-      const orderResponse = await fetch('https://merfume-backend-1.onrender.com/api/orders/create', {// create nahi tha abhi likha hai
+      const orderResponse = await fetch('https://5170dd6c9895.ngrok-free.app/api/orders/create', {// create nahi tha abhi likha hai
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
