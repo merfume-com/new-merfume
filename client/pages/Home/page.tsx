@@ -247,41 +247,24 @@ import { ArrowRight, Star, Sparkles, Gift, Flag, Award } from "lucide-react";
 import { useState, useEffect } from "react"; // Added for countdown
 
 export default function Home() {
-  // Countdown timer state for 3 days
+  // Countdown timer state for 3 days - Start with 2 days, 47 minutes, 19 seconds as shown in image
   const [timeLeft, setTimeLeft] = useState({
-    days: 3,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    isOfferActive: false
+    days: 2, // Image shows 02
+    hours: 0, // Image doesn't show hours, shows HH
+    minutes: 47, // Image shows 47
+    seconds: 19, // Image shows 19
+    isOfferActive: true
   });
 
   useEffect(() => {
-    // Set offer start time to today 9:30 AM
-    const today = new Date();
-    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 10, 0, 0);
-    
-    // If current time is before 9:30 AM, start from today 9:30
-    // If after 9:30 AM, start from tomorrow 9:30
-    let targetDate;
-    if (today.getTime() < startDate.getTime()) {
-      targetDate = startDate;
-    } else {
-      targetDate = new Date(startDate);
-      targetDate.setDate(targetDate.getDate() + 1);
-    }
-    
-    // Add 3 days to the start date for the offer duration
+    // Set offer to start immediately for 3 days
+    const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + 3);
+    targetDate.setHours(23, 59, 59, 999); // End of day after 3 days
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
-
-      // Check if current time is after start time (9:30 AM)
-      const currentTime = now;
-      const startTime = targetDate.getTime() - (3 * 24 * 60 * 60 * 1000); // 3 days ago from target
-      const isOfferActive = currentTime >= startTime;
 
       if (distance < 0) {
         clearInterval(timer);
@@ -305,7 +288,7 @@ export default function Home() {
         hours, 
         minutes, 
         seconds,
-        isOfferActive 
+        isOfferActive: true 
       });
     }, 1000);
 
@@ -316,80 +299,103 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Republic Day Special Offer Banner - Premium Design */}
-      {timeLeft.isOfferActive && (
-        <div className="bg-gradient-to-r from-saffron via-white to-green relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI1IiBmaWxsPSIjRkY5OTMzIiBmaWxsLW9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==')] opacity-20"></div>
-          
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Flag className="h-8 w-8 text-saffron animate-pulse" />
-                  <div className="absolute -top-1 -right-1">
-                    <Award className="h-4 w-4 text-green fill-current" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                    Republic Day Special Offer! 🇮🇳
+      {/* Republic Day Special Offer Banner - EXACTLY LIKE IMAGE */}
+      <div className="bg-gradient-to-r from-saffron via-white to-green relative overflow-hidden border-b-2 border-saffron/30">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI1IiBmaWxsPSIjRkY5OTMzIiBmaWxsLW9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==')] opacity-10"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-5">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+            {/* Text Section */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Flag className="h-6 w-6 text-saffron" />
+              </div>
+              <div className="text-center md:text-left">
+                <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
+                  <h3 className="text-base md:text-lg font-bold text-gray-900 tracking-wide uppercase">
+                    Republic Day SALE |
                   </h3>
-                  <p className="text-sm md:text-base text-gray-700">
-                    Premium fragrances with extra 25% OFF + Free shipping
-                  </p>
+                  <span className="text-base md:text-lg font-black text-red-600 animate-pulse">
+                    FLAT 26% OFF
+                  </span>
+                  <span className="text-base md:text-lg font-bold text-gray-900">
+                    IN
+                  </span>
                 </div>
               </div>
+            </div>
 
-              {/* Countdown Timer */}
-              <div className="flex items-center gap-2 md:gap-4">
-                <div className="text-center bg-white/80 backdrop-blur-sm rounded-lg p-2 md:p-3 shadow-lg border border-gray-200">
-                  <div className="text-xl md:text-2xl font-bold text-gray-900">
+            {/* Countdown Timer - EXACTLY LIKE IMAGE */}
+            <div className="flex items-center gap-1 md:gap-2">
+              {/* Days */}
+              <div className="relative">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center border-2 border-saffron/30">
+                  <div className="text-2xl md:text-3xl font-black text-gray-900 leading-none">
                     {timeLeft.days.toString().padStart(2, '0')}
                   </div>
-                  <div className="text-xs text-gray-600">Days</div>
-                </div>
-                
-                <div className="text-gray-400 font-bold">:</div>
-                
-                <div className="text-center bg-white/80 backdrop-blur-sm rounded-lg p-2 md:p-3 shadow-lg border border-gray-200">
-                  <div className="text-xl md:text-2xl font-bold text-gray-900">
-                    {timeLeft.hours.toString().padStart(2, '0')}
+                  <div className="text-[10px] md:text-xs font-bold text-gray-600 uppercase mt-0.5">
+                    DD
                   </div>
-                  <div className="text-xs text-gray-600">Hours</div>
-                </div>
-                
-                <div className="text-gray-400 font-bold">:</div>
-                
-                <div className="text-center bg-white/80 backdrop-blur-sm rounded-lg p-2 md:p-3 shadow-lg border border-gray-200">
-                  <div className="text-xl md:text-2xl font-bold text-gray-900">
-                    {timeLeft.minutes.toString().padStart(2, '0')}
-                  </div>
-                  <div className="text-xs text-gray-600">Minutes</div>
-                </div>
-                
-                <div className="text-gray-400 font-bold">:</div>
-                
-                <div className="text-center bg-white/80 backdrop-blur-sm rounded-lg p-2 md:p-3 shadow-lg border border-gray-200">
-                  <div className="text-xl md:text-2xl font-bold text-gray-900">
-                    {timeLeft.seconds.toString().padStart(2, '0')}
-                  </div>
-                  <div className="text-xs text-gray-600">Seconds</div>
                 </div>
               </div>
-
-              <Link to="/store">
-                <Button className="bg-saffron hover:bg-saffron/90 text-white font-bold px-6 py-3 shadow-lg hover:shadow-xl transition-all">
-                  Grab Offer Now
-                </Button>
-              </Link>
+              
+              <div className="text-gray-900 font-black text-lg md:text-xl pb-3">:</div>
+              
+              {/* Hours (HH) - Image shows HH but we'll show actual hours */}
+              <div className="relative">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center border-2 border-saffron/30">
+                  <div className="text-2xl md:text-3xl font-black text-gray-900 leading-none">
+                    {timeLeft.hours.toString().padStart(2, '0')}
+                  </div>
+                  <div className="text-[10px] md:text-xs font-bold text-gray-600 uppercase mt-0.5">
+                    HH
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-gray-900 font-black text-lg md:text-xl pb-3">:</div>
+              
+              {/* Minutes */}
+              <div className="relative">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center border-2 border-saffron/30">
+                  <div className="text-2xl md:text-3xl font-black text-gray-900 leading-none">
+                    {timeLeft.minutes.toString().padStart(2, '0')}
+                  </div>
+                  <div className="text-[10px] md:text-xs font-bold text-gray-600 uppercase mt-0.5">
+                    MM
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-gray-900 font-black text-lg md:text-xl pb-3">:</div>
+              
+              {/* Seconds */}
+              <div className="relative">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center border-2 border-saffron/30 relative">
+                  <div className="text-2xl md:text-3xl font-black text-gray-900 leading-none">
+                    {timeLeft.seconds.toString().padStart(2, '0')}
+                  </div>
+                  <div className="text-[10px] md:text-xs font-bold text-gray-600 uppercase mt-0.5">
+                    SS
+                  </div>
+                  {/* Blinking dot animation */}
+                  <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-1 bg-red-500 rounded-full animate-ping"></div>
+                </div>
+              </div>
             </div>
+
+            <Link to="/store">
+              <Button className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 md:px-6 py-2 md:py-2.5 text-sm md:text-base shadow-lg hover:shadow-xl transition-all rounded-md">
+                SHOP NOW
+              </Button>
+            </Link>
           </div>
-          
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-20 h-20 bg-saffron/10 rounded-full -translate-x-10 -translate-y-10"></div>
-          <div className="absolute bottom-0 right-0 w-16 h-16 bg-green/10 rounded-full translate-x-8 translate-y-8"></div>
         </div>
-      )}
+        
+        {/* Decorative dots like in image */}
+        <div className="absolute top-2 left-4 w-2 h-2 bg-green-600 rounded-full"></div>
+        <div className="absolute bottom-2 right-4 w-2 h-2 bg-saffron rounded-full"></div>
+      </div>
 
       {/* Rest of your existing code remains the same */}
       {/* Hero Section */}
@@ -512,22 +518,38 @@ export default function Home() {
             <span className="text-sm font-bold">Limited Time Offer</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-            Republic Day Special - Save 25% on Premium Fragrances!
+            Republic Day Special - Save 26% on Premium Fragrances!
           </h2>
+          <div className="flex justify-center items-center gap-3 mb-6">
+            <div className="bg-white rounded-lg shadow-lg p-3">
+              <div className="text-xl font-black text-gray-900">{timeLeft.days.toString().padStart(2, '0')}</div>
+              <div className="text-xs font-bold text-gray-600">DD</div>
+            </div>
+            <div className="text-gray-900 font-black text-lg">:</div>
+            <div className="bg-white rounded-lg shadow-lg p-3">
+              <div className="text-xl font-black text-gray-900">{timeLeft.hours.toString().padStart(2, '0')}</div>
+              <div className="text-xs font-bold text-gray-600">HH</div>
+            </div>
+            <div className="text-gray-900 font-black text-lg">:</div>
+            <div className="bg-white rounded-lg shadow-lg p-3">
+              <div className="text-xl font-black text-gray-900">{timeLeft.minutes.toString().padStart(2, '0')}</div>
+              <div className="text-xs font-bold text-gray-600">MM</div>
+            </div>
+            <div className="text-gray-900 font-black text-lg">:</div>
+            <div className="bg-white rounded-lg shadow-lg p-3">
+              <div className="text-xl font-black text-gray-900">{timeLeft.seconds.toString().padStart(2, '0')}</div>
+              <div className="text-xs font-bold text-gray-600">SS</div>
+            </div>
+          </div>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {timeLeft.isOfferActive ? (
-              <>Celebrate with exclusive discounts. Offer ends in{" "}
-              <span className="font-bold text-saffron">{timeLeft.days} days {timeLeft.hours}h {timeLeft.minutes}m</span></>
-            ) : (
-              <>Offer starts today at 9:30 AM. Stay tuned for exciting deals!</>
-            )}
+            Celebrate with exclusive 26% discount. Offer ends soon!
           </p>
           <Link to="/store">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-saffron to-green hover:from-saffron/90 hover:to-green/90 text-white font-bold px-12 py-4 text-lg shadow-lg hover:shadow-xl transition-all"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold px-12 py-4 text-lg shadow-lg hover:shadow-xl transition-all"
             >
-              {timeLeft.isOfferActive ? "Shop Now - Get 25% OFF" : "Coming Soon"}
+              Shop Now - Get 26% OFF
             </Button>
           </Link>
         </div>
