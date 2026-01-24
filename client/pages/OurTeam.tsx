@@ -125,7 +125,7 @@ export const TeamPage: React.FC = () => {
       <Navigation />
       {/* Header */}
       <div className="text-center mb-16 px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-luxury-black mb-6 tracking-tight">
+        <h1 className="text-4xl font-bold text-luxury-black mb-6 tracking-tight">
           MEET OUR TEAM
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
