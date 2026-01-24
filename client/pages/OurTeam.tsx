@@ -2,6 +2,7 @@ import React from 'react';
 import { TeamMember } from '@/components/OurTeam/TeamMember';
 import { TeamCategory } from '@/components/OurTeam/TeamCategory';
 import { ContactInfo } from '@/components/OurTeam/ContactInfo';
+import Navigation from '@/components/Navigation';
 
 // Add image URLs for each team member
 const teamData = [
@@ -119,7 +120,9 @@ const categories = [
 
 export const TeamPage: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    // <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-background">
+      <Navigation />
       {/* Header */}
       <div className="text-center mb-16">
         <h1 className="text-5xl font-bold text-luxury-black mb-6 tracking-tight">
