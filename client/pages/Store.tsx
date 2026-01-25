@@ -1089,7 +1089,7 @@ interface Product {
   productCategory: string;
 }
 
-export const API_BASE_URL = "https://5170dd6c9895.ngrok-free.app";
+export const API_BASE_URL = "https://cb55c4aecb34.ngrok-free.app";
 
 // Axios instance with proper configuration
 const api = axios.create({
