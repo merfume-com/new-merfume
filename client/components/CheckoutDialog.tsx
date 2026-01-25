@@ -932,7 +932,7 @@ declare global {
 
 // Create axios instance with configuration
 const api = axios.create({
-  baseURL: 'https://5170dd6c9895.ngrok-free.app',
+  baseURL: 'https://cb55c4aecb34.ngrok-free.app',
   timeout: 30000, // 30 seconds timeout
   headers: {
     'Content-Type': 'application/json',
