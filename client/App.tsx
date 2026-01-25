@@ -80,7 +80,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/success" element={<Success />} />
-            <Route path="/admin?&syed_musaib_ali&position=ceo&email=merfume.s@gmail.com" element={<AdminDashboard />} />
+            <Route path="/adminsyed_musaib_aliposition=ceoemail=merfume.s@gmail.com" element={<AdminDashboard />} />
             <Route path="/customer-dashboard" element={<CustomerDashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/orders/:orderId" element={<OrderDetail />} />
