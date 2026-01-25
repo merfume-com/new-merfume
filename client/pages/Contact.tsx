@@ -1521,7 +1521,7 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, inquiryType: value }));
   };
 
-  const API_BASE_URL = "https://5170dd6c9895.ngrok-free.app";//${API_BASE_URL}
+  const API_BASE_URL = "https://cb55c4aecb34.ngrok-free.app";//${API_BASE_URL}
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
