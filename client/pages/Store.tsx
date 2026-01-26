@@ -1094,7 +1094,7 @@ export const API_BASE_URL = "https://6a3dfa7e05c5.ngrok-free.app";
 // Axios instance with proper configuration
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000, // 10 seconds timeout
+  // timeout: 10000, // 10 seconds timeout
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
