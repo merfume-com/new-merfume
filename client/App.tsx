@@ -61,6 +61,10 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import OrderDetail from "./pages/OrderDetail";
 import AdminLogin from "./pages/AdminLogin";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import RefundPolicy from "./pages/RefundPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +88,10 @@ const App = () => (
             <Route path="/customer-dashboard" element={<CustomerDashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/orders/:orderId" element={<OrderDetail />} />
+             <Route path="/shipping-policy" element={<ShippingPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
