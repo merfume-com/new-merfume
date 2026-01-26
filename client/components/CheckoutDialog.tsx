@@ -648,7 +648,7 @@ export default function CheckoutDialog({
           key: "rzp_test_RyebKpVLGH54Xb",
           amount: Math.round(totalPrice * 100), // रुपये को पैसे में बदलें
           currency: "INR",
-          name: "Your Store",
+          name: "MERFUME",
           description: `Order #${orderData.orderNumber}`,
           order_id: orderData.razorpayOrderId,
           handler: (response: any) => {
