@@ -1056,10 +1056,482 @@
 
 
 
+// "use client";
+
+// import { useState, useEffect } from "react";
+// import axios from "axios";
+// import Navigation from "@/components/Navigation";
+// import ProductCard from "@/components/ProductCard";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+// import { Input } from "@/components/ui/input";
+// import { Search, Filter } from "lucide-react";
+// import { toast } from "sonner";
+
+// interface Product {
+//   productId: number;
+//   productName: string;
+//   brand: string;
+//   productPrice: number;
+//   originalPrice?: number;
+//   productImageUrl: string;
+//   productBackImageUrl?: string;
+//   rating: number;
+//   reviewCount: number;
+//   productDescription: string;
+//   notes: string[];
+//   productCategory: string;
+// }
+
+// export const API_BASE_URL = "https://6a3dfa7e05c5.ngrok-free.app";
+
+// // Axios instance with proper configuration
+// const api = axios.create({
+//   baseURL: API_BASE_URL,
+//   // timeout: 10000, // 10 seconds timeout
+//   headers: {
+//     "Content-Type": "application/json",
+//     "ngrok-skip-browser-warning": "69420",
+//     "Accept": "application/json",
+//   },
+// });
+
+// // Add request interceptor for logging
+// api.interceptors.request.use(
+//   (config) => {
+//     console.log(`Making request to: ${config.url}`);
+//     // Add timestamp to prevent caching
+//     if (config.url?.includes("?")) {
+//       config.url += `&_t=${Date.now()}`;
+//     } else {
+//       config.url += `?_t=${Date.now()}`;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     console.error("Request error:", error);
+//     return Promise.reject(error);
+//   }
+// );
+
+// // Add response interceptor for error handling and retry logic
+// api.interceptors.response.use(
+//   (response) => {
+//     console.log(`Response received from: ${response.config.url}`);
+//     return response;
+//   },
+//   async (error) => {
+//     const originalRequest = error.config;
+    
+//     // If error is due to network or CORS, retry once
+//     if (!error.response && !originalRequest._retry) {
+//       originalRequest._retry = true;
+//       console.log("Retrying request due to network error...");
+      
+//       // Wait 1 second before retrying
+//       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+//       // Clear the timestamp for retry
+//       originalRequest.url = originalRequest.url?.split("?")[0];
+      
+//       return api(originalRequest);
+//     }
+    
+//     // Handle specific error cases
+//     if (error.response) {
+//       console.error("API Error:", {
+//         status: error.response.status,
+//         statusText: error.response.statusText,
+//         url: error.config.url,
+//         data: error.response.data
+//       });
+//     } else if (error.request) {
+//       console.error("Network Error:", error.message);
+//     } else {
+//       console.error("Request Error:", error.message);
+//     }
+    
+//     return Promise.reject(error);
+//   }
+// );
+
+// export async function fetchProducts(): Promise<Product[]> {
+//   try {
+//     console.log("Fetching products from API...");
+    
+//     const response = await api.get("/api/products/all");
+    
+//     console.log("Products fetched successfully:", response.data.length);
+    
+//     if (!response.data || !Array.isArray(response.data)) {
+//       console.error("Invalid response format:", response.data);
+//       toast.error("Invalid data received from server.");
+//       return [];
+//     }
+    
+//     return response.data;
+    
+//   } catch (error: any) {
+//     console.error("Error fetching products:", error);
+    
+//     // Show user-friendly error messages
+//     if (error.code === 'ECONNABORTED') {
+//       toast.error("Request timeout. Please check your connection.");
+//     } else if (error.message?.includes('Network Error')) {
+//       toast.error("Network error. Please check your internet connection.");
+//     } else if (error.response?.status === 404) {
+//       toast.error("API endpoint not found. Please contact support.");
+//     } else if (error.response?.status >= 500) {
+//       toast.error("Server error. Please try again later.");
+//     } else {
+//       toast.error("Failed to load products. Please refresh the page.");
+//     }
+    
+//     return [];
+//   }
+// }
+
+// export default function Store() {
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [selectedCategory, setSelectedCategory] = useState("all");
+//   const [sortBy, setSortBy] = useState("featured");
+//   const [favorites, setFavorites] = useState<number[]>([]);
+//   const [products, setProducts] = useState<Product[]>([]);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   useEffect(() => {
+//     const loadProducts = async () => {
+//       setIsLoading(true);
+//       setError(null);
+      
+//       try {
+//         console.log("Loading products...");
+//         const data = await fetchProducts();
+        
+//         if (data.length === 0) {
+//           setError("No products available at the moment.");
+//         }
+        
+//         setProducts(data);
+//         console.log(`Loaded ${data.length} products`);
+        
+//       } catch (error) {
+//         console.error("Error in loadProducts:", error);
+//         setError("Failed to load products. Please try again.");
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+    
+//     loadProducts();
+//   }, []);
+
+//   const filteredProducts = products.filter((product) => {
+//     const matchesSearch =
+//       product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+//     const matchesCategory =
+//       selectedCategory === "all" || product.productCategory === selectedCategory;
+//     return matchesSearch && matchesCategory;
+//   });
+
+//   const sortedProducts = [...filteredProducts].sort((a, b) => {
+//     switch (sortBy) {
+//       case "price-low":
+//         return a.productPrice - b.productPrice;
+//       case "price-high":
+//         return b.productPrice - a.productPrice;
+//       case "rating":
+//         return b.rating - a.rating;
+//       case "name":
+//         return a.productName.localeCompare(b.productName);
+//       default:
+//         return 0;
+//     }
+//   });
+
+//   const handleToggleFavorite = (productId: number) => {
+//     setFavorites((prev) =>
+//       prev.includes(productId)
+//         ? prev.filter((id) => id !== productId)
+//         : [...prev, productId]
+//     );
+//   };
+
+//   const handleRetry = () => {
+//     window.location.reload();
+//   };
+
+//   if (isLoading) {
+//     return (
+//       <div className="min-h-screen bg-background">
+//         <Navigation />
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+//           <div className="flex flex-col items-center justify-center min-h-[60vh]">
+//             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+//             <p className="text-muted-foreground">Loading products...</p>
+//           </div>
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+//             {[...Array(8)].map((_, index) => (
+//               <div key={index} className="animate-pulse h-96 bg-muted rounded-lg" />
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   if (error && products.length === 0) {
+//     return (
+//       <div className="min-h-screen bg-background">
+//         <Navigation />
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+//           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+//             <div className="text-6xl mb-4">😞</div>
+//             <h2 className="text-2xl font-semibold mb-2">Unable to Load Products</h2>
+//             <p className="text-muted-foreground mb-6">{error}</p>
+//             <div className="flex gap-4">
+//               <Button onClick={handleRetry}>Retry</Button>
+//               <Button variant="outline" onClick={() => window.location.reload()}>
+//                 Refresh Page
+//               </Button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-background">
+//       <Navigation />
+
+//       <section className="py-8 border-b border-border/50">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+//             <div className="relative w-full md:w-64">
+//               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+//               <Input
+//                 placeholder="Search products..."
+//                 className="pl-10"
+//                 value={searchTerm}
+//                 onChange={(e) => setSearchTerm(e.target.value)}
+//               />
+//             </div>
+//             <div className="flex gap-2 w-full md:w-auto">
+//               <Select
+//                 value={selectedCategory}
+//                 onValueChange={setSelectedCategory}
+//               >
+//                 <SelectTrigger className="w-[180px]">
+//                   <SelectValue placeholder="Category" />
+//                 </SelectTrigger>
+//                 <SelectContent>
+//                   <SelectItem value="all">All Categories</SelectItem>
+//                   <SelectItem value="evening">Evening</SelectItem>
+//                   <SelectItem value="fresh">Fresh</SelectItem>
+//                   <SelectItem value="luxury">Luxury</SelectItem>
+//                   <SelectItem value="floral">Floral</SelectItem>
+//                   <SelectItem value="masculine">Masculine</SelectItem>
+//                 </SelectContent>
+//               </Select>
+//               <Select value={sortBy} onValueChange={setSortBy}>
+//                 <SelectTrigger className="w-[180px]">
+//                   <SelectValue placeholder="Sort by" />
+//                 </SelectTrigger>
+//                 <SelectContent>
+//                   <SelectItem value="featured">Featured</SelectItem>
+//                   <SelectItem value="price-low">Price: Low to High</SelectItem>
+//                   <SelectItem value="price-high">Price: High to Low</SelectItem>
+//                   <SelectItem value="rating">Rating</SelectItem>
+//                   <SelectItem value="name">Name</SelectItem>
+//                 </SelectContent>
+//               </Select>
+//               <Button variant="outline" size="icon">
+//                 <Filter className="h-4 w-4" />
+//               </Button>
+//             </div>
+//           </div>
+//         </div>
+//       </section>
+
+//       <section className="py-12">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//           {error && (
+//             <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+//               <p className="text-yellow-800">{error}</p>
+//             </div>
+//           )}
+          
+//           {sortedProducts.length === 0 ? (
+//             <div className="text-center py-16">
+//               <p className="text-lg text-muted-foreground">
+//                 No products found matching your criteria.
+//               </p>
+//               <Button
+//                 variant="outline"
+//                 className="mt-4"
+//                 onClick={() => {
+//                   setSearchTerm("");
+//                   setSelectedCategory("all");
+//                 }}
+//               >
+//                 Clear Filters
+//               </Button>
+//             </div>
+//           ) : (
+//             <>
+//               <div className="flex items-center justify-between mb-8">
+//                 <p className="text-muted-foreground">
+//                   Showing {sortedProducts.length} of {products.length} products
+//                 </p>
+//                 {isLoading && (
+//                   <div className="flex items-center gap-2">
+//                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+//                     <span className="text-sm text-muted-foreground">Loading...</span>
+//                   </div>
+//                 )}
+//               </div>
+//               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+//                 {sortedProducts.map((product, index) => (
+//                   <ProductCard
+//                     key={product.productId}
+//                     productId={product.productId}
+//                     productName={product.productName}
+//                     brand={product.brand}
+//                     productPrice={product.productPrice}
+//                     originalPrice={product.originalPrice}
+//                     productImageUrl={product.productImageUrl}
+//                     productBackImageUrl={product.productBackImageUrl}
+//                     rating={product.rating}
+//                     reviewCount={product.reviewCount}
+//                     productDescription={product.productDescription}
+//                     notes={product.notes}
+//                     onToggleFavorite={handleToggleFavorite}
+//                     isFavorite={favorites.includes(product.productId)}
+//                     className="animate-in fade-in slide-in-from-bottom-4"
+//                     style={{ "--animation-delay": `${index * 100}ms` } as React.CSSProperties}
+//                   />
+//                 ))}
+//               </div>
+//             </>
+//           )}
+//         </div>
+//       </section>
+
+//       <footer className="bg-luxury-black text-cream py-16">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+//             <div className="col-span-1 md:col-span-2">
+//               <img
+//                 src="https://cdn.builder.io/api/v1/assets/df01e345c2d146ff8c27b0570e833c11/merfume-logo-74e35c?format=webp&width=800"
+//                 alt="Merfume"
+//                 className="h-20 w-auto mb-4 brightness-110"
+//               />
+//               <p className="text-cream/80 max-w-md leading-relaxed">
+//                 Explore our complete collection of luxury fragrances crafted
+//                 with love and precision. Each scent tells a unique story.
+//               </p>
+//             </div>
+//             <div>
+//               <h3 className="text-gold font-semibold mb-4">Categories</h3>
+//               <ul className="space-y-2">
+//                 <li>
+//                   <button
+//                     onClick={() => setSelectedCategory("fresh")}
+//                     className="text-cream/80 hover:text-gold transition-colors text-left"
+//                   >
+//                     Fresh
+//                   </button>
+//                 </li>
+//                 <li>
+//                   <button
+//                     onClick={() => setSelectedCategory("floral")}
+//                     className="text-cream/80 hover:text-gold transition-colors text-left"
+//                   >
+//                     Floral
+//                   </button>
+//                 </li>
+//                 <li>
+//                   <button
+//                     onClick={() => setSelectedCategory("luxury")}
+//                     className="text-cream/80 hover:text-gold transition-colors text-left"
+//                   >
+//                     Luxury
+//                   </button>
+//                 </li>
+//                 <li>
+//                   <button
+//                     onClick={() => setSelectedCategory("evening")}
+//                     className="text-cream/80 hover:text-gold transition-colors text-left"
+//                   >
+//                     Evening
+//                   </button>
+//                 </li>
+//               </ul>
+//             </div>
+//             <div>
+//               <h3 className="text-gold font-semibold mb-4">Customer Care</h3>
+//               <ul className="space-y-2">
+//                 <li>
+//                   <a
+//                     href="#"
+//                     className="text-cream/80 hover:text-gold transition-colors"
+//                   >
+//                     Size Guide
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="#"
+//                     className="text-cream/80 hover:text-gold transition-colors"
+//                   >
+//                     Fragrance Care
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="#"
+//                     className="text-cream/80 hover:text-gold transition-colors"
+//                   >
+//                     Returns
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="/contact"
+//                     className="text-cream/80 hover:text-gold transition-colors"
+//                   >
+//                     Contact Us
+//                   </a>
+//                 </li>
+//               </ul>
+//             </div>
+//           </div>
+//           <div className="border-t border-cream/20 mt-12 pt-8 text-center">
+//             <p className="text-cream/60">
+//               © 2024 Merfume. All rights reserved. Discover your signature
+//               scent.
+//             </p>
+//           </div>
+//         </div>
+//       </footer>
+//     </div>
+//   );
+// }
+
+
+
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -1071,8 +1543,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Heart } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 interface Product {
   productId: number;
@@ -1089,108 +1562,47 @@ interface Product {
   productCategory: string;
 }
 
-export const API_BASE_URL = "https://6a3dfa7e05c5.ngrok-free.app";
-
-// Axios instance with proper configuration
+// Ek centralized axios instance create karte hain
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  // timeout: 10000, // 10 seconds timeout
+  baseURL: "https://6a3dfa7e05c5.ngrok-free.app",
   headers: {
-    "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "69420",
-    "Accept": "application/json",
-  },
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': '69420'
+  }
 });
 
-// Add request interceptor for logging
-api.interceptors.request.use(
-  (config) => {
-    console.log(`Making request to: ${config.url}`);
-    // Add timestamp to prevent caching
-    if (config.url?.includes("?")) {
-      config.url += `&_t=${Date.now()}`;
-    } else {
-      config.url += `?_t=${Date.now()}`;
-    }
-    return config;
-  },
-  (error) => {
-    console.error("Request error:", error);
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor for error handling and retry logic
+// Response interceptor add karte hain taaki har response check kar sakein
 api.interceptors.response.use(
   (response) => {
-    console.log(`Response received from: ${response.config.url}`);
     return response;
   },
-  async (error) => {
-    const originalRequest = error.config;
-    
-    // If error is due to network or CORS, retry once
-    if (!error.response && !originalRequest._retry) {
-      originalRequest._retry = true;
-      console.log("Retrying request due to network error...");
-      
-      // Wait 1 second before retrying
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Clear the timestamp for retry
-      originalRequest.url = originalRequest.url?.split("?")[0];
-      
-      return api(originalRequest);
+  (error) => {
+    if (error.response?.status === 404) {
+      toast.error("Resource not found");
+    } else if (error.response?.status >= 500) {
+      toast.error("Server error. Please try again later.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
     }
-    
-    // Handle specific error cases
-    if (error.response) {
-      console.error("API Error:", {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        url: error.config.url,
-        data: error.response.data
-      });
-    } else if (error.request) {
-      console.error("Network Error:", error.message);
-    } else {
-      console.error("Request Error:", error.message);
-    }
-    
     return Promise.reject(error);
   }
 );
 
 export async function fetchProducts(): Promise<Product[]> {
   try {
-    console.log("Fetching products from API...");
-    
     const response = await api.get("/api/products/all");
-    
-    console.log("Products fetched successfully:", response.data.length);
-    
-    if (!response.data || !Array.isArray(response.data)) {
-      console.error("Invalid response format:", response.data);
-      toast.error("Invalid data received from server.");
-      return [];
-    }
-    
     return response.data;
-    
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching products:", error);
     
-    // Show user-friendly error messages
-    if (error.code === 'ECONNABORTED') {
-      toast.error("Request timeout. Please check your connection.");
-    } else if (error.message?.includes('Network Error')) {
-      toast.error("Network error. Please check your internet connection.");
-    } else if (error.response?.status === 404) {
-      toast.error("API endpoint not found. Please contact support.");
-    } else if (error.response?.status >= 500) {
-      toast.error("Server error. Please try again later.");
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        toast.error(error.response.data?.message || "Failed to load products");
+      } else {
+        toast.error("Network error please refresh the page.");
+      }
     } else {
-      toast.error("Failed to load products. Please refresh the page.");
+      toast.error("An unexpected error occurred");
     }
     
     return [];
@@ -1210,20 +1622,11 @@ export default function Store() {
     const loadProducts = async () => {
       setIsLoading(true);
       setError(null);
-      
       try {
-        console.log("Loading products...");
         const data = await fetchProducts();
-        
-        if (data.length === 0) {
-          setError("No products available at the moment.");
-        }
-        
         setProducts(data);
-        console.log(`Loaded ${data.length} products`);
-        
       } catch (error) {
-        console.error("Error in loadProducts:", error);
+        console.error("Error loading products:", error);
         setError("Failed to load products. Please try again.");
       } finally {
         setIsLoading(false);
@@ -1236,7 +1639,10 @@ export default function Store() {
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+      product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.notes.some(note => 
+        note.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     const matchesCategory =
       selectedCategory === "all" || product.productCategory === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -1266,7 +1672,20 @@ export default function Store() {
   };
 
   const handleRetry = () => {
-    window.location.reload();
+    setError(null);
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      fetchProducts()
+        .then(data => {
+          setProducts(data);
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setIsLoading(false);
+          setError("Failed to load products. Please try again.");
+        });
+    }, 1000);
   };
 
   if (isLoading) {
@@ -1274,11 +1693,10 @@ export default function Store() {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-            <p className="text-muted-foreground">Loading products...</p>
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold"></div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
             {[...Array(8)].map((_, index) => (
               <div key={index} className="animate-pulse h-96 bg-muted rounded-lg" />
             ))}
@@ -1288,19 +1706,21 @@ export default function Store() {
     );
   }
 
-  if (error && products.length === 0) {
+  if (error) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-            <div className="text-6xl mb-4">😞</div>
-            <h2 className="text-2xl font-semibold mb-2">Unable to Load Products</h2>
-            <p className="text-muted-foreground mb-6">{error}</p>
-            <div className="flex gap-4">
-              <Button onClick={handleRetry}>Retry</Button>
-              <Button variant="outline" onClick={() => window.location.reload()}>
-                Refresh Page
+          <div className="flex flex-col items-center justify-center h-64">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {error}
+              </h3>
+              <Button
+                onClick={handleRetry}
+                className="bg-gold hover:bg-gold-dark text-black mt-4"
+              >
+                Try Again
               </Button>
             </div>
           </div>
@@ -1319,7 +1739,7 @@ export default function Store() {
             <div className="relative w-full md:w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search products..."
+                placeholder="Search products, brands or notes..."
                 className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -1364,12 +1784,6 @@ export default function Store() {
 
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {error && (
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800">{error}</p>
-            </div>
-          )}
-          
           {sortedProducts.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-lg text-muted-foreground">
@@ -1392,12 +1806,14 @@ export default function Store() {
                 <p className="text-muted-foreground">
                   Showing {sortedProducts.length} of {products.length} products
                 </p>
-                {isLoading && (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    <span className="text-sm text-muted-foreground">Loading...</span>
-                  </div>
-                )}
+                <div className="text-sm text-muted-foreground">
+                  {favorites.length > 0 && (
+                    <span className="inline-flex items-center gap-1">
+                      <Heart className="h-4 w-4 text-red-500 fill-current" />
+                      {favorites.length} favorite{favorites.length !== 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {sortedProducts.map((product, index) => (
@@ -1417,7 +1833,10 @@ export default function Store() {
                     onToggleFavorite={handleToggleFavorite}
                     isFavorite={favorites.includes(product.productId)}
                     className="animate-in fade-in slide-in-from-bottom-4"
-                    style={{ "--animation-delay": `${index * 100}ms` } as React.CSSProperties}
+                    style={{ 
+                      animationDelay: `${index * 100}ms`,
+                      animationDuration: '300ms'
+                    } as React.CSSProperties}
                   />
                 ))}
               </div>
