@@ -4082,14 +4082,14 @@ interface Product {
 }
 
 interface OrderItem {
-  productId: string;
+  productId: string | number;
   productName: string;
   quantity: number;
-  priceAtPurchase: number;
+  priceAtPurchase: number | null;
 }
 
 interface Payment {
-  paymentId: string;
+  paymentId: string | number;
   status: string;
   amount: number;
   method: string;
@@ -4097,8 +4097,9 @@ interface Payment {
 }
 
 interface UserDetails {
-  userId: string;
-  name: string;
+  userId?: string;
+  name?: string;
+  userName?: string;
   email: string;
   phone: string;
   address: string;
@@ -4211,7 +4212,7 @@ export default function AdminDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [inquiryDialogOpen, setInquiryDialogOpen] = useState(false);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -4282,21 +4283,49 @@ export default function AdminDashboard() {
       console.log("Orders response:", response.data);
       
       if (Array.isArray(response.data)) {
-        const processedOrders = response.data.map((order: any) => ({
-          ...order,
-          orderId: String(order.orderId),
-          userDetails: {
-            ...order.userDetails,
-            phone: String(order.userDetails?.phone || '')
-          }
-        }));
+        const processedOrders = response.data.map((order: any) => {
+          // Check if userDetails exists and has correct structure
+          const userDetails = order.userDetails || {};
+          const userName = userDetails.userName || userDetails.name || "N/A";
+          
+          return {
+            ...order,
+            orderId: String(order.orderId),
+            orderNumber: order.orderNumber || `ORDER-${order.orderId}`,
+            orderDate: order.orderDate || new Date().toISOString(),
+            total: order.total || 0,
+            userDetails: {
+              userId: userDetails.userId || "N/A",
+              name: userName,
+              userName: userName,
+              email: userDetails.email || "N/A",
+              phone: String(userDetails.phone || ''),
+              address: userDetails.address || 'Address not provided'
+            },
+            items: Array.isArray(order.items) ? order.items.map((item: any) => ({
+              ...item,
+              productId: String(item.productId || "N/A"),
+              priceAtPurchase: item.priceAtPurchase !== null && item.priceAtPurchase !== undefined 
+                ? Number(item.priceAtPurchase) 
+                : 0
+            })) : [],
+            payment: order.payment ? {
+              paymentId: String(order.payment.paymentId || "N/A"),
+              status: order.payment.status || "N/A",
+              amount: order.payment.amount || 0,
+              method: order.payment.method || "N/A",
+              transactionId: order.payment.transactionId
+            } : undefined
+          };
+        });
+        
         setOrders(processedOrders);
         
         // Update stats
         setStats(prev => ({
           ...prev,
           totalOrders: processedOrders.length,
-          totalRevenue: processedOrders.reduce((sum: number, order: Order) => sum + order.total, 0),
+          totalRevenue: processedOrders.reduce((sum: number, order: Order) => sum + (order.total || 0), 0),
           pendingOrders: processedOrders.filter((order: Order) => 
             order.status === "PENDING" || order.status === "PROCESSING"
           ).length
@@ -4651,6 +4680,8 @@ export default function AdminDashboard() {
       String(order.orderId).toLowerCase().includes(searchQuery.toLowerCase()) ||
       (order.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
       (order.userDetails?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (order.userDetails?.userName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (order.userDetails?.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
       (order.userDetails?.phone?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
     );
     
@@ -4707,7 +4738,7 @@ export default function AdminDashboard() {
           order.orderId,
           order.orderNumber,
           new Date(order.orderDate).toISOString(),
-          order.userDetails.name,
+          order.userDetails.name || order.userDetails.userName || "N/A",
           order.userDetails.email,
           order.userDetails.phone,
           order.status,
@@ -4798,16 +4829,19 @@ export default function AdminDashboard() {
   };
 
   const openOrderDetails = (order: Order) => {
+    console.log("Opening order details:", order);
     setSelectedOrder(order);
-    setDialogOpen(true); // यह सही dialog खोल रहा है
+    setOrderDialogOpen(true);
   };
 
   const openInquiryDetails = (inquiry: Inquiry) => {
+    console.log("Opening inquiry details:", inquiry);
     setSelectedInquiry(inquiry);
     setInquiryDialogOpen(true);
   };
 
   const openProductDetails = (product: Product) => {
+    console.log("Opening product details:", product);
     setSelectedProduct(product);
     setProductDialogOpen(true);
     setFrontImage(null);
@@ -4856,7 +4890,7 @@ export default function AdminDashboard() {
       });
       
       fetchOrdersFromBackend();
-      setDialogOpen(false);
+      setOrderDialogOpen(false);
       
     } catch (error: any) {
       console.error("Error updating order status:", error);
@@ -5072,13 +5106,13 @@ export default function AdminDashboard() {
                   </TableHeader>
                   <TableBody>
                     {filteredOrders.map((order) => (
-                      <TableRow key={order.orderId}>
+                      <TableRow key={order.orderId} className="hover:bg-gray-50 cursor-pointer" onClick={() => openOrderDetails(order)}>
                         <TableCell className="font-mono text-sm">
                           {order.orderNumber || order.orderId}
                         </TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{order.userDetails.name}</p>
+                            <p className="font-medium">{order.userDetails.name || order.userDetails.userName || "N/A"}</p>
                             <p className="text-xs text-muted-foreground">{order.userDetails.email}</p>
                           </div>
                         </TableCell>
@@ -5103,14 +5137,10 @@ export default function AdminDashboard() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => openOrderDetails(order)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateOrderStatus(order.orderId, "PROCESSING")}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateOrderStatus(order.orderId, "PROCESSING");
+                              }}
                               disabled={order.status === "PROCESSING"}
                             >
                               Process
@@ -5158,7 +5188,7 @@ export default function AdminDashboard() {
                   </TableHeader>
                   <TableBody>
                     {filteredInquiries.map((inquiry) => (
-                      <TableRow key={inquiry.inquiryId}>
+                      <TableRow key={inquiry.inquiryId} className="hover:bg-gray-50 cursor-pointer" onClick={() => openInquiryDetails(inquiry)}>
                         <TableCell className="font-mono text-sm">
                           {String(inquiry.inquiryId).substring(0, 8)}
                         </TableCell>
@@ -5181,14 +5211,10 @@ export default function AdminDashboard() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => openInquiryDetails(inquiry)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateInquiryStatus(inquiry.inquiryId, "READ")}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateInquiryStatus(inquiry.inquiryId, "READ");
+                              }}
                               disabled={inquiry.status === "READ"}
                             >
                               Mark Read
@@ -5374,7 +5400,7 @@ export default function AdminDashboard() {
                   </TableHeader>
                   <TableBody>
                     {filteredProducts.map((product) => (
-                      <TableRow key={product.productId}>
+                      <TableRow key={product.productId} className="hover:bg-gray-50">
                         <TableCell>
                           <div className="flex items-center gap-3">
                             {product.productImageUrl && (
@@ -5433,13 +5459,6 @@ export default function AdminDashboard() {
                               size="sm"
                               onClick={() => openProductDetails(product)}
                             >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openProductDetails(product)}
-                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
@@ -5461,13 +5480,13 @@ export default function AdminDashboard() {
         </TabsContent>
       </Tabs>
 
-      {/* Order Details Dialog - यह order details दिखाएगा */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* Order Details Dialog */}
+      <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Order Details - {selectedOrder?.orderNumber}</DialogTitle>
+            <DialogTitle>Order Details - {selectedOrder?.orderNumber || selectedOrder?.orderId}</DialogTitle>
           </DialogHeader>
-          {selectedOrder && (
+          {selectedOrder ? (
             <div className="space-y-6">
               {/* Order Summary */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -5476,10 +5495,10 @@ export default function AdminDashboard() {
                     <CardTitle className="text-lg">Customer Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <p><span className="font-medium">Name:</span> {selectedOrder.userDetails.name}</p>
-                    <p><span className="font-medium">Email:</span> {selectedOrder.userDetails.email}</p>
-                    <p><span className="font-medium">Phone:</span> {selectedOrder.userDetails.phone}</p>
-                    <p><span className="font-medium">Address:</span> {selectedOrder.userDetails.address}</p>
+                    <p><span className="font-medium">Name:</span> {selectedOrder.userDetails.name || selectedOrder.userDetails.userName || "N/A"}</p>
+                    <p><span className="font-medium">Email:</span> {selectedOrder.userDetails.email || "N/A"}</p>
+                    <p><span className="font-medium">Phone:</span> {selectedOrder.userDetails.phone || "N/A"}</p>
+                    <p><span className="font-medium">Address:</span> {selectedOrder.userDetails.address || "Address not provided"}</p>
                   </CardContent>
                 </Card>
                 
@@ -5497,6 +5516,7 @@ export default function AdminDashboard() {
                         {selectedOrder.status}
                       </Badge>
                     </p>
+                    <p><span className="font-medium">Total:</span> ₹{selectedOrder.total.toFixed(2)}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -5526,34 +5546,46 @@ export default function AdminDashboard() {
               {/* Order Items */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Order Items</CardTitle>
+                  <CardTitle className="text-lg">Order Items ({selectedOrder.items.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedOrder.items.map((item, index) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <div className="font-medium">{item.productName}</div>
-                            <div className="text-sm text-muted-foreground">ID: {item.productId}</div>
-                          </TableCell>
-                          <TableCell>₹{item.priceAtPurchase.toFixed(2)}</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell className="text-right font-medium">
-                            ₹{(item.priceAtPurchase * item.quantity).toFixed(2)}
-                          </TableCell>
+                  {selectedOrder.items.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Price</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead className="text-right">Total</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedOrder.items.map((item, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <div className="font-medium">{item.productName}</div>
+                              <div className="text-sm text-muted-foreground">ID: {item.productId}</div>
+                            </TableCell>
+                            <TableCell>
+                              {item.priceAtPurchase !== null && item.priceAtPurchase !== undefined 
+                                ? `₹${item.priceAtPurchase.toFixed(2)}`
+                                : "N/A"
+                              }
+                            </TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell className="text-right font-medium">
+                              {item.priceAtPurchase !== null && item.priceAtPurchase !== undefined 
+                                ? `₹${(item.priceAtPurchase * item.quantity).toFixed(2)}`
+                                : "N/A"
+                              }
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <p className="text-muted-foreground text-center py-4">No items found in this order</p>
+                  )}
                   <div className="flex justify-end mt-4">
                     <div className="text-right space-y-1">
                       <p className="text-lg font-bold">
@@ -5589,7 +5621,19 @@ export default function AdminDashboard() {
                     Mark as Delivered
                   </Button>
                 )}
+                {selectedOrder.status !== "CANCELLED" && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => updateOrderStatus(selectedOrder.orderId, "CANCELLED")}
+                  >
+                    Cancel Order
+                  </Button>
+                )}
               </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading order details...</p>
             </div>
           )}
         </DialogContent>
@@ -5601,7 +5645,7 @@ export default function AdminDashboard() {
           <DialogHeader>
             <DialogTitle>Inquiry Details</DialogTitle>
           </DialogHeader>
-          {selectedInquiry && (
+          {selectedInquiry ? (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -5662,6 +5706,10 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading inquiry details...</p>
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -5672,7 +5720,7 @@ export default function AdminDashboard() {
           <DialogHeader>
             <DialogTitle>Product Details</DialogTitle>
           </DialogHeader>
-          {selectedProduct && (
+          {selectedProduct ? (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -5782,12 +5830,17 @@ export default function AdminDashboard() {
                 </Button>
               </div>
             </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading product details...</p>
+            </div>
           )}
         </DialogContent>
       </Dialog>
     </div>
   );
 }
+
 
 
 // with Inquiry and product and order
