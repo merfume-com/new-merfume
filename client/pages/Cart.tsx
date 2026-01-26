@@ -947,8 +947,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // Create axios instance for cart operations
 const cartApi = axios.create({
-  baseURL: "https://cb55c4aecb34.ngrok-free.app",
-  timeout: 10000,
+  baseURL: "https://6a3dfa7e05c5.ngrok-free.app",
+  // timeout: 10000,
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
