@@ -933,7 +933,7 @@ declare global {
 // Create axios instance with configuration
 const api = axios.create({
   baseURL: 'https://6a3dfa7e05c5.ngrok-free.app',
-  timeout: 30000, // 30 seconds timeout
+  // timeout: 30000, // 30 seconds timeout
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': '69420',
