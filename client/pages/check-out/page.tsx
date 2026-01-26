@@ -448,7 +448,7 @@ interface Order {
 // Create axios instance
 const api = axios.create({
   baseURL: "https://6a3dfa7e05c5.ngrok-free.app",
-  timeout: 15000,
+  // timeout: 15000,
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
