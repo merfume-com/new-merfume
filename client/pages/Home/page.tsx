@@ -1086,10 +1086,10 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/shipping-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Shipping Info
+                    Shipping Policies
                   </a>
                 </li>
                 <li>
