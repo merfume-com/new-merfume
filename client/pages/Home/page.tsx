@@ -1483,7 +1483,7 @@ export default function Home() {
               <ul className="space-y-2">
                 <li>
                   <a
-                    href="#"
+                    href="/help"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Help Center
@@ -1499,7 +1499,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/return-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Returns
@@ -1507,10 +1507,10 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/how-to-manage-fragrance"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Size Guide
+                    Fragrance care tips
                   </a>
                 </li>
               </ul>
