@@ -876,12 +876,12 @@ export default function Home() {
                 className="h-32 md:h-40 lg:h-48 w-auto mx-auto drop-shadow-lg"
               />
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight">
-              Discover Your
-              <span className="block text-gold bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent">
-                Signature Scent
-              </span>
-            </h1>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
+  Discover Your
+  <span className="block text-gold bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent pb-2 md:pb-3">
+    Signature Scent
+  </span>
+</h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
               Experience the world of luxury fragrances. Each bottle tells a
               story, each scent creates a memory. Welcome to Merfume.
