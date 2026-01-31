@@ -65,6 +65,7 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import OrderTrackingPage from "./pages/OrderTrackingPage";
 
 const queryClient = new QueryClient();
 
@@ -85,7 +86,8 @@ const App = () => (
             <Route path="/cart" element={<Cart />} />
             <Route path="/success" element={<Success />} />
             <Route path="/adminsyed_musaib_aliposition=ceoemail=merfume.s@gmail.com" element={<AdminDashboard />} />
-            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+           {/* <Route path="/customer-dashboard" element={<CustomerDashboard />} /> */}
+            <Route path="/track-order" element={<OrderTrackingPage />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/orders/:orderId" element={<OrderDetail />} />
              <Route path="/shipping-policy" element={<ShippingPolicy />} />
