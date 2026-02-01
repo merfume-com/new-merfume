@@ -1895,7 +1895,7 @@ export default function OrderTrackingPage() {
                       <Phone className="w-6 h-6" />
                     </div>
                     <h4 className="font-semibold mb-1">Call Us</h4>
-                    <p className="text-sm text-gray-600">1800-XXX-XXXX</p>
+                    <p className="text-sm text-gray-600">+917489635061</p>
                   </div>
                   
                   <div className="text-center p-4">
