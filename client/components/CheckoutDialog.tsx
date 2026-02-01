@@ -1580,7 +1580,7 @@ declare global {
 
 // Create axios instance with configuration
 const api = axios.create({
-  baseURL: 'https://6a3dfa7e05c5.ngrok-free.app',
+  baseURL: 'https://e46b4bafada4.ngrok-free.app',
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': '69420',
