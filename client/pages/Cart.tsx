@@ -947,7 +947,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // Create axios instance for cart operations
 const cartApi = axios.create({
-  baseURL: "https://e46b4bafada4.ngrok-free.app",
+  baseURL: "http://merfume.dpdns.org",
   // timeout: 10000,
   headers: {
     "Content-Type": "application/json",
