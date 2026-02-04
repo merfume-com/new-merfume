@@ -1580,7 +1580,7 @@ declare global {
 
 // Create axios instance with configuration
 const api = axios.create({
-  baseURL: 'http://merfume.dpdns.org',
+  baseURL: 'https://e46b4bafada4.ngrok-free.app',
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': '69420',
