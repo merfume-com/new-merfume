@@ -1844,7 +1844,7 @@ export default function CheckoutDialog({
 
       // Step 3: Initialize Razorpay payment
       const razorpayOptions = {
-        key: "rzp_test_RyebKpVLGH54Xb",
+        key: "rzp_live_SC54vRc87LQFwE",
         amount: Math.round(totalPrice * 100), // Convert to paise
         currency: "INR",
         name: "Merfume",
