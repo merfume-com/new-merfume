@@ -689,7 +689,7 @@ const CartContext = createContext<CartContextType>({
 
 // Create axios instance with configuration
 const api = axios.create({
-  baseURL: 'http://merfume.dpdns.org',
+  baseURL: 'https://e46b4bafada4.ngrok-free.app',
   // timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
