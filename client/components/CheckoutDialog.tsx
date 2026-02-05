@@ -2308,7 +2308,7 @@ export default function CheckoutDialog({
   const { clearCart } = useCart();
   const razorpayLoaded = useRef(false);
   const cancelTokenSourceRef = useRef<CancelTokenSource | null>(null);
-  const formRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState<UserDetails>({
     name: "",
@@ -2355,49 +2355,45 @@ export default function CheckoutDialog({
     }
   }, [open]);
 
-  // Fix for mobile Razorpay issue: Hide form when Razorpay modal is open
+  // Fix for mobile Razorpay issue - Simpler solution
   useEffect(() => {
-    const handleFocus = (e: FocusEvent) => {
-      // If Razorpay modal is active, ensure our form stays hidden
-      const target = e.target as HTMLElement;
-      if (target && target.classList && 
-          (target.classList.contains('razorpay-container') || 
-           target.closest('.razorpay-container'))) {
-        if (formRef.current) {
-          formRef.current.style.display = 'none';
-        }
-      }
-    };
+    if (!open) return;
 
-    // MutationObserver to detect Razorpay modal
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          const razorpayModal = document.querySelector('.razorpay-container');
-          if (razorpayModal && formRef.current) {
-            formRef.current.style.display = 'none';
-          } else if (!razorpayModal && formRef.current) {
-            formRef.current.style.display = 'block';
+    const handleBlur = () => {
+      // When Razorpay modal opens, it might cause blur events
+      // We'll handle this differently
+      setTimeout(() => {
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.tagName === 'IFRAME') {
+          // Razorpay iframe is active, hide our dialog temporarily
+          if (dialogRef.current) {
+            dialogRef.current.style.pointerEvents = 'none';
+            dialogRef.current.style.opacity = '0.5';
           }
         }
-      });
-    });
+      }, 100);
+    };
 
-    // Start observing the document body
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    // Add event listeners
-    document.addEventListener('focusin', handleFocus);
-
-    return () => {
-      observer.disconnect();
-      document.removeEventListener('focusin', handleFocus);
-      // Restore form display on cleanup
-      if (formRef.current) {
-        formRef.current.style.display = 'block';
+    const handleFocus = () => {
+      // When focus returns, restore our dialog
+      if (dialogRef.current) {
+        dialogRef.current.style.pointerEvents = 'auto';
+        dialogRef.current.style.opacity = '1';
       }
     };
-  }, []);
+
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+      if (dialogRef.current) {
+        dialogRef.current.style.pointerEvents = 'auto';
+        dialogRef.current.style.opacity = '1';
+      }
+    };
+  }, [open]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -2569,11 +2565,6 @@ export default function CheckoutDialog({
         throw new Error("Payment system is temporarily unavailable");
       }
 
-      // Hide form on mobile before opening Razorpay
-      if (window.innerWidth <= 768 && formRef.current) {
-        formRef.current.style.display = 'none';
-      }
-
       // Step 3: Initialize Razorpay payment
       const razorpayOptions = {
         key: "rzp_test_RyebKpVLGH54Xb",
@@ -2630,11 +2621,6 @@ export default function CheckoutDialog({
               await clearCart();
               onClose();
               
-              // Show form again
-              if (formRef.current) {
-                formRef.current.style.display = 'block';
-              }
-              
               // Redirect to success page
               window.location.href = `/success?payment_id=${response.razorpay_payment_id}&order_id=${orderId}`;
             } else {
@@ -2672,11 +2658,6 @@ export default function CheckoutDialog({
             console.log('Payment modal dismissed');
             toast.info("Payment cancelled. Your order has been saved.");
             
-            // Show form again
-            if (formRef.current) {
-              formRef.current.style.display = 'block';
-            }
-            
             // Save order as pending payment
             const orderDetails = {
               id: orderId,
@@ -2700,11 +2681,6 @@ export default function CheckoutDialog({
       
       rzp.on('payment.failed', (response: any) => {
         console.error('Payment failed:', response.error);
-        
-        // Show form again
-        if (formRef.current) {
-          formRef.current.style.display = 'block';
-        }
         
         // Optional: Update order status to PAYMENT_FAILED
         api.patch(`/api/orders/${orderId}/status`, {
@@ -2734,11 +2710,6 @@ export default function CheckoutDialog({
       
     } catch (error: any) {
       console.error('Checkout error:', error);
-      
-      // Show form again on error
-      if (formRef.current) {
-        formRef.current.style.display = 'block';
-      }
       
       const errorMessage = getErrorMessage(error);
       toast.error(errorMessage);
@@ -2775,14 +2746,23 @@ export default function CheckoutDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleCancel}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent 
+        className="max-w-md max-h-[90vh] overflow-y-auto" 
+        ref={dialogRef}
+        onInteractOutside={(e) => {
+          // Prevent closing when clicking outside if processing
+          if (isProcessing) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
             Complete Your Order
           </DialogTitle>
         </DialogHeader>
 
-        <div ref={formRef} className="space-y-4">
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name *</label>
             <Input
@@ -2885,32 +2865,24 @@ export default function CheckoutDialog({
           </div>
 
           {/* Terms and Conditions Checkbox - State aur country ke neeche */}
-          <div className="mt-2 space-y-2">
-            <div className="flex items-start space-x-2">
-              <Checkbox
-                id="policies"
-                checked={agreedToPolicies}
-                onCheckedChange={(checked) => setAgreedToPolicies(checked as boolean)}
-                disabled={isProcessing}
-                required
-                className="mt-1"
-              />
-              <div className="grid gap-1.5">
-                <Label
-                  htmlFor="policies"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  I agree with your all policies *
-                </Label>
-                <p className="text-xs text-gray-500">
-                  By checking this box, you agree to our Terms & Conditions, Privacy Policy, and Return Policy.
-                </p>
-              </div>
-            </div>
-            {!agreedToPolicies && (
-              <p className="text-red-500 text-xs mt-1">You must agree to the policies to proceed</p>
-            )}
+          <div className="flex items-center space-x-2 pt-4">
+            <Checkbox
+              id="policies"
+              checked={agreedToPolicies}
+              onCheckedChange={(checked) => setAgreedToPolicies(checked as boolean)}
+              disabled={isProcessing}
+              required
+            />
+            <Label
+              htmlFor="policies"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I agree with your all policies *
+            </Label>
           </div>
+          {!agreedToPolicies && (
+            <p className="text-red-500 text-xs mt-1 ml-6">You must agree to the policies to proceed</p>
+          )}
 
           <div className="pt-4 border-t">
             <div className="space-y-2 mb-4">
