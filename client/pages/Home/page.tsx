@@ -1499,10 +1499,10 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="/return-policy"
+                    href="/privacy-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Returns
+                    Privacy Policies
                   </a>
                 </li>
                 <li>
