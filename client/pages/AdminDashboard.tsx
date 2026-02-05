@@ -5948,11 +5948,10 @@ const ORDER_STATUSES = [
 
 // Create axios instance with configuration
 const api = axios.create({
-  // baseURL: "https://e46b4bafada4.ngrok-free.app",
-   baseURL:"https://merfume-backend-production-5068.up.railway.app",
+  baseURL: "http://localhost:8080",
   headers: {
     "Content-Type": "application/json",
-    // "ngrok-skip-browser-warning": "69420",
+    "ngrok-skip-browser-warning": "69420",
     "Accept": "application/json",
   },
 });
@@ -6853,39 +6852,12 @@ export default function AdminDashboard() {
   });
 
   // Fetch data on component mount and tab change
-  useEffect(() => {
-    // Initial data fetch
-    fetchOrdersFromBackend();
-    fetchInquiriesFromBackend();
-    fetchProductsFromBackend();
-    fetchOrderStatuses();
-    
-    // Set up polling based on active tab
-  //   const interval = setInterval(() => {
-  //     if (activeTab === "orders") {
-  //       fetchOrdersFromBackend();
-  //     } else if (activeTab === "inquiries") {
-  //       fetchInquiriesFromBackend();
-  //     } else if (activeTab === "products") {
-  //       fetchProductsFromBackend();
-  //     }
-  //   }, 30000); // Poll every 30 seconds
-  
-  //   return () => {
-  //     clearInterval(interval);
-  //     if (cancelTokenSourceRef.current) {
-  //       cancelTokenSourceRef.current.cancel("Component unmounting");
-  //     }
-  //   };
-  // }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
-
-
-    //     useEffect(() => {
-    // // Initial data fetch
-    // fetchOrdersFromBackend();
-    // fetchInquiriesFromBackend();
-    // fetchProductsFromBackend();
-    // fetchOrderStatuses();
+  // useEffect(() => {
+  //   // Initial data fetch
+  //   fetchOrdersFromBackend();
+  //   fetchInquiriesFromBackend();
+  //   fetchProductsFromBackend();
+  //   fetchOrderStatuses();
     
     // Set up polling based on active tab
     // const interval = setInterval(() => {
@@ -6914,7 +6886,8 @@ export default function AdminDashboard() {
 //   };
 // }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
 
-        // Fetch data on component mount only (NO AUTO-REFRESH)
+
+// Fetch data on component mount only (NO AUTO-REFRESH)
 useEffect(() => {
   console.log("AdminDashboard mounted - fetching initial data");
   
