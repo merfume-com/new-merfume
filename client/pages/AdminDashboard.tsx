@@ -6880,12 +6880,12 @@ export default function AdminDashboard() {
   // }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
 
 
-        useEffect(() => {
-    // Initial data fetch
-    fetchOrdersFromBackend();
-    fetchInquiriesFromBackend();
-    fetchProductsFromBackend();
-    fetchOrderStatuses();
+    //     useEffect(() => {
+    // // Initial data fetch
+    // fetchOrdersFromBackend();
+    // fetchInquiriesFromBackend();
+    // fetchProductsFromBackend();
+    // fetchOrderStatuses();
     
     // Set up polling based on active tab
     // const interval = setInterval(() => {
@@ -6906,13 +6906,34 @@ export default function AdminDashboard() {
   //   };
   // }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
 
+//   return () => {
+//     // clearInterval(interval); // Interval ko clear karna zaroori nahi ab
+//     if (cancelTokenSourceRef.current) {
+//       cancelTokenSourceRef.current.cancel("Component unmounting");
+//     }
+//   };
+// }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
+
+        // Fetch data on component mount only (NO AUTO-REFRESH)
+useEffect(() => {
+  console.log("AdminDashboard mounted - fetching initial data");
+  
+  // Initial data fetch (only once when component loads)
+  fetchOrdersFromBackend();
+  fetchInquiriesFromBackend();
+  fetchProductsFromBackend();
+  fetchOrderStatuses();
+  
+  // Cleanup function
   return () => {
-    // clearInterval(interval); // Interval ko clear karna zaroori nahi ab
+    console.log("AdminDashboard unmounting");
     if (cancelTokenSourceRef.current) {
       cancelTokenSourceRef.current.cancel("Component unmounting");
     }
   };
-}, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
+  // Empty dependency array ensures this runs only once on mount
+}, []); // REMOVED: activeTab, fetchOrdersFromBackend, etc.
+
 
   return (
     <div className="p-6 space-y-6">
