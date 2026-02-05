@@ -1723,11 +1723,11 @@ export default function CheckoutDialog({
         return;
       }
 
-      if (window.Razorpay) {
-        razorpayLoaded.current = true;
-        resolve(true);
-        return;
-      }
+      // if (window.Razorpay) {
+      //   razorpayLoaded.current = true;
+      //   resolve(true);
+      //   return;
+      // }
 
       // Check if script is already loading
       const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
