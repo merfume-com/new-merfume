@@ -2884,25 +2884,33 @@ export default function CheckoutDialog({
             </div>
           </div>
 
-          {/* Terms and Conditions Checkbox */}
-          <div className="flex items-center space-x-2 pt-2">
-            <Checkbox
-              id="policies"
-              checked={agreedToPolicies}
-              onCheckedChange={(checked) => setAgreedToPolicies(checked as boolean)}
-              disabled={isProcessing}
-              required
-            />
-            <Label
-              htmlFor="policies"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              I agree with your all policies *
-            </Label>
+          {/* Terms and Conditions Checkbox - State aur country ke neeche */}
+          <div className="mt-2 space-y-2">
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="policies"
+                checked={agreedToPolicies}
+                onCheckedChange={(checked) => setAgreedToPolicies(checked as boolean)}
+                disabled={isProcessing}
+                required
+                className="mt-1"
+              />
+              <div className="grid gap-1.5">
+                <Label
+                  htmlFor="policies"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I agree with your all policies *
+                </Label>
+                <p className="text-xs text-gray-500">
+                  By checking this box, you agree to our Terms & Conditions, Privacy Policy, and Return Policy.
+                </p>
+              </div>
+            </div>
+            {!agreedToPolicies && (
+              <p className="text-red-500 text-xs mt-1">You must agree to the policies to proceed</p>
+            )}
           </div>
-          {!agreedToPolicies && (
-            <p className="text-red-500 text-xs mt-1">You must agree to the policies to proceed</p>
-          )}
 
           <div className="pt-4 border-t">
             <div className="space-y-2 mb-4">
@@ -2946,7 +2954,6 @@ export default function CheckoutDialog({
     </Dialog>
   );
 }
-
 
 
 
