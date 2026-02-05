@@ -6861,23 +6861,58 @@ export default function AdminDashboard() {
     fetchOrderStatuses();
     
     // Set up polling based on active tab
-    const interval = setInterval(() => {
-      if (activeTab === "orders") {
-        fetchOrdersFromBackend();
-      } else if (activeTab === "inquiries") {
-        fetchInquiriesFromBackend();
-      } else if (activeTab === "products") {
-        fetchProductsFromBackend();
-      }
-    }, 30000); // Poll every 30 seconds
+  //   const interval = setInterval(() => {
+  //     if (activeTab === "orders") {
+  //       fetchOrdersFromBackend();
+  //     } else if (activeTab === "inquiries") {
+  //       fetchInquiriesFromBackend();
+  //     } else if (activeTab === "products") {
+  //       fetchProductsFromBackend();
+  //     }
+  //   }, 30000); // Poll every 30 seconds
   
-    return () => {
-      clearInterval(interval);
-      if (cancelTokenSourceRef.current) {
-        cancelTokenSourceRef.current.cancel("Component unmounting");
-      }
-    };
-  }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
+  //   return () => {
+  //     clearInterval(interval);
+  //     if (cancelTokenSourceRef.current) {
+  //       cancelTokenSourceRef.current.cancel("Component unmounting");
+  //     }
+  //   };
+  // }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
+
+
+        useEffect(() => {
+    // Initial data fetch
+    fetchOrdersFromBackend();
+    fetchInquiriesFromBackend();
+    fetchProductsFromBackend();
+    fetchOrderStatuses();
+    
+    // Set up polling based on active tab
+    // const interval = setInterval(() => {
+    //   if (activeTab === "orders") {
+    //     fetchOrdersFromBackend();
+    //   } else if (activeTab === "inquiries") {
+    //     fetchInquiriesFromBackend();
+    //   } else if (activeTab === "products") {
+    //     fetchProductsFromBackend();
+    //   }
+    // }, 30000); // Poll every 30 seconds
+  
+  //   return () => {
+  //     clearInterval(interval);
+  //     if (cancelTokenSourceRef.current) {
+  //       cancelTokenSourceRef.current.cancel("Component unmounting");
+  //     }
+  //   };
+  // }, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
+
+  return () => {
+    // clearInterval(interval); // Interval ko clear karna zaroori nahi ab
+    if (cancelTokenSourceRef.current) {
+      cancelTokenSourceRef.current.cancel("Component unmounting");
+    }
+  };
+}, [activeTab, fetchOrdersFromBackend, fetchInquiriesFromBackend, fetchProductsFromBackend]);
 
   return (
     <div className="p-6 space-y-6">
