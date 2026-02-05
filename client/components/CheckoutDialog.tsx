@@ -2309,7 +2309,6 @@ export default function CheckoutDialog({
   const razorpayLoaded = useRef(false);
   const cancelTokenSourceRef = useRef<CancelTokenSource | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const isRazorpayOpenRef = useRef(false);
 
   const [form, setForm] = useState<UserDetails>({
     name: "",
@@ -2356,61 +2355,73 @@ export default function CheckoutDialog({
     }
   }, [open]);
 
-  // Fix for mobile Razorpay issue - COMPLETELY HIDE THE DIALOG
+  // Fix for mobile Razorpay issue - SIMPLIFIED VERSION
   useEffect(() => {
     if (!open) return;
 
-    const hideDialog = () => {
-      if (dialogRef.current && isRazorpayOpenRef.current) {
-        dialogRef.current.style.display = 'none';
-      }
-    };
-
-    const showDialog = () => {
+    // Function to hide our dialog when Razorpay is active
+    const hideOurDialog = () => {
       if (dialogRef.current) {
-        dialogRef.current.style.display = 'block';
-        isRazorpayOpenRef.current = false;
+        // Set very low z-index and opacity
+        dialogRef.current.style.zIndex = '-9999';
+        dialogRef.current.style.opacity = '0';
+        dialogRef.current.style.pointerEvents = 'none';
       }
     };
 
-    // Check for Razorpay modal periodically
+    // Function to show our dialog
+    const showOurDialog = () => {
+      if (dialogRef.current) {
+        dialogRef.current.style.zIndex = '9999';
+        dialogRef.current.style.opacity = '1';
+        dialogRef.current.style.pointerEvents = 'auto';
+      }
+    };
+
+    // Check if Razorpay modal is open by looking for specific elements
     const checkRazorpayModal = () => {
-      const razorpayModal = document.querySelector('.razorpay-container');
-      const razorpayIframe = document.querySelector('iframe[src*="razorpay"]');
+      // Razorpay modal ke kuch common selectors
+      const razorpays = [
+        '.razorpay-container',
+        'iframe[src*="razorpay"]',
+        '.razorpay-checkout-frame',
+        '.modal-backdrop',
+        '[class*="razorpay"]'
+      ];
       
-      if ((razorpayModal || razorpayIframe) && !isRazorpayOpenRef.current) {
-        isRazorpayOpenRef.current = true;
-        hideDialog();
-      } else if (!razorpayModal && !razorpayIframe && isRazorpayOpenRef.current) {
-        showDialog();
-      }
-    };
-
-    // Mutation observer for detecting Razorpay modal
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          checkRazorpayModal();
+      let razorpayFound = false;
+      
+      razorpays.forEach(selector => {
+        if (document.querySelector(selector)) {
+          razorpayFound = true;
         }
       });
-    });
 
-    // Start observing
-    observer.observe(document.body, { childList: true, subtree: true });
+      // Also check for iframes with razorpay in src
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        if (iframe.src && iframe.src.includes('razorpay')) {
+          razorpayFound = true;
+        }
+      });
 
-    // Also check periodically
-    const intervalId = setInterval(checkRazorpayModal, 500);
+      if (razorpayFound) {
+        hideOurDialog();
+      } else {
+        showOurDialog();
+      }
+    };
 
-    // Listen for focus events
-    window.addEventListener('blur', checkRazorpayModal);
-    window.addEventListener('focus', checkRazorpayModal);
+    // Initial check
+    checkRazorpayModal();
 
+    // Set up interval to check periodically
+    const intervalId = setInterval(checkRazorpayModal, 1000);
+
+    // Cleanup
     return () => {
-      observer.disconnect();
       clearInterval(intervalId);
-      window.removeEventListener('blur', checkRazorpayModal);
-      window.removeEventListener('focus', checkRazorpayModal);
-      showDialog(); // Ensure dialog is shown when component unmounts
+      showOurDialog(); // Restore on cleanup
     };
   }, [open]);
 
@@ -2774,7 +2785,6 @@ export default function CheckoutDialog({
             e.preventDefault();
           }
         }}
-        style={{ zIndex: 9999 }} // High z-index to ensure it's above other elements
       >
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
