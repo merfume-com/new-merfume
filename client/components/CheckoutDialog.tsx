@@ -2309,6 +2309,7 @@ export default function CheckoutDialog({
   const razorpayLoaded = useRef(false);
   const cancelTokenSourceRef = useRef<CancelTokenSource | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const isRazorpayOpenRef = useRef(false);
 
   const [form, setForm] = useState<UserDetails>({
     name: "",
@@ -2355,43 +2356,61 @@ export default function CheckoutDialog({
     }
   }, [open]);
 
-  // Fix for mobile Razorpay issue - Simpler solution
+  // Fix for mobile Razorpay issue - COMPLETELY HIDE THE DIALOG
   useEffect(() => {
     if (!open) return;
 
-    const handleBlur = () => {
-      // When Razorpay modal opens, it might cause blur events
-      // We'll handle this differently
-      setTimeout(() => {
-        const activeElement = document.activeElement;
-        if (activeElement && activeElement.tagName === 'IFRAME') {
-          // Razorpay iframe is active, hide our dialog temporarily
-          if (dialogRef.current) {
-            dialogRef.current.style.pointerEvents = 'none';
-            dialogRef.current.style.opacity = '0.5';
-          }
-        }
-      }, 100);
-    };
-
-    const handleFocus = () => {
-      // When focus returns, restore our dialog
-      if (dialogRef.current) {
-        dialogRef.current.style.pointerEvents = 'auto';
-        dialogRef.current.style.opacity = '1';
+    const hideDialog = () => {
+      if (dialogRef.current && isRazorpayOpenRef.current) {
+        dialogRef.current.style.display = 'none';
       }
     };
 
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
+    const showDialog = () => {
+      if (dialogRef.current) {
+        dialogRef.current.style.display = 'block';
+        isRazorpayOpenRef.current = false;
+      }
+    };
+
+    // Check for Razorpay modal periodically
+    const checkRazorpayModal = () => {
+      const razorpayModal = document.querySelector('.razorpay-container');
+      const razorpayIframe = document.querySelector('iframe[src*="razorpay"]');
+      
+      if ((razorpayModal || razorpayIframe) && !isRazorpayOpenRef.current) {
+        isRazorpayOpenRef.current = true;
+        hideDialog();
+      } else if (!razorpayModal && !razorpayIframe && isRazorpayOpenRef.current) {
+        showDialog();
+      }
+    };
+
+    // Mutation observer for detecting Razorpay modal
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          checkRazorpayModal();
+        }
+      });
+    });
+
+    // Start observing
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Also check periodically
+    const intervalId = setInterval(checkRazorpayModal, 500);
+
+    // Listen for focus events
+    window.addEventListener('blur', checkRazorpayModal);
+    window.addEventListener('focus', checkRazorpayModal);
 
     return () => {
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
-      if (dialogRef.current) {
-        dialogRef.current.style.pointerEvents = 'auto';
-        dialogRef.current.style.opacity = '1';
-      }
+      observer.disconnect();
+      clearInterval(intervalId);
+      window.removeEventListener('blur', checkRazorpayModal);
+      window.removeEventListener('focus', checkRazorpayModal);
+      showDialog(); // Ensure dialog is shown when component unmounts
     };
   }, [open]);
 
@@ -2755,6 +2774,7 @@ export default function CheckoutDialog({
             e.preventDefault();
           }
         }}
+        style={{ zIndex: 9999 }} // High z-index to ensure it's above other elements
       >
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
@@ -2926,7 +2946,6 @@ export default function CheckoutDialog({
     </Dialog>
   );
 }
-
 
 
 
