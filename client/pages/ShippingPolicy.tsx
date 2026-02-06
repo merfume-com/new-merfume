@@ -381,7 +381,7 @@ export default function ShippingPolicy() {
                   Details about eligible refunds and our refund process
                 </p>
                 <a
-                  href="/refund-policy"
+                  href="/return-policy"
                   className="text-gold hover:text-gold-dark text-sm font-medium"
                 >
                   Read Policy →
