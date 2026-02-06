@@ -46,13 +46,14 @@ export default function RefundPolicy() {
                 Due to the nature of perfumes, all sales are final. Please read this policy carefully.
               </p>
             </div>
-            <Button
-              variant="outline"
-              className="border-red-300 text-red-600 hover:bg-red-50"
-              onClick={() => document.getElementById('non-refundable')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              View Non-Refundable Items
-            </Button>
+           <Button
+  variant="outline"
+  className="border-red-300 text-red-600 bg-gradient-to-b from-white to-red-50/50 hover:from-red-50 hover:to-red-100 hover:text-red-700 hover:border-red-400 transition-all duration-300 font-medium"
+  onClick={() => document.getElementById('non-refundable')?.scrollIntoView({ behavior: 'smooth' })}
+>
+  <AlertTriangle className="w-4 h-4 mr-2" />
+  View Non-Refundable Items
+</Button>
           </div>
         </div>
       </section>
