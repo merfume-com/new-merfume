@@ -1968,13 +1968,6 @@ import { Search, Filter, Heart, X, Sparkles, Shield, Truck, RefreshCw } from "lu
 import { toast } from "sonner";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
@@ -2043,8 +2036,7 @@ export default function Store() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list"); // Default list view
 
   const brands = Array.from(new Set(products.map(p => p.brand)));
 
@@ -2458,120 +2450,31 @@ export default function Store() {
                       )}
                     </div>
 
+                    {/* Using Single ProductCard Component for both views */}
                     {viewMode === "grid" ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {sortedProducts.map((product, index) => (
-                          <motion.div
+                          <ProductCard
                             key={product.productId}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.05 }}
-                          >
-                            <ProductCard
-                              {...product}
-                              onToggleFavorite={handleToggleFavorite}
-                              isFavorite={favorites.includes(product.productId)}
-                            />
-                          </motion.div>
+                            {...product}
+                            onToggleFavorite={handleToggleFavorite}
+                            isFavorite={favorites.includes(product.productId)}
+                            variant="grid"
+                            className="w-full"
+                          />
                         ))}
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         {sortedProducts.map((product, index) => (
-                          <motion.div
+                          <ProductCard
                             key={product.productId}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="bg-gradient-to-r from-background to-background/80 border border-border/30 rounded-2xl overflow-hidden hover:border-gold/30 transition-all duration-300"
-                          >
-                            <div className="flex flex-col md:flex-row">
-                              <div className="md:w-48 h-64 md:h-auto relative">
-                                <img
-                                  src={product.productImageUrl}
-                                  alt={product.productName}
-                                  className="w-full h-full object-cover"
-                                />
-                                <button
-                                  onClick={() => handleToggleFavorite(product.productId)}
-                                  className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm p-2 rounded-full hover:bg-background transition-colors"
-                                >
-                                  <Heart
-                                    className={`h-5 w-5 ${
-                                      favorites.includes(product.productId)
-                                        ? "text-red-500 fill-current"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  />
-                                </button>
-                              </div>
-                              <div className="flex-1 p-6">
-                                <div className="flex justify-between items-start mb-3">
-                                  <div>
-                                    <p className="text-sm text-muted-foreground">{product.brand}</p>
-                                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                                      {product.productName}
-                                    </h3>
-                                    <div className="flex items-center gap-1 mb-3">
-                                      {[...Array(5)].map((_, i) => (
-                                        <Star
-                                          key={i}
-                                          className={`h-4 w-4 ${
-                                            i < Math.floor(product.rating)
-                                              ? "text-gold fill-current"
-                                              : "text-muted-foreground/30"
-                                          }`}
-                                        />
-                                      ))}
-                                      <span className="text-sm text-muted-foreground ml-1">
-                                        ({product.reviewCount})
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="text-right">
-                                    <div className="text-2xl font-bold text-gold">
-                                      ₹{product.productPrice}
-                                    </div>
-                                    {product.originalPrice && (
-                                      <div className="text-sm text-muted-foreground line-through">
-                                        ₹{product.originalPrice}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                
-                                <p className="text-muted-foreground mb-4 line-clamp-2">
-                                  {product.productDescription}
-                                </p>
-                                
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                  {product.notes.map((note, index) => (
-                                    <span
-                                      key={index}
-                                      className="text-xs bg-accent/50 text-accent-foreground px-3 py-1 rounded-full"
-                                    >
-                                      {note}
-                                    </span>
-                                  ))}
-                                </div>
-                                
-                                <div className="flex items-center justify-between">
-                                  <span className={`text-sm px-3 py-1 rounded-full ${
-                                    product.stock > 10
-                                      ? "bg-green-500/20 text-green-600"
-                                      : product.stock > 0
-                                      ? "bg-yellow-500/20 text-yellow-600"
-                                      : "bg-red-500/20 text-red-600"
-                                  }`}>
-                                    {product.stock > 10 ? "In Stock" : product.stock > 0 ? "Low Stock" : "Out of Stock"}
-                                  </span>
-                                  <Button className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black rounded-xl px-6">
-                                    Add to Cart
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
+                            {...product}
+                            onToggleFavorite={handleToggleFavorite}
+                            isFavorite={favorites.includes(product.productId)}
+                            variant="list"
+                            className="w-full"
+                          />
                         ))}
                       </div>
                     )}
@@ -2584,7 +2487,7 @@ export default function Store() {
       </section>
 
       {/* Featured Brands */}
-      {/* <section className="py-12 bg-gradient-to-b from-background to-luxury-black/5">
+      <section className="py-12 bg-gradient-to-b from-background to-luxury-black/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-foreground mb-8">
             Featured Brands
@@ -2607,7 +2510,7 @@ export default function Store() {
             ))}
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* Footer */}
       <footer className="bg-gradient-to-b from-luxury-black to-black text-cream py-16">
