@@ -345,7 +345,7 @@ export default function ShippingPolicy() {
                   Learn about our non-returnable policy for perfumes and eligible cases
                 </p>
                 <a
-                  href="/returns-policy"
+                  href="/refund-policy"
                   className="text-gold hover:text-gold-dark text-sm font-medium"
                 >
                   Read Policy →
@@ -381,7 +381,7 @@ export default function ShippingPolicy() {
                   Details about eligible refunds and our refund process
                 </p>
                 <a
-                  href="/return-policy"
+                  href="/refund-policy"
                   className="text-gold hover:text-gold-dark text-sm font-medium"
                 >
                   Read Policy →
