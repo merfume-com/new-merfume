@@ -1643,7 +1643,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Heart, Star, Eye, Zap, Check } from "lucide-react";
+import { ShoppingCart, Heart, Star, Eye, Check } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -1782,9 +1782,9 @@ export default function ProductCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Card className="h-full border border-border/40 hover:border-gold/50 bg-gradient-to-b from-background/95 to-background overflow-hidden transition-all duration-300 group-hover:shadow-xl group-hover:shadow-gold/10 rounded-xl">
+      <Card className="h-full border border-border/40 hover:border-gold/30 bg-gradient-to-b from-background to-background/95 overflow-hidden transition-all duration-300 rounded-xl">
         {/* Image Section */}
-        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-muted/20 to-muted/10">
+        <div className="relative aspect-square overflow-hidden">
           <motion.div
             animate={{ scale: isHovered ? 1.05 : 1 }}
             transition={{ duration: 0.5 }}
@@ -1806,37 +1806,25 @@ export default function ProductCard({
             )}
           </motion.div>
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
-            {originalPrice && discount > 0 && (
-              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
-                -{discount}%
-              </div>
-            )}
-            {stock < 5 && stock > 0 && (
-              <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
-                Low Stock
-              </div>
-            )}
-            {stock === 0 && (
-              <div className="bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
-                Out of Stock
-              </div>
-            )}
-          </div>
+          {/* Discount Badge */}
+          {originalPrice && discount > 0 && (
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-md shadow-md">
+              -{discount}%
+            </div>
+          )}
 
           {/* Action Buttons */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2">
+          <div className="absolute top-3 right-3 flex gap-2">
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={handleToggleFavorite}
-              className="bg-background/80 backdrop-blur-sm p-1.5 rounded-full hover:bg-background transition-all duration-200 shadow-sm"
+              className="bg-white/90 backdrop-blur-sm p-1.5 rounded-full hover:bg-white transition-all duration-200 shadow-sm"
             >
               <Heart
                 className={`h-4 w-4 transition-all ${
                   isFavorite
                     ? "text-red-500 fill-current"
-                    : "text-muted-foreground group-hover:text-red-400"
+                    : "text-gray-600 group-hover:text-red-500"
                 }`}
               />
             </motion.button>
@@ -1844,9 +1832,9 @@ export default function ProductCard({
             {productBackImageUrl && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                className="bg-background/80 backdrop-blur-sm p-1.5 rounded-full hover:bg-background transition-all duration-200 shadow-sm"
+                className="bg-white/90 backdrop-blur-sm p-1.5 rounded-full hover:bg-white transition-all duration-200 shadow-sm"
               >
-                <Eye className="h-4 w-4 text-muted-foreground group-hover:text-gold" />
+                <Eye className="h-4 w-4 text-gray-600 group-hover:text-gold" />
               </motion.button>
             )}
           </div>
@@ -1856,7 +1844,7 @@ export default function ProductCard({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center"
+              className="absolute inset-0 bg-black/20 flex items-center justify-center"
             >
               <Button
                 size="sm"
@@ -1888,100 +1876,93 @@ export default function ProductCard({
         </div>
 
         {/* Content Section */}
-        <CardContent className="p-4 flex flex-col h-[180px]">
+        <CardContent className="p-4 flex flex-col gap-2 h-[200px]">
           {/* Brand */}
-          <div className="mb-1">
-            <span className="text-xs font-medium text-gold bg-gold/10 px-2 py-0.5 rounded-full">
-              {brand}
-            </span>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium text-gold">{brand}</span>
+            <div className="flex items-center gap-1">
+              <Star className="h-3 w-3 text-gold fill-current" />
+              <span className="text-xs font-medium">{rating.toFixed(1)}</span>
+              <span className="text-xs text-muted-foreground">({reviewCount})</span>
+            </div>
           </div>
 
           {/* Product Name */}
-          <h3 className="text-sm font-semibold text-foreground mb-1.5 line-clamp-2 min-h-[40px]">
+          <h3 className="text-base font-bold text-foreground line-clamp-2 min-h-[48px] mb-1">
             {productName}
           </h3>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1 mb-2">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 ${
-                    i < Math.floor(rating)
-                      ? "text-gold fill-current"
-                      : "text-muted-foreground/30"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs font-medium text-foreground ml-1">{rating.toFixed(1)}</span>
-            <span className="text-xs text-muted-foreground ml-1">({reviewCount})</span>
-          </div>
+          {/* Description */}
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+            {productDescription}
+          </p>
 
           {/* Notes */}
-          <div className="mb-3">
-            <div className="flex flex-wrap gap-1">
-              {notes.slice(0, 2).map((note, index) => (
-                <span
-                  key={index}
-                  className="text-[10px] bg-gradient-to-r from-accent/60 to-accent/40 text-accent-foreground px-2 py-0.5 rounded-full font-medium"
-                >
-                  {note}
-                </span>
-              ))}
-              {notes.length > 2 && (
-                <span className="text-[10px] bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full">
-                  +{notes.length - 2}
-                </span>
-              )}
-            </div>
+          <div className="flex flex-wrap gap-1 mb-2">
+            {notes.slice(0, 3).map((note, index) => (
+              <span
+                key={index}
+                className="text-xs bg-accent/20 text-accent-foreground px-2 py-1 rounded-md font-medium"
+              >
+                {note}
+              </span>
+            ))}
+            {notes.length > 3 && (
+              <span className="text-xs bg-accent/10 text-accent-foreground px-2 py-1 rounded-md">
+                +{notes.length - 3}
+              </span>
+            )}
           </div>
 
           {/* Price and CTA */}
           <div className="mt-auto">
             <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-lg font-bold text-gold">₹{productPrice}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold text-gold">₹{productPrice}</span>
                   {originalPrice && (
                     <>
-                      <span className="text-xs text-muted-foreground line-through">
+                      <span className="text-sm text-muted-foreground line-through">
                         ₹{originalPrice}
                       </span>
                       {discount > 0 && (
-                        <span className="text-[10px] text-green-600 font-semibold">
+                        <span className="text-xs text-green-600 font-bold">
                           Save {discount}%
                         </span>
                       )}
                     </>
                   )}
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  Free shipping over ₹5000
+                <p className="text-xs text-muted-foreground mt-1">
+                  Free shipping on orders over ₹5000
                 </p>
               </div>
 
-              <motion.div whileTap={{ scale: 0.95 }}>
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black text-sm font-medium rounded-lg px-3 min-w-[80px] h-8"
-                  onClick={handleAddToCart}
-                  disabled={isAdding || added || stock === 0}
-                >
-                  {isAdding ? (
-                    <div className="flex items-center justify-center">
-                      <div className="h-3 w-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  ) : added ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : stock === 0 ? (
-                    "Out"
-                  ) : (
-                    <ShoppingCart className="h-3.5 w-3.5" />
-                  )}
-                </Button>
-              </motion.div>
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black text-sm font-semibold rounded-lg px-4 py-2 min-w-[100px] h-9"
+                onClick={handleAddToCart}
+                disabled={isAdding || added || stock === 0}
+              >
+                {isAdding ? (
+                  <div className="flex items-center justify-center gap-1">
+                    <div className="h-3 w-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <span>Adding</span>
+                  </div>
+                ) : added ? (
+                  <div className="flex items-center justify-center gap-1">
+                    <Check className="h-4 w-4" />
+                    <span>Added</span>
+                  </div>
+                ) : stock === 0 ? (
+                  "Out of Stock"
+                ) : (
+                  <div className="flex items-center justify-center gap-1">
+                    <ShoppingCart className="h-4 w-4" />
+                    <span>Add to Cart</span>
+                  </div>
+                )}
+              </Button>
             </div>
           </div>
         </CardContent>
