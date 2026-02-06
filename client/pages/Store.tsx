@@ -1759,6 +1759,7 @@ export default function Store() {
                   <SelectItem value="standard">Standard</SelectItem>
                   <SelectItem value="premium">Premium</SelectItem>
                   <SelectItem value="luxury">Luxury</SelectItem>
+                  <SelectItem value="essential-oil">Essential Oil</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
