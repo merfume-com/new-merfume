@@ -1301,14 +1301,352 @@
 // }
 
 
+
+
+// "use client";
+
+// import { useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Card, CardContent } from "@/components/ui/card";
+// import { ShoppingCart, Heart, Star } from "lucide-react";
+// import { toast } from "sonner";
+// import axios from "axios";
+
+// interface ProductCardProps {
+//   productId: number;
+//   productName: string;
+//   brand: string;
+//   productPrice: number;
+//   originalPrice?: number;
+//   productImageUrl: string;
+//   productBackImageUrl?: string;
+//   rating: number;
+//   reviewCount: number;
+//   productDescription: string;
+//   notes: string[];
+//   onToggleFavorite?: (id: number) => void;
+//   isFavorite?: boolean;
+//   className?: string;
+//   style?: React.CSSProperties;
+// }
+
+// // Axios instance create karte hain
+// const api = axios.create({
+//   // baseURL: "https://e46b4bafada4.ngrok-free.app",
+//     baseURL:"https://merfume-backend-production-5068.up.railway.app",
+//   headers: {
+//     'Content-Type': 'application/json',
+//     // 'ngrok-skip-browser-warning': '69420'
+//   }
+// });
+
+// export default function ProductCard({
+//   productId,
+//   productName,
+//   brand,
+//   productPrice,
+//   originalPrice,
+//   productImageUrl,
+//   productBackImageUrl,
+//   rating,
+//   reviewCount,
+//   productDescription,
+//   notes,
+//   onToggleFavorite,
+//   isFavorite = false,
+//   className,
+//   style,
+// }: ProductCardProps) {
+//   const [isFlipped, setIsFlipped] = useState(false);
+//   const [isAdding, setIsAdding] = useState(false);
+//   const [added, setAdded] = useState(false);
+
+//   const getCartToken = () => {
+//     if (typeof window === "undefined") return "";
+    
+//     let token = localStorage.getItem("cartToken");
+//     if (!token) {
+//       token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+//       localStorage.setItem("cartToken", token);
+//     }
+//     return token;
+//   };
+
+//   const handleToggleFavorite = (e: React.MouseEvent) => {
+//     e.stopPropagation();
+//     onToggleFavorite?.(productId);
+//   };
+
+//   const handleAddToCart = async (e: React.MouseEvent) => {
+//     e.stopPropagation();
+
+//     if (isAdding) return;
+
+//     setIsAdding(true);
+//     try {
+//       const cartToken = getCartToken();
+
+//       // Axios se request bhej rahe hain
+//       const response = await api.post("/api/cart/add", {
+//         productId,
+//         quantity: 1,
+//       }, {
+//         headers: {
+//           "Cart-Token": cartToken,
+//         },
+//       });
+
+//       const addedItem = {
+//         productId,
+//         productName,
+//         brand,
+//         productPrice,
+//         quantity: 1,
+//         productImageUrl,
+//       };
+
+//       const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      
+//       const index = existingCart.findIndex((item: any) => item.productId === productId);
+//       if (index > -1) {
+//         existingCart[index].quantity += 1;
+//       } else {
+//         existingCart.push(addedItem);
+//       }
+
+//       localStorage.setItem("cart", JSON.stringify(existingCart));
+
+//       setAdded(true);
+//       toast.success("Added to cart successfully");
+
+//       setTimeout(() => setAdded(false), 2000);
+//     } catch (error) {
+//       console.error("Error adding to cart:", error);
+      
+//       if (axios.isAxiosError(error)) {
+//         if (error.response) {
+//           // Server ne error response diya
+//           toast.error(error.response.data.message || "Failed to add to cart");
+//         } else if (error.request) {
+//           // Request bheji gayi lekin response nahi aaya
+//           toast.error("Network error. Please check your connection.");
+//         } else {
+//           // Request setup mein error
+//           toast.error("An error occurred. Please try again.");
+//         }
+//       } else {
+//         toast.error("Network error please refresh the page.");
+//       }
+//     } finally {
+//       setIsAdding(false);
+//     }
+//   };
+
+//   return (
+//     <div 
+//       className={`group relative w-full ${className}`} 
+//       style={{ height: '28rem', ...style }}
+//       onMouseEnter={() => productBackImageUrl && setIsFlipped(true)}
+//       onMouseLeave={() => setIsFlipped(false)}
+//     >
+//       <div 
+//         className={`relative w-full h-full transition-all duration-500 ease-in-out ${isFlipped ? 'rotate-y-180' : ''}`}
+//         style={{ 
+//           transformStyle: 'preserve-3d',
+//           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+//         }}
+//       >
+//         {/* Front of Card */}
+//          <div 
+//           className="absolute inset-0 w-full h-full"
+//           style={{ backfaceVisibility: 'hidden' }}
+//         >
+//           <Card className="h-full border border-border/50 hover:border-gold/50 transition overflow-hidden">
+//             <CardContent className="p-0 h-full flex flex-col">
+//               <div className="relative h-48 flex-shrink-0">
+//                 <img 
+//                   src={productImageUrl} 
+//                   alt={productName} 
+//                   className="w-full h-full object-cover" 
+//                 />
+//                 {onToggleFavorite && (
+//                   <Button
+//                     variant="ghost"
+//                     size="icon"
+//                     className={`absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background ${
+//                       isFavorite ? "text-red-500" : "text-muted-foreground"
+//                     }`}
+//                     onClick={handleToggleFavorite}
+//                   >
+//                     <Heart className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`} />
+//                   </Button>
+//                 )}
+//                 {originalPrice && (
+//                   <div className="absolute top-3 left-3 bg-gold text-black px-2 py-1 text-xs font-semibold rounded">
+//                     SALE
+//                   </div>
+//                 )}
+//               </div>
+              
+//               <div className="p-4 flex flex-col flex-1">
+//                 <div className="flex items-center gap-1 mb-2">
+//                   {[...Array(5)].map((_, i) => (
+//                     <Star
+//                       key={i}
+//                       className={`h-3 w-3 ${
+//                         i < Math.floor(rating)
+//                           ? "text-gold fill-current"
+//                           : "text-muted-foreground/30"
+//                       }`}
+//                     />
+//                   ))}
+//                   <span className="text-xs text-muted-foreground ml-1">
+//                     ({reviewCount})
+//                   </span>
+//                 </div>
+//                 <p className="text-sm text-muted-foreground mb-1">{brand}</p>
+//                 <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
+//                   {productName}
+//                 </h3>
+                
+//                 {/* Description on Front Card */}
+//                 <div className="mb-3">
+//                   <p className="text-sm text-muted-foreground line-clamp-2">
+//                     {productDescription}
+//                   </p>
+//                 </div>
+                
+//                 {/* Notes on Front Card */}
+//                 <div className="mb-3">
+//                   <p className="text-xs font-medium text-foreground mb-1">Notes:</p>
+//                   <div className="flex flex-wrap gap-1">
+//                     {notes.slice(0, 2).map((note, index) => (
+//                       <span
+//                         key={index}
+//                         className="text-xs bg-accent/100 text-accent-foreground px-2 py-1 rounded"
+//                       >
+//                         {note}
+//                       </span>
+//                     ))}
+//                     {notes.length > 2 && (
+//                       <span className="text-xs bg-accent/100 text-accent-foreground px-2 py-1 rounded">
+//                         +{notes.length - 2} more
+//                       </span>
+//                     )}
+//                   </div>
+//                 </div>
+                
+//                 <div className="mt-auto pt-3">
+//                   <div className="flex items-center justify-between">
+//                     <div className="flex items-center gap-2">
+//                       <span className="text-lg font-bold text-gold">₹{productPrice}</span>
+//                       {originalPrice && (
+//                         <span className="text-sm text-muted-foreground line-through">
+//                           ₹{originalPrice}
+//                         </span>
+//                       )}
+//                     </div>
+//                     <Button
+//                       size="sm"
+//                       className="bg-gold hover:bg-gold-dark text-black min-w-[40px] h-9"
+//                       onClick={handleAddToCart}
+//                       disabled={isAdding || added}
+//                     >
+//                       {isAdding ? (
+//                         <span className="text-xs">Adding...</span>
+//                       ) : added ? (
+//                         <span className="text-xs">Added</span>
+//                       ) : (
+//                         <ShoppingCart className="h-4 w-4" />
+//                       )}
+//                     </Button>
+//                   </div>
+//                 </div>
+//               </div>
+//             </CardContent>
+//           </Card>
+//         </div>
+
+//         {/* Back of Card */}
+//         {productBackImageUrl && (
+//           <div 
+//             className="absolute inset-0 w-full h-full"
+//             style={{ 
+//               backfaceVisibility: 'hidden',
+//               transform: 'rotateY(180deg)'
+//             }}
+//           >
+//             <Card className="h-full border border-border/50 overflow-hidden">
+//               <CardContent className="p-0 h-full flex flex-col">
+//                 <div className="relative h-48 flex-shrink-0">
+//                   <img
+//                     src={productBackImageUrl}
+//                     alt={`${productName} - Back view`}
+//                     className="w-full h-full object-cover"
+//                   />
+//                 </div>
+//                 <div className="p-4 flex flex-col flex-1">
+//                   <h3 className="font-semibold text-foreground mb-2">{productName}</h3>
+//                   <div className="flex-1 overflow-hidden">
+//                     <p className="text-sm text-muted-foreground mb-3 line-clamp-3 h-full">
+//                       {productDescription}
+//                     </p>
+//                   </div>
+//                   <div className="mb-3 mt-2">
+//                     <p className="text-xs font-medium text-foreground mb-1">Notes:</p>
+//                     <div className="flex flex-wrap gap-1">
+//                       {notes.slice(0, 3).map((note, index) => (
+//                         <span
+//                           key={index}
+//                           className="text-xs bg-accent text-accent-foreground px-2 py-1 rounded"
+//                         >
+//                           {note}
+//                         </span>
+//                       ))}
+//                     </div>
+//                   </div>
+//                   <div className="mt-2">
+//                     <Button
+//                       className="w-full bg-gold hover:bg-gold-dark text-black h-10 py-2"
+//                       onClick={handleAddToCart}
+//                       disabled={isAdding || added}
+//                     >
+//                       {isAdding ? (
+//                         <span className="flex items-center justify-center">
+//                           <span className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></span>
+//                           Adding...
+//                         </span>
+//                       ) : added ? (
+//                         "✓ Added to Cart"
+//                       ) : (
+//                         <span className="flex items-center justify-center gap-2">
+//                           <ShoppingCart className="h-4 w-4" />
+//                           Add to Cart
+//                         </span>
+//                       )}
+//                     </Button>
+//                   </div>
+//                 </div>
+//               </CardContent>
+//             </Card>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Heart, Star } from "lucide-react";
+import { ShoppingCart, Heart, Star, Eye, Zap, Check } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 interface ProductCardProps {
   productId: number;
@@ -1326,15 +1664,13 @@ interface ProductCardProps {
   isFavorite?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  stock?: number;
 }
 
-// Axios instance create karte hain
 const api = axios.create({
-  // baseURL: "https://e46b4bafada4.ngrok-free.app",
-    baseURL:"https://merfume-backend-production-5068.up.railway.app",
+  baseURL: "https://merfume-backend-production-5068.up.railway.app",
   headers: {
     'Content-Type': 'application/json',
-    // 'ngrok-skip-browser-warning': '69420'
   }
 });
 
@@ -1354,10 +1690,12 @@ export default function ProductCard({
   isFavorite = false,
   className,
   style,
+  stock = 10,
 }: ProductCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const getCartToken = () => {
     if (typeof window === "undefined") return "";
@@ -1377,14 +1715,12 @@ export default function ProductCard({
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    if (isAdding) return;
+    if (isAdding || added) return;
 
     setIsAdding(true);
     try {
       const cartToken = getCartToken();
 
-      // Axios se request bhej rahe hain
       const response = await api.post("/api/cart/add", {
         productId,
         quantity: 1,
@@ -1415,221 +1751,248 @@ export default function ProductCard({
       localStorage.setItem("cart", JSON.stringify(existingCart));
 
       setAdded(true);
-      toast.success("Added to cart successfully");
+      toast.success("Added to cart successfully!", {
+        duration: 2000,
+        position: "top-right",
+      });
 
       setTimeout(() => setAdded(false), 2000);
     } catch (error) {
       console.error("Error adding to cart:", error);
-      
       if (axios.isAxiosError(error)) {
-        if (error.response) {
-          // Server ne error response diya
-          toast.error(error.response.data.message || "Failed to add to cart");
-        } else if (error.request) {
-          // Request bheji gayi lekin response nahi aaya
-          toast.error("Network error. Please check your connection.");
-        } else {
-          // Request setup mein error
-          toast.error("An error occurred. Please try again.");
-        }
+        toast.error(error.response?.data?.message || "Failed to add to cart");
       } else {
-        toast.error("Network error please refresh the page.");
+        toast.error("Network error. Please try again.");
       }
     } finally {
       setIsAdding(false);
     }
   };
 
+  const discount = originalPrice 
+    ? Math.round(((originalPrice - productPrice) / originalPrice) * 100)
+    : 0;
+
   return (
-    <div 
-      className={`group relative w-full ${className}`} 
-      style={{ height: '28rem', ...style }}
-      onMouseEnter={() => productBackImageUrl && setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
+    <motion.div
+      className={`group relative w-full ${className}`}
+      style={{ height: '32rem', ...style }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.3 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div 
-        className={`relative w-full h-full transition-all duration-500 ease-in-out ${isFlipped ? 'rotate-y-180' : ''}`}
-        style={{ 
-          transformStyle: 'preserve-3d',
-          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
-        }}
-      >
-        {/* Front of Card */}
-         <div 
-          className="absolute inset-0 w-full h-full"
-          style={{ backfaceVisibility: 'hidden' }}
-        >
-          <Card className="h-full border border-border/50 hover:border-gold/50 transition overflow-hidden">
-            <CardContent className="p-0 h-full flex flex-col">
-              <div className="relative h-48 flex-shrink-0">
-                <img 
-                  src={productImageUrl} 
-                  alt={productName} 
-                  className="w-full h-full object-cover" 
+      <div className="relative h-full">
+        {/* Card */}
+        <Card className="h-full border-2 border-border/20 hover:border-gold/30 bg-gradient-to-b from-background to-background/95 overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-gold/5 rounded-2xl">
+          {/* Image Section */}
+          <div className="relative h-64 overflow-hidden">
+            <motion.div
+              animate={{ scale: isHovered ? 1.05 : 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative h-full"
+            >
+              <img
+                src={productImageUrl}
+                alt={productName}
+                className="w-full h-full object-cover"
+              />
+              {productBackImageUrl && (
+                <img
+                  src={productBackImageUrl}
+                  alt={`${productName} - Back`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                    isHovered ? 'opacity-100' : 'opacity-0'
+                  }`}
                 />
-                {onToggleFavorite && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background ${
-                      isFavorite ? "text-red-500" : "text-muted-foreground"
-                    }`}
-                    onClick={handleToggleFavorite}
+              )}
+            </motion.div>
+
+            {/* Badges */}
+            <div className="absolute top-4 left-4 space-y-2">
+              {originalPrice && discount > 0 && (
+                <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  -{discount}%
+                </div>
+              )}
+              {stock < 5 && stock > 0 && (
+                <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  Low Stock
+                </div>
+              )}
+              {stock === 0 && (
+                <div className="bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  Out of Stock
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="absolute top-4 right-4 space-y-2">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={handleToggleFavorite}
+                className="bg-background/90 backdrop-blur-sm p-2 rounded-full hover:bg-background transition-all duration-300 shadow-lg"
+              >
+                <Heart
+                  className={`h-5 w-5 transition-all duration-300 ${
+                    isFavorite
+                      ? "text-red-500 fill-current"
+                      : "text-muted-foreground group-hover:text-red-400"
+                  }`}
+                />
+              </motion.button>
+              
+              {productBackImageUrl && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  className="bg-background/90 backdrop-blur-sm p-2 rounded-full hover:bg-background transition-all duration-300 shadow-lg"
+                >
+                  <Eye className="h-5 w-5 text-muted-foreground group-hover:text-gold" />
+                </motion.button>
+              )}
+            </div>
+
+            {/* Quick View Overlay */}
+            {isHovered && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center"
+              >
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black font-semibold rounded-xl px-8 shadow-xl"
+                  onClick={handleAddToCart}
+                  disabled={isAdding || added || stock === 0}
+                >
+                  {isAdding ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Adding...
+                    </>
+                  ) : added ? (
+                    <>
+                      <Check className="h-5 w-5 mr-2" />
+                      Added
+                    </>
+                  ) : stock === 0 ? (
+                    "Out of Stock"
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-5 w-5 mr-2" />
+                      Quick Add
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Content Section */}
+          <CardContent className="p-6 flex flex-col h-[calc(32rem-16rem)]">
+            {/* Brand and Rating */}
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gold bg-gold/10 px-3 py-1 rounded-full">
+                {brand}
+              </span>
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 text-gold fill-current" />
+                <span className="text-sm font-semibold text-foreground">{rating.toFixed(1)}</span>
+                <span className="text-xs text-muted-foreground">({reviewCount})</span>
+              </div>
+            </div>
+
+            {/* Product Name */}
+            <h3 className="text-lg font-bold text-foreground mb-3 line-clamp-2 group-hover:text-gold transition-colors">
+              {productName}
+            </h3>
+
+            {/* Description */}
+            <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
+              {productDescription}
+            </p>
+
+            {/* Notes */}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1.5">
+                {notes.slice(0, 3).map((note, index) => (
+                  <span
+                    key={index}
+                    className="text-xs bg-gradient-to-r from-accent/80 to-accent/60 text-accent-foreground px-3 py-1.5 rounded-full font-medium"
                   >
-                    <Heart className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`} />
-                  </Button>
-                )}
-                {originalPrice && (
-                  <div className="absolute top-3 left-3 bg-gold text-black px-2 py-1 text-xs font-semibold rounded">
-                    SALE
-                  </div>
+                    {note}
+                  </span>
+                ))}
+                {notes.length > 3 && (
+                  <span className="text-xs bg-accent/20 text-accent-foreground px-3 py-1.5 rounded-full">
+                    +{notes.length - 3}
+                  </span>
                 )}
               </div>
-              
-              <div className="p-4 flex flex-col flex-1">
-                <div className="flex items-center gap-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-3 w-3 ${
-                        i < Math.floor(rating)
-                          ? "text-gold fill-current"
-                          : "text-muted-foreground/30"
-                      }`}
-                    />
-                  ))}
-                  <span className="text-xs text-muted-foreground ml-1">
-                    ({reviewCount})
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-1">{brand}</p>
-                <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
-                  {productName}
-                </h3>
-                
-                {/* Description on Front Card */}
-                <div className="mb-3">
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {productDescription}
-                  </p>
-                </div>
-                
-                {/* Notes on Front Card */}
-                <div className="mb-3">
-                  <p className="text-xs font-medium text-foreground mb-1">Notes:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {notes.slice(0, 2).map((note, index) => (
-                      <span
-                        key={index}
-                        className="text-xs bg-accent/100 text-accent-foreground px-2 py-1 rounded"
-                      >
-                        {note}
-                      </span>
-                    ))}
-                    {notes.length > 2 && (
-                      <span className="text-xs bg-accent/100 text-accent-foreground px-2 py-1 rounded">
-                        +{notes.length - 2} more
-                      </span>
+            </div>
+
+            {/* Price and CTA */}
+            <div className="mt-auto pt-4 border-t border-border/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold text-gold">
+                      ₹{productPrice.toLocaleString()}
+                    </span>
+                    {originalPrice && (
+                      <>
+                        <span className="text-sm text-muted-foreground line-through">
+                          ₹{originalPrice.toLocaleString()}
+                        </span>
+                        <Zap className="h-4 w-4 text-green-500" />
+                      </>
                     )}
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Free shipping on orders over ₹5000
+                  </p>
                 </div>
-                
-                <div className="mt-auto pt-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-gold">₹{productPrice}</span>
-                      {originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          ₹{originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      className="bg-gold hover:bg-gold-dark text-black min-w-[40px] h-9"
-                      onClick={handleAddToCart}
-                      disabled={isAdding || added}
-                    >
-                      {isAdding ? (
-                        <span className="text-xs">Adding...</span>
-                      ) : added ? (
-                        <span className="text-xs">Added</span>
-                      ) : (
-                        <ShoppingCart className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Back of Card */}
-        {productBackImageUrl && (
-          <div 
-            className="absolute inset-0 w-full h-full"
-            style={{ 
-              backfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)'
-            }}
-          >
-            <Card className="h-full border border-border/50 overflow-hidden">
-              <CardContent className="p-0 h-full flex flex-col">
-                <div className="relative h-48 flex-shrink-0">
-                  <img
-                    src={productBackImageUrl}
-                    alt={`${productName} - Back view`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <h3 className="font-semibold text-foreground mb-2">{productName}</h3>
-                  <div className="flex-1 overflow-hidden">
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-3 h-full">
-                      {productDescription}
-                    </p>
-                  </div>
-                  <div className="mb-3 mt-2">
-                    <p className="text-xs font-medium text-foreground mb-1">Notes:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {notes.slice(0, 3).map((note, index) => (
-                        <span
-                          key={index}
-                          className="text-xs bg-accent text-accent-foreground px-2 py-1 rounded"
-                        >
-                          {note}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="mt-2">
-                    <Button
-                      className="w-full bg-gold hover:bg-gold-dark text-black h-10 py-2"
-                      onClick={handleAddToCart}
-                      disabled={isAdding || added}
-                    >
-                      {isAdding ? (
-                        <span className="flex items-center justify-center">
-                          <span className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></span>
-                          Adding...
-                        </span>
-                      ) : added ? (
-                        "✓ Added to Cart"
-                      ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <ShoppingCart className="h-4 w-4" />
-                          Add to Cart
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black font-semibold rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-300 min-w-[120px]"
+                    onClick={handleAddToCart}
+                    disabled={isAdding || added || stock === 0}
+                  >
+                    {isAdding ? (
+                      <div className="flex items-center">
+                        <div className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Adding
+                      </div>
+                    ) : added ? (
+                      <div className="flex items-center">
+                        <Check className="h-5 w-5 mr-2" />
+                        Added
+                      </div>
+                    ) : stock === 0 ? (
+                      "Out of Stock"
+                    ) : (
+                      <div className="flex items-center">
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        Add to Cart
+                      </div>
+                    )}
+                  </Button>
+                </motion.div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Glow Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gold/10 via-transparent to-gold/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl -z-10 blur-xl"></div>
       </div>
-    </div>
+    </motion.div>
   );
 }
