@@ -1643,7 +1643,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Heart, Star, Eye, Check } from "lucide-react";
+import { ShoppingCart, Heart, Star, Eye, Check, Zap } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -1665,6 +1665,7 @@ interface ProductCardProps {
   className?: string;
   style?: React.CSSProperties;
   stock?: number;
+  variant?: "grid" | "list";
 }
 
 const api = axios.create({
@@ -1691,10 +1692,12 @@ export default function ProductCard({
   className,
   style,
   stock = 10,
+  variant = "grid",
 }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showBackImage, setShowBackImage] = useState(false);
 
   const getCartToken = () => {
     if (typeof window === "undefined") return "";
@@ -1708,13 +1711,23 @@ export default function ProductCard({
   };
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     onToggleFavorite?.(productId);
   };
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleEyeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (isAdding || added) return;
+    if (productBackImageUrl) {
+      setShowBackImage(!showBackImage);
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isAdding || added || stock === 0) return;
 
     setIsAdding(true);
     try {
@@ -1772,200 +1785,402 @@ export default function ProductCard({
     ? Math.round(((originalPrice - productPrice) / originalPrice) * 100)
     : 0;
 
-  return (
-    <motion.div
-      className={`group relative ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.3 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <Card className="h-full border border-border/40 hover:border-gold/30 bg-gradient-to-b from-background to-background/95 overflow-hidden transition-all duration-300 rounded-xl">
-        {/* Image Section */}
-        <div className="relative aspect-square overflow-hidden">
-          <motion.div
-            animate={{ scale: isHovered ? 1.05 : 1 }}
-            transition={{ duration: 0.5 }}
-            className="relative h-full"
-          >
-            <img
-              src={productImageUrl}
-              alt={productName}
-              className="w-full h-full object-cover"
-            />
-            {productBackImageUrl && (
-              <img
-                src={productBackImageUrl}
-                alt={`${productName} - Back`}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                  isHovered ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-            )}
-          </motion.div>
-
-          {/* Discount Badge */}
-          {originalPrice && discount > 0 && (
-            <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1 rounded-md shadow-md">
-              -{discount}%
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="absolute top-3 right-3 flex gap-2">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleToggleFavorite}
-              className="bg-white/90 backdrop-blur-sm p-1.5 rounded-full hover:bg-white transition-all duration-200 shadow-sm"
-            >
-              <Heart
-                className={`h-4 w-4 transition-all ${
-                  isFavorite
-                    ? "text-red-500 fill-current"
-                    : "text-gray-600 group-hover:text-red-500"
-                }`}
-              />
-            </motion.button>
-            
-            {productBackImageUrl && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="bg-white/90 backdrop-blur-sm p-1.5 rounded-full hover:bg-white transition-all duration-200 shadow-sm"
-              >
-                <Eye className="h-4 w-4 text-gray-600 group-hover:text-gold" />
-              </motion.button>
-            )}
-          </div>
-
-          {/* Quick Add Overlay */}
-          {isHovered && (
+  // Grid View
+  if (variant === "grid") {
+    return (
+      <motion.div
+        className={`group relative ${className}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.3 }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setShowBackImage(false);
+        }}
+      >
+        <Card className="h-full border border-border/40 hover:border-gold/30 bg-gradient-to-b from-background to-background/95 overflow-hidden transition-all duration-300 rounded-xl hover:shadow-lg">
+          {/* Image Section */}
+          <div className="relative aspect-square overflow-hidden">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 bg-black/20 flex items-center justify-center"
+              animate={{ scale: isHovered ? 1.05 : 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative h-full"
             >
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black text-sm font-medium rounded-lg px-4 shadow-lg"
-                onClick={handleAddToCart}
-                disabled={isAdding || added || stock === 0}
-              >
-                {isAdding ? (
-                  <>
-                    <div className="h-3 w-3 border-2 border-black border-t-transparent rounded-full animate-spin mr-1.5"></div>
-                    Adding...
-                  </>
-                ) : added ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 mr-1.5" />
-                    Added
-                  </>
-                ) : stock === 0 ? (
-                  "Out of Stock"
-                ) : (
-                  <>
-                    <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
-                    Quick Add
-                  </>
-                )}
-              </Button>
+              <img
+                src={showBackImage && productBackImageUrl ? productBackImageUrl : productImageUrl}
+                alt={productName}
+                className="w-full h-full object-cover"
+              />
             </motion.div>
-          )}
-        </div>
 
-        {/* Content Section */}
-        <CardContent className="p-4 flex flex-col gap-2 h-[200px]">
-          {/* Brand */}
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-medium text-gold">{brand}</span>
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 text-gold fill-current" />
-              <span className="text-xs font-medium">{rating.toFixed(1)}</span>
-              <span className="text-xs text-muted-foreground">({reviewCount})</span>
-            </div>
-          </div>
-
-          {/* Product Name */}
-          <h3 className="text-base font-bold text-foreground line-clamp-2 min-h-[48px] mb-1">
-            {productName}
-          </h3>
-
-          {/* Description */}
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-            {productDescription}
-          </p>
-
-          {/* Notes */}
-          <div className="flex flex-wrap gap-1 mb-2">
-            {notes.slice(0, 3).map((note, index) => (
-              <span
-                key={index}
-                className="text-xs bg-accent/20 text-accent-foreground px-2 py-1 rounded-md font-medium"
-              >
-                {note}
-              </span>
-            ))}
-            {notes.length > 3 && (
-              <span className="text-xs bg-accent/10 text-accent-foreground px-2 py-1 rounded-md">
-                +{notes.length - 3}
-              </span>
+            {/* Discount Badge */}
+            {originalPrice && discount > 0 && (
+              <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                -{discount}%
+              </div>
             )}
-          </div>
 
-          {/* Price and CTA */}
-          <div className="mt-auto">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-gold">₹{productPrice}</span>
-                  {originalPrice && (
+            {/* Stock Badge */}
+            {stock < 5 && stock > 0 && (
+              <div className="absolute top-10 left-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                Low Stock
+              </div>
+            )}
+            {stock === 0 && (
+              <div className="absolute top-3 left-3 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                Out of Stock
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="absolute top-3 right-3 flex flex-col gap-2">
+              <button
+                onClick={handleToggleFavorite}
+                className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-200 shadow-sm hover:scale-110 active:scale-95"
+              >
+                <Heart
+                  className={`h-4 w-4 transition-all ${
+                    isFavorite
+                      ? "text-red-500 fill-current animate-pulse"
+                      : "text-gray-600 group-hover:text-red-500"
+                  }`}
+                />
+              </button>
+              
+              {productBackImageUrl && (
+                <button
+                  onClick={handleEyeClick}
+                  className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-200 shadow-sm hover:scale-110 active:scale-95"
+                >
+                  <Eye className={`h-4 w-4 ${showBackImage ? "text-gold" : "text-gray-600"}`} />
+                </button>
+              )}
+            </div>
+
+            {/* Quick Add Overlay */}
+            {isHovered && stock > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute inset-0 bg-black/30 flex items-center justify-center"
+              >
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black text-sm font-medium rounded-lg px-4 shadow-lg"
+                  onClick={handleAddToCart}
+                  disabled={isAdding || added}
+                >
+                  {isAdding ? (
                     <>
-                      <span className="text-sm text-muted-foreground line-through">
-                        ₹{originalPrice}
-                      </span>
-                      {discount > 0 && (
-                        <span className="text-xs text-green-600 font-bold">
-                          Save {discount}%
-                        </span>
-                      )}
+                      <div className="h-3 w-3 border-2 border-black border-t-transparent rounded-full animate-spin mr-1.5"></div>
+                      Adding...
+                    </>
+                  ) : added ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 mr-1.5" />
+                      Added
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
+                      Quick Add
                     </>
                   )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Free shipping on orders over ₹5000
-                </p>
-              </div>
+                </Button>
+              </motion.div>
+            )}
+          </div>
 
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black text-sm font-semibold rounded-lg px-4 py-2 min-w-[100px] h-9"
-                onClick={handleAddToCart}
-                disabled={isAdding || added || stock === 0}
-              >
-                {isAdding ? (
-                  <div className="flex items-center justify-center gap-1">
-                    <div className="h-3 w-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    <span>Adding</span>
-                  </div>
-                ) : added ? (
-                  <div className="flex items-center justify-center gap-1">
-                    <Check className="h-4 w-4" />
-                    <span>Added</span>
-                  </div>
-                ) : stock === 0 ? (
-                  "Out of Stock"
-                ) : (
-                  <div className="flex items-center justify-center gap-1">
-                    <ShoppingCart className="h-4 w-4" />
-                    <span>Add to Cart</span>
-                  </div>
+          {/* Content Section */}
+          <CardContent className="p-4 flex flex-col h-[240px]">
+            {/* Brand and Rating */}
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gold bg-gold/10 px-2 py-1 rounded-full">
+                {brand}
+              </span>
+              <div className="flex items-center gap-1">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-3 w-3 ${
+                        i < Math.floor(rating)
+                          ? "text-gold fill-current"
+                          : "text-muted-foreground/30"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs font-semibold ml-1">{rating.toFixed(1)}</span>
+                <span className="text-xs text-muted-foreground">({reviewCount})</span>
+              </div>
+            </div>
+
+            {/* Product Name */}
+            <h3 className="text-base font-bold text-foreground mb-2 line-clamp-2 h-12">
+              {productName}
+            </h3>
+
+            {/* Description */}
+            <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+              {productDescription}
+            </p>
+
+            {/* Notes */}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1.5">
+                {notes.slice(0, 2).map((note, index) => (
+                  <span
+                    key={index}
+                    className="text-xs bg-gradient-to-r from-accent/80 to-accent/60 text-accent-foreground px-2 py-1 rounded-full font-medium"
+                  >
+                    {note}
+                  </span>
+                ))}
+                {notes.length > 2 && (
+                  <span className="text-xs bg-accent/20 text-accent-foreground px-2 py-1 rounded-full">
+                    +{notes.length - 2}
+                  </span>
                 )}
-              </Button>
+              </div>
+            </div>
+
+            {/* Price and CTA */}
+            <div className="mt-auto pt-3 border-t border-border/20">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl font-bold text-gold">₹{productPrice.toLocaleString()}</span>
+                    {originalPrice && (
+                      <>
+                        <span className="text-sm text-muted-foreground line-through">
+                          ₹{originalPrice.toLocaleString()}
+                        </span>
+                        {discount > 0 && (
+                          <span className="text-xs bg-green-500/20 text-green-600 px-2 py-0.5 rounded-full font-bold">
+                            Save {discount}%
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Free shipping over ₹5000
+                  </p>
+                </div>
+
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black font-semibold rounded-lg px-4 py-2 min-w-[110px]"
+                  onClick={handleAddToCart}
+                  disabled={isAdding || added || stock === 0}
+                >
+                  {isAdding ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-3 w-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-xs">Adding</span>
+                    </div>
+                  ) : added ? (
+                    <div className="flex items-center gap-1.5">
+                      <Check className="h-3.5 w-3.5" />
+                      <span className="text-xs">Added</span>
+                    </div>
+                  ) : stock === 0 ? (
+                    "Out of Stock"
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <ShoppingCart className="h-3.5 w-3.5" />
+                      <span className="text-xs">Add to Cart</span>
+                    </div>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // List View
+  return (
+    <motion.div
+      className={`group ${className}`}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className="border border-border/40 hover:border-gold/30 bg-gradient-to-r from-background to-background/95 overflow-hidden transition-all duration-300 rounded-xl hover:shadow-lg">
+        <div className="flex flex-col md:flex-row">
+          {/* Image Section - List View */}
+          <div className="md:w-48 lg:w-56 relative aspect-square md:aspect-auto md:h-64">
+            <div className="relative h-full">
+              <img
+                src={showBackImage && productBackImageUrl ? productBackImageUrl : productImageUrl}
+                alt={productName}
+                className="w-full h-full object-cover"
+              />
+              
+              {/* Discount Badge */}
+              {originalPrice && discount > 0 && (
+                <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                  -{discount}%
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="absolute top-3 right-3 flex gap-2">
+                <button
+                  onClick={handleToggleFavorite}
+                  className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-200 shadow-sm hover:scale-110"
+                >
+                  <Heart
+                    className={`h-4 w-4 ${
+                      isFavorite
+                        ? "text-red-500 fill-current animate-pulse"
+                        : "text-gray-600 hover:text-red-500"
+                    }`}
+                  />
+                </button>
+                
+                {productBackImageUrl && (
+                  <button
+                    onClick={handleEyeClick}
+                    className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-200 shadow-sm hover:scale-110"
+                  >
+                    <Eye className={`h-4 w-4 ${showBackImage ? "text-gold" : "text-gray-600"}`} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </CardContent>
+
+          {/* Content Section - List View */}
+          <CardContent className="flex-1 p-4 md:p-6">
+            <div className="h-full flex flex-col">
+              {/* Top Section */}
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gold bg-gold/10 px-3 py-1 rounded-full">
+                    {brand}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-3.5 w-3.5 ${
+                            i < Math.floor(rating)
+                              ? "text-gold fill-current"
+                              : "text-muted-foreground/30"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm font-semibold ml-1">{rating.toFixed(1)}</span>
+                    <span className="text-sm text-muted-foreground">({reviewCount})</span>
+                  </div>
+                </div>
+
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">
+                  {productName}
+                </h3>
+
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                  {productDescription}
+                </p>
+
+                {/* Notes */}
+                <div className="mb-4">
+                  <div className="flex flex-wrap gap-2">
+                    {notes.map((note, index) => (
+                      <span
+                        key={index}
+                        className="text-xs bg-gradient-to-r from-accent/80 to-accent/60 text-accent-foreground px-3 py-1.5 rounded-full font-medium"
+                      >
+                        {note}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Section */}
+              <div className="mt-auto pt-4 border-t border-border/20">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-2xl md:text-3xl font-bold text-gold">
+                        ₹{productPrice.toLocaleString()}
+                      </span>
+                      {originalPrice && (
+                        <>
+                          <span className="text-lg text-muted-foreground line-through">
+                            ₹{originalPrice.toLocaleString()}
+                          </span>
+                          {discount > 0 && (
+                            <span className="text-sm bg-green-500/20 text-green-600 px-3 py-1 rounded-full font-bold">
+                              Save {discount}%
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-green-500" />
+                      <p className="text-sm text-muted-foreground">
+                        Free shipping on orders over ₹5000
+                      </p>
+                    </div>
+
+                    {/* Stock Info */}
+                    {stock < 5 && stock > 0 && (
+                      <div className="inline-block bg-yellow-500/20 text-yellow-600 text-xs font-medium px-3 py-1 rounded-full">
+                        Only {stock} left in stock
+                      </div>
+                    )}
+                    {stock === 0 && (
+                      <div className="inline-block bg-red-500/20 text-red-600 text-xs font-medium px-3 py-1 rounded-full">
+                        Out of Stock
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Button
+                      size="lg"
+                      className="bg-gradient-to-r from-gold to-gold/90 hover:from-gold/90 hover:to-gold text-black font-semibold rounded-lg px-6 py-3 min-w-[140px]"
+                      onClick={handleAddToCart}
+                      disabled={isAdding || added || stock === 0}
+                    >
+                      {isAdding ? (
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                          <span>Adding...</span>
+                        </div>
+                      ) : added ? (
+                        <div className="flex items-center gap-2">
+                          <Check className="h-5 w-5" />
+                          <span>Added to Cart</span>
+                        </div>
+                      ) : stock === 0 ? (
+                        "Out of Stock"
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <ShoppingCart className="h-5 w-5" />
+                          <span>Add to Cart</span>
+                        </div>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </div>
       </Card>
     </motion.div>
   );
