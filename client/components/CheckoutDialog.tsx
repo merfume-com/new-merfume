@@ -2181,8 +2181,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox"; // Make sure you have a Checkbox component
-import { Label } from "@/components/ui/label"; // For checkbox label
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useState, useEffect, useRef } from "react";
 import { useCart } from "@/components/CartContext";
 import { toast } from "sonner";
@@ -2309,6 +2309,7 @@ export default function CheckoutDialog({
   const razorpayLoaded = useRef(false);
   const cancelTokenSourceRef = useRef<CancelTokenSource | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [showForm, setShowForm] = useState(true); // New state to control form visibility
 
   const [form, setForm] = useState<UserDetails>({
     name: "",
@@ -2355,74 +2356,11 @@ export default function CheckoutDialog({
     }
   }, [open]);
 
-  // Fix for mobile Razorpay issue - SIMPLIFIED VERSION
+  // Reset showForm when dialog opens/closes
   useEffect(() => {
-    if (!open) return;
-
-    // Function to hide our dialog when Razorpay is active
-    const hideOurDialog = () => {
-      if (dialogRef.current) {
-        // Set very low z-index and opacity
-        dialogRef.current.style.zIndex = '-9999';
-        dialogRef.current.style.opacity = '0';
-        dialogRef.current.style.pointerEvents = 'none';
-      }
-    };
-
-    // Function to show our dialog
-    const showOurDialog = () => {
-      if (dialogRef.current) {
-        dialogRef.current.style.zIndex = '9999';
-        dialogRef.current.style.opacity = '1';
-        dialogRef.current.style.pointerEvents = 'auto';
-      }
-    };
-
-    // Check if Razorpay modal is open by looking for specific elements
-    const checkRazorpayModal = () => {
-      // Razorpay modal ke kuch common selectors
-      const razorpays = [
-        '.razorpay-container',
-        'iframe[src*="razorpay"]',
-        '.razorpay-checkout-frame',
-        '.modal-backdrop',
-        '[class*="razorpay"]'
-      ];
-      
-      let razorpayFound = false;
-      
-      razorpays.forEach(selector => {
-        if (document.querySelector(selector)) {
-          razorpayFound = true;
-        }
-      });
-
-      // Also check for iframes with razorpay in src
-      const iframes = document.querySelectorAll('iframe');
-      iframes.forEach(iframe => {
-        if (iframe.src && iframe.src.includes('razorpay')) {
-          razorpayFound = true;
-        }
-      });
-
-      if (razorpayFound) {
-        hideOurDialog();
-      } else {
-        showOurDialog();
-      }
-    };
-
-    // Initial check
-    checkRazorpayModal();
-
-    // Set up interval to check periodically
-    const intervalId = setInterval(checkRazorpayModal, 1000);
-
-    // Cleanup
-    return () => {
-      clearInterval(intervalId);
-      showOurDialog(); // Restore on cleanup
-    };
+    if (open) {
+      setShowForm(true);
+    }
   }, [open]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2546,8 +2484,8 @@ export default function CheckoutDialog({
     return 'An unexpected error occurred. Please try again.';
   };
 
-  const handleSubmit = async () => {
-    // Check if policies are agreed to
+  const handleProceedToCheckout = async () => {
+    // Step 1: Validate form and check policies
     if (!agreedToPolicies) {
       toast.error('Please agree to the policies to proceed');
       return;
@@ -2563,6 +2501,14 @@ export default function CheckoutDialog({
       return;
     }
 
+    // Step 2: Close the form dialog
+    setShowForm(false);
+    
+    // Step 3: Create order and open Razorpay
+    await initiatePaymentProcess();
+  };
+
+  const initiatePaymentProcess = async () => {
     setIsProcessing(true);
 
     try {
@@ -2592,6 +2538,8 @@ export default function CheckoutDialog({
       // Step 2: Load Razorpay script
       const razorpayLoadedSuccess = await loadRazorpayScript();
       if (!razorpayLoadedSuccess) {
+        // If Razorpay fails to load, show form again
+        setShowForm(true);
         throw new Error("Payment system is temporarily unavailable");
       }
 
@@ -2608,10 +2556,6 @@ export default function CheckoutDialog({
           
           try {
             // IMPORTANT FIX: Parameter names must match backend @RequestParam names
-            // Backend expects: razorpayPaymentId, razorpayOrderId, razorpaySignature
-            // Make sure the case matches exactly
-            
-            // Method 1: Using query parameters with exact names
             const verificationResponse = await api.post(
               `/api/payments/verify?razorpayPaymentId=${response.razorpay_payment_id}` +
               `&razorpayOrderId=${response.razorpay_order_id}` +
@@ -2621,15 +2565,13 @@ export default function CheckoutDialog({
             console.log('Verification response:', verificationResponse.data);
             
             if (verificationResponse.data && verificationResponse.data.message) {
-              // Option 1: If you have an endpoint to update order status
+              // Update order status if endpoint exists
               try {
-                // Try updating order status - remove if endpoint doesn't exist
                 await api.patch(`/api/orders/${orderId}/status`, {
                   status: "PAID",
                   paymentId: response.razorpay_payment_id
                 }).catch(err => {
-                  console.log('Order status update optional - endpoint may not exist:', err.message);
-                  // Continue anyway since payment is verified
+                  console.log('Order status update optional:', err.message);
                 });
               } catch (statusError) {
                 console.log('Order status update is optional');
@@ -2656,11 +2598,12 @@ export default function CheckoutDialog({
             } else {
               toast.error('Payment verification failed');
               setIsProcessing(false);
+              // Show form again if payment fails
+              setShowForm(true);
             }
           } catch (verifyError: any) {
             console.error('Payment verification error:', verifyError);
             
-            // More specific error handling
             if (verifyError.response?.status === 400) {
               toast.error('Payment verification failed. Invalid signature.');
             } else {
@@ -2669,6 +2612,8 @@ export default function CheckoutDialog({
             }
             
             setIsProcessing(false);
+            // Show form again if verification fails
+            setShowForm(true);
           }
         },
         prefill: {
@@ -2702,6 +2647,8 @@ export default function CheckoutDialog({
             
             localStorage.setItem("currentOrder", JSON.stringify(orderDetails));
             setIsProcessing(false);
+            // Show form again when payment is cancelled
+            setShowForm(true);
           }
         }
       };
@@ -2734,8 +2681,11 @@ export default function CheckoutDialog({
         localStorage.setItem("currentOrder", JSON.stringify(orderDetails));
         toast.error(`Payment failed: ${response.error.description}`);
         setIsProcessing(false);
+        // Show form again when payment fails
+        setShowForm(true);
       });
       
+      // Open Razorpay payment UI
       rzp.open();
       
     } catch (error: any) {
@@ -2761,6 +2711,9 @@ export default function CheckoutDialog({
         localStorage.setItem("currentOrder", JSON.stringify(fallbackOrder));
       }
       
+      // Show form again on error
+      setShowForm(true);
+      
     } finally {
       setIsProcessing(false);
     }
@@ -2771,6 +2724,7 @@ export default function CheckoutDialog({
     if (cancelTokenSourceRef.current) {
       cancelTokenSourceRef.current.cancel('User cancelled checkout');
     }
+    setShowForm(true);
     onClose();
   };
 
@@ -2786,172 +2740,186 @@ export default function CheckoutDialog({
           }
         }}
       >
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl font-semibold">
-            Complete Your Order
-          </DialogTitle>
-        </DialogHeader>
+        {showForm ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-center text-xl font-semibold">
+                Complete Your Order
+              </DialogTitle>
+            </DialogHeader>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Full Name *</label>
-            <Input
-              name="name"
-              placeholder="John Doe"
-              value={form.name}
-              onChange={handleChange}
-              className={errors.name ? "border-red-500 focus-visible:ring-red-500" : ""}
-              disabled={isProcessing}
-            />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Email *</label>
-            <Input
-              name="email"
-              placeholder="john@example.com"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              className={errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}
-              disabled={isProcessing}
-            />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Phone Number *</label>
-            <Input
-              name="phone"
-              placeholder="9876543210"
-              type="tel"
-              value={form.phone}
-              onChange={handleChange}
-              className={errors.phone ? "border-red-500 focus-visible:ring-red-500" : ""}
-              disabled={isProcessing}
-            />
-            {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Full Address *</label>
-            <Input
-              name="address"
-              placeholder="123 Main St, Apartment 4B"
-              value={form.address}
-              onChange={handleChange}
-              className={errors.address ? "border-red-500 focus-visible:ring-red-500" : ""}
-              disabled={isProcessing}
-            />
-            {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Pincode *</label>
-              <Input
-                name="pincode"
-                placeholder="110001"
-                value={form.pincode}
-                onChange={handleChange}
-                className={errors.pincode ? "border-red-500 focus-visible:ring-red-500" : ""}
-                disabled={isProcessing}
-              />
-              {errors.pincode && <p className="text-red-500 text-xs mt-1">{errors.pincode}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">City</label>
-              <Input
-                name="city"
-                placeholder="New Delhi"
-                value={form.city}
-                onChange={handleChange}
-                disabled={isProcessing}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">State</label>
-              <Input
-                name="state"
-                placeholder="Delhi"
-                value={form.state}
-                onChange={handleChange}
-                disabled={isProcessing}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Country</label>
-              <Input
-                name="country"
-                value={form.country}
-                onChange={handleChange}
-                disabled={isProcessing}
-              />
-            </div>
-          </div>
-
-          {/* Terms and Conditions Checkbox - State aur country ke neeche */}
-          <div className="flex items-center space-x-2 pt-4">
-            <Checkbox
-              id="policies"
-              checked={agreedToPolicies}
-              onCheckedChange={(checked) => setAgreedToPolicies(checked as boolean)}
-              disabled={isProcessing}
-              required
-            />
-            <Label
-              htmlFor="policies"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              I agree with your all policies *
-            </Label>
-          </div>
-          {!agreedToPolicies && (
-            <p className="text-red-500 text-xs mt-1 ml-6">You must agree to the policies to proceed</p>
-          )}
-
-          <div className="pt-4 border-t">
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span>₹{totalPrice.toFixed(2)}</span>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Full Name *</label>
+                <Input
+                  name="name"
+                  placeholder="John Doe"
+                  value={form.name}
+                  onChange={handleChange}
+                  className={errors.name ? "border-red-500 focus-visible:ring-red-500" : ""}
+                  disabled={isProcessing}
+                />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Shipping</span>
-                <span className="text-green-600">FREE</span>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Email *</label>
+                <Input
+                  name="email"
+                  placeholder="john@example.com"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className={errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}
+                  disabled={isProcessing}
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
-              <div className="flex justify-between text-lg font-bold">
-                <span>Total</span>
-                <span>₹{totalPrice.toFixed(2)}</span>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone Number *</label>
+                <Input
+                  name="phone"
+                  placeholder="9876543210"
+                  type="tel"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className={errors.phone ? "border-red-500 focus-visible:ring-red-500" : ""}
+                  disabled={isProcessing}
+                />
+                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
-            </div>
-            
-            <Button 
-              className="w-full h-12 text-lg"
-              onClick={handleSubmit}
-              disabled={isProcessing || !agreedToPolicies}
-            >
-              {isProcessing ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  Processing...
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Full Address *</label>
+                <Input
+                  name="address"
+                  placeholder="123 Main St, Apartment 4B"
+                  value={form.address}
+                  onChange={handleChange}
+                  className={errors.address ? "border-red-500 focus-visible:ring-red-500" : ""}
+                  disabled={isProcessing}
+                />
+                {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Pincode *</label>
+                  <Input
+                    name="pincode"
+                    placeholder="110001"
+                    value={form.pincode}
+                    onChange={handleChange}
+                    className={errors.pincode ? "border-red-500 focus-visible:ring-red-500" : ""}
+                    disabled={isProcessing}
+                  />
+                  {errors.pincode && <p className="text-red-500 text-xs mt-1">{errors.pincode}</p>}
                 </div>
-              ) : (
-                `Pay ₹${totalPrice.toFixed(2)}`
+                <div>
+                  <label className="block text-sm font-medium mb-1">City</label>
+                  <Input
+                    name="city"
+                    placeholder="New Delhi"
+                    value={form.city}
+                    onChange={handleChange}
+                    disabled={isProcessing}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">State</label>
+                  <Input
+                    name="state"
+                    placeholder="Delhi"
+                    value={form.state}
+                    onChange={handleChange}
+                    disabled={isProcessing}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Country</label>
+                  <Input
+                    name="country"
+                    value={form.country}
+                    onChange={handleChange}
+                    disabled={isProcessing}
+                  />
+                </div>
+              </div>
+
+              {/* Terms and Conditions Checkbox */}
+              <div className="flex items-center space-x-2 pt-4">
+                <Checkbox
+                  id="policies"
+                  checked={agreedToPolicies}
+                  onCheckedChange={(checked) => setAgreedToPolicies(checked as boolean)}
+                  disabled={isProcessing}
+                  required
+                />
+                <Label
+                  htmlFor="policies"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I agree with your all policies *
+                </Label>
+              </div>
+              {!agreedToPolicies && (
+                <p className="text-red-500 text-xs mt-1 ml-6">You must agree to the policies to proceed</p>
               )}
-            </Button>
-            
-            {isProcessing && (
-              <p className="text-center text-sm text-gray-500 mt-2">
-                Please don't close this window while processing...
-              </p>
-            )}
+
+              <div className="pt-4 border-t">
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span>₹{totalPrice.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-green-600">FREE</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold">
+                    <span>Total</span>
+                    <span>₹{totalPrice.toFixed(2)}</span>
+                  </div>
+                </div>
+                
+                <Button 
+                  className="w-full h-12 text-lg"
+                  onClick={handleProceedToCheckout}
+                  disabled={isProcessing || !agreedToPolicies}
+                >
+                  {isProcessing ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Processing...
+                    </div>
+                  ) : (
+                    `Proceed to Checkout`
+                  )}
+                </Button>
+                
+                {isProcessing && (
+                  <p className="text-center text-sm text-gray-500 mt-2">
+                    Please don't close this window while processing...
+                  </p>
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          // Loading state or empty state when form is hidden
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
+            <p className="text-lg font-semibold">Opening Payment Gateway...</p>
+            <p className="text-sm text-gray-500 mt-2 text-center">
+              Your order details have been saved. <br />
+              Please complete the payment in the Razorpay window.
+            </p>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );
