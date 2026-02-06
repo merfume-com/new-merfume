@@ -2036,9 +2036,10 @@ export default function Store() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list"); // Default list view
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   const brands = Array.from(new Set(products.map(p => p.brand)));
+  const categories = ["all", "standard", "premium", "luxury", "essential-oil"];
 
   useEffect(() => {
     loadProducts();
@@ -2246,6 +2247,29 @@ export default function Store() {
                   
                   <div className="space-y-4">
                     <div>
+                      <h4 className="text-sm font-medium text-foreground mb-2">Categories</h4>
+                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger className="w-full border-border/30">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              <div className="flex items-center gap-2">
+                                <span className="capitalize">
+                                  {cat === "all" ? "All Categories" : cat.replace("-", " ")}
+                                </span>
+                                {selectedCategory === cat && (
+                                  <span className="text-xs text-gold">✓</span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
                       <h4 className="text-sm font-medium text-foreground mb-2">Price Range</h4>
                       <div className="px-2">
                         <Slider
@@ -2291,26 +2315,6 @@ export default function Store() {
                   >
                     Clear All Filters
                   </Button>
-                </div>
-
-                {/* Categories */}
-                <div className="bg-gradient-to-br from-background to-background/80 border border-border/30 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Categories</h3>
-                  <div className="space-y-2">
-                    {["all", "standard", "premium", "luxury", "essential-oil"].map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                          selectedCategory === cat
-                            ? "bg-gold text-black font-medium"
-                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                        }`}
-                      >
-                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
             </aside>
@@ -2383,7 +2387,7 @@ export default function Store() {
                   <div className="flex flex-wrap gap-2 mt-4">
                     {selectedCategory !== "all" && (
                       <Badge variant="secondary" className="gap-1">
-                        {selectedCategory}
+                        {selectedCategory === "all" ? "All Categories" : selectedCategory.replace("-", " ")}
                         <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedCategory("all")} />
                       </Badge>
                     )}
@@ -2438,10 +2442,18 @@ export default function Store() {
                     className="space-y-6"
                   >
                     <div className="flex items-center justify-between">
-                      <p className="text-muted-foreground">
-                        Showing <span className="font-semibold text-foreground">{sortedProducts.length}</span> of{" "}
-                        <span className="font-semibold text-foreground">{products.length}</span> products
-                      </p>
+                      <div className="flex items-center gap-4">
+                        <p className="text-muted-foreground">
+                          Showing <span className="font-semibold text-foreground">{sortedProducts.length}</span> of{" "}
+                          <span className="font-semibold text-foreground">{products.length}</span> products
+                        </p>
+                        {/* Category Info */}
+                        {selectedCategory !== "all" && (
+                          <Badge variant="outline" className="bg-gold/10 text-gold border-gold/30">
+                            Category: {selectedCategory.replace("-", " ")}
+                          </Badge>
+                        )}
+                      </div>
                       {favorites.length > 0 && (
                         <div className="text-sm text-muted-foreground flex items-center gap-2">
                           <Heart className="h-4 w-4 text-red-500 fill-current" />
@@ -2452,7 +2464,7 @@ export default function Store() {
 
                     {/* Using Single ProductCard Component for both views */}
                     {viewMode === "grid" ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                         {sortedProducts.map((product, index) => (
                           <ProductCard
                             key={product.productId}
@@ -2465,7 +2477,7 @@ export default function Store() {
                         ))}
                       </div>
                     ) : (
-                      <div className="space-y-6">
+                      <div className="space-y-4 md:space-y-6">
                         {sortedProducts.map((product, index) => (
                           <ProductCard
                             key={product.productId}
