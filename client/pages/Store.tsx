@@ -2584,7 +2584,7 @@ export default function Store() {
       </section>
 
       {/* Featured Brands */}
-      <section className="py-12 bg-gradient-to-b from-background to-luxury-black/5">
+      {/* <section className="py-12 bg-gradient-to-b from-background to-luxury-black/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-foreground mb-8">
             Featured Brands
@@ -2607,7 +2607,7 @@ export default function Store() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Footer */}
       <footer className="bg-gradient-to-b from-luxury-black to-black text-cream py-16">
