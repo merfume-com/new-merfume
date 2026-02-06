@@ -3447,7 +3447,7 @@ export default function Store() {
                 is carefully curated to evoke emotions and create lasting memories.
               </p>
               <div className="flex gap-4 mt-6">
-                <Button variant="outline" className="border-cream/30 text-cream hover:bg-cream/10">
+                {/* <Button variant="outline" className="border-cream/30 text-cream hover:bg-cream/10">
                   Instagram
                 </Button>
                 <Button variant="outline" className="border-cream/30 text-cream hover:bg-cream/10">
@@ -3455,7 +3455,7 @@ export default function Store() {
                 </Button>
                 <Button variant="outline" className="border-cream/30 text-cream hover:bg-cream/10">
                   Pinterest
-                </Button>
+                </Button> */}
               </div>
             </div>
             <div>
@@ -3474,22 +3474,22 @@ export default function Store() {
               <h3 className="text-gold font-semibold text-lg mb-6">Help</h3>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-cream/80 hover:text-gold transition-colors text-lg">
+                  <a href="/contact" className="text-cream/80 hover:text-gold transition-colors text-lg">
                     Contact Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-cream/80 hover:text-gold transition-colors text-lg">
+                  <a href="/faq" className="text-cream/80 hover:text-gold transition-colors text-lg">
                     FAQ
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-cream/80 hover:text-gold transition-colors text-lg">
-                    Shipping & Returns
+                  <a href="/shipping-policy" className="text-cream/80 hover:text-gold transition-colors text-lg">
+                    Shipping Policy
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-cream/80 hover:text-gold transition-colors text-lg">
+                  <a href="/privacy-policy" className="text-cream/80 hover:text-gold transition-colors text-lg">
                     Privacy Policy
                   </a>
                 </li>
