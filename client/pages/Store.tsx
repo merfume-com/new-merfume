@@ -1756,11 +1756,11 @@ export default function Store() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="evening">Evening</SelectItem>
-                  <SelectItem value="fresh">Fresh</SelectItem>
+                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="Premium">Premium</SelectItem>
                   <SelectItem value="luxury">Luxury</SelectItem>
-                  <SelectItem value="floral">Floral</SelectItem>
-                  <SelectItem value="masculine">Masculine</SelectItem>
+                 // <SelectItem value="floral">Floral</SelectItem>
+                 // <SelectItem value="masculine">Masculine</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
