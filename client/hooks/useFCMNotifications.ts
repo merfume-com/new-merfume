@@ -4,7 +4,9 @@ import {
   setupMessageListener,
   registerDeviceToken,
   getPlatform,
-  isNotificationSupported
+  isNotificationSupported,
+  subscribeToTopic,
+  isServiceWorkerSupported
 } from '../services/firebaseService';
 import { MessagePayload } from 'firebase/messaging';
 
@@ -15,6 +17,7 @@ interface UseFCMNotificationsReturn {
   isSupported: boolean;
   initializeFCM: () => Promise<void>;
   setupMessageHandling: (callback?: (payload: MessagePayload) => void) => void;
+  sendTestNotification: () => Promise<void>;
 }
 
 // Generate or get device ID
@@ -35,6 +38,30 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [isSupported, setIsSupported] = useState<boolean>(true);
 
+  // ✅ ADDED: Send test notification
+  const sendTestNotification = useCallback(async (): Promise<void> => {
+    try {
+      if (!token) {
+        alert('No FCM token available. Please enable notifications first.');
+        return;
+      }
+      
+      const response = await fetch('https://merfume-backend-production-5068.up.railway.app/api/notifications/test/send-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      const data = await response.json();
+      console.log('Test notification response:', data);
+      alert(`Test notification sent: ${data.message}`);
+    } catch (error) {
+      console.error('Error sending test notification:', error);
+      alert('Error sending test notification');
+    }
+  }, [token]);
+
   // Initialize FCM
   const initializeFCM = useCallback(async (): Promise<void> => {
     try {
@@ -48,6 +75,11 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
         return;
       }
 
+      // Check service worker support
+      if (!isServiceWorkerSupported()) {
+        console.warn('Service workers not supported - push notifications may not work');
+      }
+
       // Get device ID
       const currentDeviceId = getOrCreateDeviceId();
       setDeviceId(currentDeviceId);
@@ -55,7 +87,7 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
       // Get platform
       const platform = getPlatform();
 
-      console.log('Initializing FCM...');
+      console.log('🔄 Initializing FCM...');
       
       // Request permission and get token
       const fcmToken = await requestNotificationPermission();
@@ -66,7 +98,22 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
         try {
           // Register token with backend
           await registerDeviceToken(currentDeviceId, fcmToken, platform);
-          console.log('FCM initialized and registered successfully');
+          console.log('✅ FCM initialized and registered successfully');
+          
+          // ✅ AUTO-SUBSCRIBE to new-product topic
+          try {
+            const subscribed = await subscribeToTopic(fcmToken, 'new-product');
+            if (subscribed) {
+              console.log('✅ Auto-subscribed to new-product topic');
+              
+              // Also subscribe to announcements topic
+              await subscribeToTopic(fcmToken, 'announcements');
+              console.log('✅ Auto-subscribed to announcements topic');
+            }
+          } catch (subscriptionError) {
+            console.warn('⚠️ Could not auto-subscribe to topic:', subscriptionError);
+          }
+          
         } catch (registerError) {
           console.warn('Error registering device token:', registerError);
           // Continue even if registration fails
@@ -76,8 +123,10 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
       }
       
       setIsInitialized(true);
+      console.log('✅ FCM initialization complete');
+      
     } catch (error) {
-      console.error('Error initializing FCM:', error);
+      console.error('❌ Error initializing FCM:', error);
       setIsInitialized(true);
     }
   }, []);
@@ -85,7 +134,7 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
   // Setup message listener
   const setupMessageHandling = useCallback((callback?: (payload: MessagePayload) => void) => {
     setupMessageListener((payload) => {
-      console.log('Message received in app:', payload);
+      console.log('📩 Message received in app:', payload);
       
       if (callback && typeof callback === 'function') {
         callback(payload);
@@ -109,7 +158,8 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
     isInitialized,
     isSupported,
     initializeFCM,
-    setupMessageHandling
+    setupMessageHandling,
+    sendTestNotification // ✅ Added
   };
 };
 
