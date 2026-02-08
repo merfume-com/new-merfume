@@ -28,7 +28,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification?.title || 'Merfume Store';
   const notificationOptions = {
     body: payload.notification?.body || 'You have a new notification',
-    icon: payload.notification?.icon || '/logo.png',
+    icon: payload.notification?.icon || '/merfume-logo.png',
     badge: '/badge.png',
     tag: 'merfume-notification',
     data: payload.data || {},
@@ -79,7 +79,7 @@ self.addEventListener('push', function(event) {
   const title = data.title || 'Merfume Store';
   const options = {
     body: data.body || 'You have a new notification',
-    icon: data.icon || '/logo.png',
+    icon: data.icon || '/merfume-logo.png',
     badge: '/badge.png',
     tag: 'merfume-notification',
     data: data.data || {},
