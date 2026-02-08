@@ -1,0 +1,121 @@
+{
+  "name": "Merfume Store - Luxury Fragrances",
+  "short_name": "Merfume Store",
+  "description": "Discover your signature scent with luxury fragrances from Merfume Store",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["shopping", "fashion", "beauty"],
+  "screenshots": [
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Merfume Store Desktop View"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Merfume Store Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Collection",
+      "short_name": "Store",
+      "description": "Explore our premium fragrance collection",
+      "url": "/store",
+      "icons": [{ "src": "/store-icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "View Cart",
+      "short_name": "Cart",
+      "description": "View your shopping cart",
+      "url": "/cart",
+      "icons": [{ "src": "/cart-icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Track Order",
+      "short_name": "Track",
+      "description": "Track your order status",
+      "url": "/track-order",
+      "icons": [{ "src": "/track-icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "/",
+  "dir": "ltr",
+  "lang": "en-US",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+  "edge_side_panel": {
+    "preferred_width": 360
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+merfume",
+      "url": "/?action=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "permissions": [
+    "notifications",
+    "geolocation"
+  ],
+  "serviceworker": {
+    "src": "/firebase-messaging-sw.js",
+    "scope": "/",
+    "type": "module"
+  },
+  "gcm_sender_id": "844931019461",
+  "gcm_user_visible_only": true
+}
