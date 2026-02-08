@@ -1,7 +1,52 @@
 // client/public/firebase-messaging-sw.js
-// Simple service worker for Firebase notifications
+// Import Firebase scripts
+importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js');
 
-// Listen for push events
+// ✅ CORRECT Firebase Configuration (same as frontend)
+const firebaseConfig = {
+  apiKey: "AIzaSyCKmpDP1qL5rTFLMJ2hjtKRd9cH49swQLs",
+  authDomain: "omni-gate.firebaseapp.com",
+  projectId: "omni-gate",
+  storageBucket: "omni-gate.firebasestorage.app",
+  messagingSenderId: "1047182095729",
+  appId: "1:1047182095729:web:a48c17846bb91859dd32d0"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// ✅ CORRECT VAPID Key
+const VAPID_KEY = "BIk7yf4OpGO1aulrmXrEeerwjQ00Zt0hSqrvUeXs33oKoW3PDwv26ThMaVr_UPAxh4u36tnPuHe_gZ6Yl0POC7Q";
+
+// Firebase message handler
+messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw.js] Received background message', payload);
+  
+  const notificationTitle = payload.notification?.title || 'Merfume Store';
+  const notificationOptions = {
+    body: payload.notification?.body || 'You have a new notification',
+    icon: payload.notification?.icon || '/logo.png',
+    badge: '/badge.png',
+    tag: 'merfume-notification',
+    data: payload.data || {},
+    actions: [
+      {
+        action: 'view',
+        title: 'View'
+      },
+      {
+        action: 'close',
+        title: 'Close'
+      }
+    ]
+  };
+
+  return self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// Listen for push events (fallback)
 self.addEventListener('push', function(event) {
   console.log('[Service Worker] Push Received.');
   
@@ -26,17 +71,7 @@ self.addEventListener('push', function(event) {
     icon: data.icon || '/logo.png',
     badge: '/badge.png',
     tag: 'merfume-notification',
-    data: data.data || {},
-    actions: data.actions || [
-      {
-        action: 'view',
-        title: 'View'
-      },
-      {
-        action: 'close',
-        title: 'Close'
-      }
-    ]
+    data: data.data || {}
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
@@ -85,7 +120,7 @@ self.addEventListener('pushsubscriptionchange', function(event) {
   event.waitUntil(
     self.registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array('BPdL5-FHVDleZ01nD2l71ZMrVjq0iZXN8bAztWGRl5tSsmbQKcQnnBf3DprzK-wZ3uTWQ2p7AlF-Qok6Qb4S6o8')
+      applicationServerKey: urlBase64ToUint8Array(VAPID_KEY)
     }).then(function(subscription) {
       console.log('New subscription:', subscription);
       
