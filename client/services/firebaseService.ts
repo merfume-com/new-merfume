@@ -22,19 +22,19 @@ interface DeviceRegistrationData {
 
 export type { MessagePayload };
 
-// Firebase Configuration
+// ✅ CORRECT Firebase Configuration (from your Firebase Console)
 const firebaseConfig = {
-  apiKey: "AIzaSyDI5fCvfQ4lprcXJpAj2oZ9MXh3gXy_Y5g",
+  apiKey: "AIzaSyCKmpDP1qL5rTFLMJ2hjtKRd9cH49swQLs", // New API key
   authDomain: "omni-gate.firebaseapp.com",
   projectId: "omni-gate",
-  storageBucket: "omni-gate.appspot.com",
-  messagingSenderId: "844931019461",
-  appId: "1:844931019461:web:40a47cde5c4a9d3e3096f9",
-  measurementId: "G-9T2X8EZ7V4"
+  storageBucket: "omni-gate.firebasestorage.app", // Updated storage bucket
+  messagingSenderId: "1047182095729", // New sender ID
+  appId: "1:1047182095729:web:a48c17846bb91859dd32d0", // New app ID
+  measurementId: "G-2G65ZMSETC" // New measurement ID
 };
 
-// VAPID Key for web push
-const VAPID_KEY = "BPdL5-FHVDleZ01nD2l71ZMrVjq0iZXN8bAztWGRl5tSsmbQKcQnnBf3DprzK-wZ3uTWQ2p7AlF-Qok6Qb4S6o8";
+// ✅ CORRECT VAPID Key (from Cloud Messaging tab)
+const VAPID_KEY = "BIk7yf4OpGO1aulrmXrEeerwjQ00Zt0hSqrvUeXs33oKoW3PDwv26ThMaVr_UPAxh4u36tnPuHe_gZ6Yl0POC7Q";
 
 let messaging: Messaging | null = null;
 let app: FirebaseApp | null = null;
@@ -65,12 +65,18 @@ const initializeFirebase = async (): Promise<Messaging | null> => {
   }
 };
 
-// Request permission and get FCM token WITHOUT service worker
+// Request permission and get FCM token
 export const requestNotificationPermission = async (): Promise<string | null> => {
   try {
     // Check browser support
     if (!('Notification' in window)) {
       console.log('This browser does not support notifications');
+      return null;
+    }
+
+    // Check permission status first
+    if (Notification.permission === 'denied') {
+      console.log('Notification permission previously denied');
       return null;
     }
 
@@ -89,11 +95,14 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
       }
 
       try {
-        // Try to get token WITHOUT service worker registration
-        // This is for development/localhost
+        // Get token with VAPID key
         const token = await getToken(messagingInstance, {
           vapidKey: VAPID_KEY,
-          // Don't specify serviceWorkerRegistration for development
+          // Service worker path
+          serviceWorkerRegistration: await navigator.serviceWorker.register(
+            '/firebase-messaging-sw.js',
+            { scope: '/' }
+          )
         });
         
         if (token) {
@@ -103,24 +112,18 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
       } catch (tokenError: any) {
         console.warn('Failed to get FCM token:', tokenError.message);
         
-        // Alternative approach for development
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-          console.log('Localhost detected - trying alternative approach');
+        // Fallback for production if needed
+        try {
+          const fallbackToken = await getToken(messagingInstance, {
+            vapidKey: VAPID_KEY
+          });
           
-          try {
-            // Try with minimal configuration
-            const altToken = await getToken(messagingInstance, {
-              vapidKey: VAPID_KEY,
-              serviceWorkerRegistration: null
-            });
-            
-            if (altToken) {
-              console.log('FCM Token received (alternative approach)');
-              return altToken;
-            }
-          } catch (altError) {
-            console.error('Alternative approach also failed:', altError);
+          if (fallbackToken) {
+            console.log('FCM Token received (fallback)');
+            return fallbackToken;
           }
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
         }
       }
       
