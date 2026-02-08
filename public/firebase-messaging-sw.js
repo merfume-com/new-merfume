@@ -1,9 +1,8 @@
 // client/public/firebase-messaging-sw.js
-// Import Firebase scripts
 importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js');
 
-// ✅ CORRECT Firebase Configuration (same as frontend)
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCKmpDP1qL5rTFLMJ2hjtKRd9cH49swQLs",
   authDomain: "omni-gate.firebaseapp.com",
@@ -13,16 +12,18 @@ const firebaseConfig = {
   appId: "1:1047182095729:web:a48c17846bb91859dd32d0"
 };
 
-// Initialize Firebase
+console.log('🟢 Service Worker: Initializing Firebase...');
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// ✅ CORRECT VAPID Key
+console.log('🟢 Service Worker: Firebase initialized');
+
+// VAPID Key
 const VAPID_KEY = "BIk7yf4OpGO1aulrmXrEeerwjQ00Zt0hSqrvUeXs33oKoW3PDwv26ThMaVr_UPAxh4u36tnPuHe_gZ6Yl0POC7Q";
 
-// Firebase message handler
+// ✅ Firebase message handler
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message', payload);
+  console.log('🎯 [firebase-messaging-sw.js] Received background message:', payload);
   
   const notificationTitle = payload.notification?.title || 'Merfume Store';
   const notificationOptions = {
@@ -31,6 +32,7 @@ messaging.onBackgroundMessage((payload) => {
     badge: '/badge.png',
     tag: 'merfume-notification',
     data: payload.data || {},
+    image: payload.notification?.image || payload.data?.imageUrl,
     actions: [
       {
         action: 'view',
@@ -40,23 +42,32 @@ messaging.onBackgroundMessage((payload) => {
         action: 'close',
         title: 'Close'
       }
-    ]
+    ],
+    requireInteraction: false,
+    silent: false,
+    timestamp: Date.now(),
+    vibrate: [200, 100, 200]
   };
 
-  return self.registration.showNotification(notificationTitle, notificationOptions);
+  console.log('🎯 Showing notification with options:', notificationOptions);
+  
+  return self.registration.showNotification(notificationTitle, notificationOptions)
+    .then(() => console.log('✅ Notification shown successfully'))
+    .catch(error => console.error('❌ Error showing notification:', error));
 });
 
-// Listen for push events (fallback)
+// ✅ Fallback for non-Firebase push
 self.addEventListener('push', function(event) {
-  console.log('[Service Worker] Push Received.');
+  console.log('📩 Service Worker: Push event received (non-Firebase)');
   
   let data = {};
   
   if (event.data) {
     try {
       data = event.data.json();
+      console.log('📩 Parsed push data:', data);
     } catch (e) {
-      console.error('Failed to parse push data:', e);
+      console.error('❌ Failed to parse push data:', e);
       data = {
         title: 'Merfume Store',
         body: 'New notification from Merfume Store',
@@ -71,15 +82,36 @@ self.addEventListener('push', function(event) {
     icon: data.icon || '/logo.png',
     badge: '/badge.png',
     tag: 'merfume-notification',
-    data: data.data || {}
+    data: data.data || {},
+    image: data.image || data.data?.imageUrl,
+    actions: data.actions || [
+      {
+        action: 'view',
+        title: 'View'
+      },
+      {
+        action: 'close',
+        title: 'Close'
+      }
+    ],
+    requireInteraction: false,
+    silent: false,
+    timestamp: Date.now(),
+    vibrate: [200, 100, 200]
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  console.log('📩 Showing notification from push event:', options);
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+      .then(() => console.log('✅ Push notification shown successfully'))
+      .catch(error => console.error('❌ Error showing push notification:', error))
+  );
 });
 
-// Handle notification click
+// ✅ Handle notification click
 self.addEventListener('notificationclick', function(event) {
-  console.log('[Service Worker] Notification click Received.');
+  console.log('👆 Service Worker: Notification click received:', event.notification.data);
   
   event.notification.close();
 
@@ -87,42 +119,52 @@ self.addEventListener('notificationclick', function(event) {
   
   // Send message to all clients
   event.waitUntil(
-    self.clients.matchAll().then(function(clients) {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    .then(function(clients) {
+      console.log('👆 Found clients:', clients.length);
+      
       clients.forEach(function(client) {
         client.postMessage({
           type: 'NOTIFICATION_CLICK',
           payload: notificationData
         });
       });
+
+      // Handle click based on notification data
+      const urlToOpen = notificationData.deepLink || 
+                       (notificationData.action === 'VIEW_PRODUCT' && notificationData.productId 
+                         ? `/store?product=${notificationData.productId}` 
+                         : '/');
+
+      console.log('👆 Opening URL:', urlToOpen);
+      
+      // Check if there's already a tab open with this URL
+      const matchingClient = clients.find(client => 
+        client.url.includes(urlToOpen) || 
+        (urlToOpen === '/' && client.url.includes(window.location.origin))
+      );
+
+      if (matchingClient) {
+        console.log('👆 Found existing client, focusing');
+        return matchingClient.focus();
+      } else {
+        console.log('👆 Opening new window');
+        return self.clients.openWindow(urlToOpen);
+      }
     })
   );
-
-  // Handle click based on notification data
-  if (notificationData.action === 'VIEW_PRODUCT' && notificationData.productId) {
-    event.waitUntil(
-      clients.openWindow(`/store?product=${notificationData.productId}`)
-    );
-  } else if (notificationData.deepLink) {
-    event.waitUntil(
-      clients.openWindow(notificationData.deepLink)
-    );
-  } else {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
-  }
 });
 
-// Handle push subscription change
+// ✅ Handle push subscription change
 self.addEventListener('pushsubscriptionchange', function(event) {
-  console.log('[Service Worker] Push subscription changed.');
+  console.log('🔄 Service Worker: Push subscription changed');
   
   event.waitUntil(
     self.registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_KEY)
     }).then(function(subscription) {
-      console.log('New subscription:', subscription);
+      console.log('🔄 New subscription:', subscription);
       
       // Send new subscription to server
       return fetch('https://merfume-backend-production-5068.up.railway.app/api/notifications/devices/update-subscription', {
@@ -156,12 +198,24 @@ function urlBase64ToUint8Array(base64String) {
 
 // Service worker installation
 self.addEventListener('install', function(event) {
-  console.log('[Service Worker] Installing...');
+  console.log('⚙️ Service Worker: Installing...');
   self.skipWaiting(); // Activate immediately
 });
 
 // Service worker activation
 self.addEventListener('activate', function(event) {
-  console.log('[Service Worker] Activating...');
-  event.waitUntil(clients.claim()); // Take control of all clients
+  console.log('⚙️ Service Worker: Activating...');
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(), // Take control of all clients
+      // Clean up old caches
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            return caches.delete(cacheName);
+          })
+        );
+      })
+    ])
+  );
 });
