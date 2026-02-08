@@ -65,7 +65,53 @@ const initializeFirebase = async (): Promise<Messaging | null> => {
   }
 };
 
-// Request permission and get FCM token
+// ✅ FIXED: Service Worker Registration Helper
+const getServiceWorkerRegistration = async (): Promise<ServiceWorkerRegistration | null> => {
+  try {
+    // Check if service workers are supported
+    if (!('serviceWorker' in navigator)) {
+      console.warn('Service workers are not supported in this browser');
+      return null;
+    }
+
+    // Try to get existing registration first
+    let registration = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+    
+    if (!registration) {
+      // Register new service worker
+      console.log('Registering service worker...');
+      registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+        scope: '/',
+        // Update via all active tabs immediately
+        updateViaCache: 'none'
+      });
+      
+      console.log('Service worker registered successfully');
+      
+      // Wait for service worker to be ready
+      await navigator.serviceWorker.ready;
+      console.log('Service worker is ready');
+    } else {
+      console.log('Service worker already registered');
+      
+      // Check if service worker is active
+      if (registration.active) {
+        console.log('Service worker is active');
+      } else {
+        console.log('Waiting for service worker to activate...');
+        await navigator.serviceWorker.ready;
+      }
+    }
+    
+    return registration;
+    
+  } catch (error) {
+    console.error('Error registering service worker:', error);
+    return null;
+  }
+};
+
+// ✅ FIXED: Request permission and get FCM token
 export const requestNotificationPermission = async (): Promise<string | null> => {
   try {
     // Check browser support
@@ -80,71 +126,94 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
       return null;
     }
 
-    // Request permission
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
+    // If already granted, proceed directly
+    if (Notification.permission === 'granted') {
+      console.log('Notification permission already granted');
+    } else {
+      // Request permission
+      const permission = await Notification.requestPermission();
+      
+      if (permission !== 'granted') {
+        console.log('Notification permission denied or dismissed');
+        return null;
+      }
       console.log('Notification permission granted.');
+    }
+
+    // Initialize Firebase
+    const messagingInstance = await initializeFirebase();
+    
+    if (!messagingInstance) {
+      console.log('Firebase messaging not available');
+      return null;
+    }
+
+    try {
+      // Get service worker registration
+      const serviceWorkerRegistration = await getServiceWorkerRegistration();
       
-      // Initialize Firebase
-      const messagingInstance = await initializeFirebase();
-      
-      if (!messagingInstance) {
-        console.log('Firebase messaging not available');
+      if (!serviceWorkerRegistration) {
+        console.warn('Service worker registration failed');
         return null;
       }
 
-      try {
-        // Get token with VAPID key
-        const token = await getToken(messagingInstance, {
-          vapidKey: VAPID_KEY,
-          // Service worker path
-          serviceWorkerRegistration: await navigator.serviceWorker.register(
-            '/firebase-messaging-sw.js',
-            { scope: '/' }
-          )
-        });
-        
-        if (token) {
-          console.log('FCM Token received successfully');
-          return token;
-        }
-      } catch (tokenError: any) {
-        console.warn('Failed to get FCM token:', tokenError.message);
-        
-        // Fallback for production if needed
-        try {
-          const fallbackToken = await getToken(messagingInstance, {
-            vapidKey: VAPID_KEY
-          });
-          
-          if (fallbackToken) {
-            console.log('FCM Token received (fallback)');
-            return fallbackToken;
-          }
-        } catch (fallbackError) {
-          console.error('Fallback also failed:', fallbackError);
-        }
+      // Get token with VAPID key and service worker
+      const token = await getToken(messagingInstance, {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: serviceWorkerRegistration
+      });
+      
+      if (token) {
+        console.log('✅ FCM Token received successfully:', token.substring(0, 20) + '...');
+        return token;
       }
       
-      console.log('No FCM token received');
-      return null;
-    } else {
-      console.log('Notification permission denied or dismissed');
-      return null;
+    } catch (tokenError: any) {
+      console.warn('Failed to get FCM token with service worker:', tokenError.message);
+      
+      // Fallback: Try without service worker registration
+      try {
+        console.log('Trying fallback token retrieval...');
+        const fallbackToken = await getToken(messagingInstance, {
+          vapidKey: VAPID_KEY
+          // No serviceWorkerRegistration parameter
+        });
+        
+        if (fallbackToken) {
+          console.log('✅ FCM Token received (fallback):', fallbackToken.substring(0, 20) + '...');
+          return fallbackToken;
+        }
+      } catch (fallbackError: any) {
+        console.error('Fallback also failed:', fallbackError.message);
+        
+        // Last resort: Try with minimal configuration
+        try {
+          const minimalToken = await getToken(messagingInstance);
+          if (minimalToken) {
+            console.log('✅ FCM Token received (minimal):', minimalToken.substring(0, 20) + '...');
+            return minimalToken;
+          }
+        } catch (minimalError) {
+          console.error('Minimal approach failed:', minimalError);
+        }
+      }
     }
+    
+    console.log('No FCM token received');
+    return null;
+    
   } catch (error) {
     console.error('Error in requestNotificationPermission:', error);
     return null;
   }
 };
 
-// Listen for incoming messages
+// ✅ FIXED: Listen for incoming messages
 export const setupMessageListener = (callback: (payload: MessagePayload) => void) => {
   initializeFirebase().then(messagingInstance => {
     if (messagingInstance) {
       onMessage(messagingInstance, (payload: MessagePayload) => {
-        console.log('Foreground message received:', payload);
+        console.log('📩 Foreground message received:', payload);
         
         if (callback && typeof callback === 'function') {
           callback(payload);
@@ -167,22 +236,57 @@ const showNotification = (notification: any): void => {
       icon: notification.icon || '/logo.png',
       badge: '/badge.png',
       tag: 'merfume-notification',
-      requireInteraction: true,
-      data: notification.data
+      requireInteraction: false, // Changed to false for better UX
+      data: notification.data,
+      silent: false,
+      vibrate: [200, 100, 200]
     };
     
     const notif = new Notification(notification.title || 'Merfume Store', options);
     
     notif.onclick = function(event: Event) {
       event.preventDefault();
-      window.focus();
       
-      if (notification.click_action) {
+      if (notification.data && notification.data.deepLink) {
+        window.open(notification.data.deepLink, '_blank');
+      } else if (notification.click_action) {
         window.open(notification.click_action, '_blank');
+      } else {
+        window.focus();
       }
       
       notif.close();
     };
+    
+    // Auto close after 10 seconds
+    setTimeout(() => {
+      notif.close();
+    }, 10000);
+  }
+};
+
+// ✅ ADDED: Subscribe to topic function
+export const subscribeToTopic = async (token: string, topic: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`https://merfume-backend-production-5068.up.railway.app/api/notifications/topics/subscribe?token=${encodeURIComponent(token)}&topic=${encodeURIComponent(topic)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`✅ Subscribed to topic ${topic}:`, data.message);
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error('❌ Failed to subscribe to topic:', errorText);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error subscribing to topic:', error);
+    return false;
   }
 };
 
@@ -217,10 +321,10 @@ export const registerDeviceToken = async (
     }
     
     const data = await response.json();
-    console.log('Device registration successful:', data);
+    console.log('✅ Device registration successful:', data);
     return data;
   } catch (error) {
-    console.error('Error registering device token:', error);
+    console.error('❌ Error registering device token:', error);
     throw error;
   }
 };
@@ -249,6 +353,11 @@ export const isNotificationSupported = (): boolean => {
   return 'Notification' in window;
 };
 
+// Check if service workers are supported
+export const isServiceWorkerSupported = (): boolean => {
+  return 'serviceWorker' in navigator;
+};
+
 // Get platform
 export const getPlatform = (): string => {
   const userAgent = navigator.userAgent.toLowerCase();
@@ -256,6 +365,20 @@ export const getPlatform = (): string => {
   if (/android/.test(userAgent)) return 'ANDROID';
   if (/iphone|ipad|ipod/.test(userAgent)) return 'IOS';
   return 'WEB';
+};
+
+// ✅ ADDED: Get current push subscription
+export const getCurrentSubscription = async (): Promise<PushSubscription | null> => {
+  try {
+    if (!isServiceWorkerSupported()) return null;
+    
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    return subscription;
+  } catch (error) {
+    console.error('Error getting subscription:', error);
+    return null;
+  }
 };
 
 export default initializeFirebase;
