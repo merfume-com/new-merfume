@@ -315,7 +315,7 @@ const App = () => {
               
               {/* ✅ Add Product Details Route */}
               <Route path="/product/:id" element={<ProductDetails />} />
-              
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
