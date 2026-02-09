@@ -177,8 +177,10 @@ import {
   isNotificationSupported,
   subscribeToTopic,
   isServiceWorkerSupported,
-  SnapdealNotificationData
-} from '../services/firebaseService';
+  SnapdealNotificationData,
+  toBoolean,
+  CustomMessagePayload
+} from '@/services/firebaseService';
 import { MessagePayload } from 'firebase/messaging';
 
 interface UseFCMNotificationsReturn {
@@ -187,7 +189,7 @@ interface UseFCMNotificationsReturn {
   isInitialized: boolean;
   isSupported: boolean;
   initializeFCM: () => Promise<void>;
-  setupMessageHandling: (callback?: (payload: MessagePayload) => void) => void;
+  setupMessageHandling: (callback?: (payload: CustomMessagePayload) => void) => void;
   sendTestNotification: () => Promise<void>;
   activeNotification: SnapdealNotificationData | null;
   clearNotification: () => void;
@@ -301,8 +303,8 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
   }, []);
 
   // Setup message listener
-  const setupMessageHandling = useCallback((callback?: (payload: MessagePayload) => void) => {
-    setupMessageListener((payload) => {
+  const setupMessageHandling = useCallback((callback?: (payload: CustomMessagePayload) => void) => {
+    setupMessageListener((payload: CustomMessagePayload) => {
       console.log('📩 Message received in app:', payload);
       
       const data = payload.data || {};
@@ -310,26 +312,26 @@ export const useFCMNotifications = (): UseFCMNotificationsReturn => {
       // Handle Snapdeal style notifications
       if (data.style === 'snapdeal_premium') {
         const snapdealData: SnapdealNotificationData = {
-          type: data.type || '',
-          productId: data.productId || '',
-          productName: data.productName || '',
-          brandName: data.brandName || '',
-          price: data.price || '',
-          originalPrice: data.originalPrice,
-          discountPercent: data.discountPercent,
-          discountAmount: data.discountAmount,
-          rating: data.rating,
-          category: data.category,
-          imageUrl: data.imageUrl,
-          brandLogoUrl: data.brandLogoUrl,
-          notificationColor: data.notificationColor,
-          showTimer: data.showTimer === 'true',
-          timerText: data.timerText,
-          showRating: data.showRating === 'true',
-          showCategoryTag: data.showCategoryTag === 'true',
-          deepLink: data.deepLink,
-          webLink: data.webLink,
-          style: data.style
+          type: typeof data.type === 'string' ? data.type : '',
+          productId: typeof data.productId === 'string' ? data.productId : '',
+          productName: typeof data.productName === 'string' ? data.productName : '',
+          brandName: typeof data.brandName === 'string' ? data.brandName : '',
+          price: typeof data.price === 'string' ? data.price : '',
+          originalPrice: typeof data.originalPrice === 'string' ? data.originalPrice : undefined,
+          discountPercent: typeof data.discountPercent === 'string' ? data.discountPercent : undefined,
+          discountAmount: typeof data.discountAmount === 'string' ? data.discountAmount : undefined,
+          rating: typeof data.rating === 'string' ? data.rating : undefined,
+          category: typeof data.category === 'string' ? data.category : undefined,
+          imageUrl: typeof data.imageUrl === 'string' ? data.imageUrl : undefined,
+          brandLogoUrl: typeof data.brandLogoUrl === 'string' ? data.brandLogoUrl : undefined,
+          notificationColor: typeof data.notificationColor === 'string' ? data.notificationColor : undefined,
+          showTimer: toBoolean(data.showTimer), // ✅ FIXED: Use exported helper function
+          timerText: typeof data.timerText === 'string' ? data.timerText : undefined,
+          showRating: toBoolean(data.showRating), // ✅ FIXED: Use exported helper function
+          showCategoryTag: toBoolean(data.showCategoryTag), // ✅ FIXED: Use exported helper function
+          deepLink: typeof data.deepLink === 'string' ? data.deepLink : undefined,
+          webLink: typeof data.webLink === 'string' ? data.webLink : undefined,
+          style: typeof data.style === 'string' ? data.style : 'snapdeal_premium'
         };
         
         // Set active notification for UI display
