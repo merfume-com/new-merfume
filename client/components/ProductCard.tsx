@@ -1851,7 +1851,6 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingCart, Heart, Star, Eye, Check, Zap } from "lucide-react";
@@ -1877,6 +1876,7 @@ interface ProductCardProps {
   style?: React.CSSProperties;
   stock?: number;
   variant?: "grid" | "list";
+  onProductClick?: (productId: number) => void;
 }
 
 const api = axios.create({
@@ -1904,8 +1904,8 @@ export default function ProductCard({
   style,
   stock = 10,
   variant = "grid",
+  onProductClick,
 }: ProductCardProps) {
-  const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -1923,7 +1923,9 @@ export default function ProductCard({
   };
 
   const handleProductClick = () => {
-    navigate(`/product/${productId}`);
+    if (onProductClick) {
+      onProductClick(productId);
+    }
   };
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
