@@ -96,28 +96,114 @@
 // });
 
 
+// // vite.config.ts
+// import { defineConfig } from "vite";
+// import react from "@vitejs/plugin-react-swc";
+// import path from "path";
+// import fs from "fs";
+
+// export default defineConfig({
+//   root: 'client',
+//   build: {
+//     outDir: '../dist',
+//     emptyOutDir: true,
+//     // Assets configuration
+//     assetsInlineLimit: 4096, // 4kb
+//     rollupOptions: {
+//       output: {
+//         // Service worker ko alag se copy karega
+//         assetFileNames: (assetInfo) => {
+//           if (assetInfo.name === 'firebase-messaging-sw.js') {
+//             return '[name][extname]'; // Root mein copy hoga
+//           }
+//           return 'assets/[name]-[hash][extname]';
+//         }
+//       }
+//     }
+//   },
+//   server: {
+//     port: 8081,
+//   },
+//   plugins: [
+//     react(),
+//     // Custom plugin to handle service worker
+//     {
+//       name: 'copy-service-worker',
+//       closeBundle() {
+//         // Copy service worker from public to dist
+//         const sourcePath = path.resolve(__dirname, 'client/public/firebase-messaging-sw.js');
+//         const destPath = path.resolve(__dirname, 'dist/firebase-messaging-sw.js');
+        
+//         if (fs.existsSync(sourcePath)) {
+//           fs.copyFileSync(sourcePath, destPath);
+//           console.log('✅ Service worker copied to dist/');
+//         } else {
+//           console.warn('⚠️ Service worker not found at:', sourcePath);
+          
+//           // Create a basic service worker if missing
+//           const basicSW = `
+// // Basic service worker for Firebase
+// self.addEventListener('install', (event) => {
+//   self.skipWaiting();
+//   console.log('Service Worker installed');
+// });
+
+// self.addEventListener('activate', (event) => {
+//   event.waitUntil(clients.claim());
+//   console.log('Service Worker activated');
+// });
+
+// self.addEventListener('push', (event) => {
+//   const data = event.data?.json() || {};
+//   event.waitUntil(
+//     self.registration.showNotification(
+//       data.title || 'Merfume Store',
+//       {
+//         body: data.body || 'New notification',
+//         icon: '/logo.png',
+//         badge: '/badge.png'
+//       }
+//     )
+//   );
+// });
+//           `;
+          
+//           fs.writeFileSync(destPath, basicSW);
+//           console.log('✅ Created basic service worker');
+//         }
+//       }
+//     }
+//   ],
+//   resolve: {
+//     alias: {
+//       '@': path.resolve(__dirname, './client'),
+//     },
+//   },
+//   publicDir: path.resolve(__dirname, './client/public'),
+// });
+
+
+
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import fs from "fs";
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   root: 'client',
   build: {
     outDir: '../dist',
     emptyOutDir: true,
-    // Assets configuration
-    assetsInlineLimit: 4096, // 4kb
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'client/index.html'),
+      },
       output: {
-        // Service worker ko alag se copy karega
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'firebase-messaging-sw.js') {
-            return '[name][extname]'; // Root mein copy hoga
-          }
-          return 'assets/[name]-[hash][extname]';
-        }
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
       }
     }
   },
@@ -126,53 +212,28 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // Custom plugin to handle service worker
-    {
-      name: 'copy-service-worker',
-      closeBundle() {
-        // Copy service worker from public to dist
-        const sourcePath = path.resolve(__dirname, 'client/public/firebase-messaging-sw.js');
-        const destPath = path.resolve(__dirname, 'dist/firebase-messaging-sw.js');
-        
-        if (fs.existsSync(sourcePath)) {
-          fs.copyFileSync(sourcePath, destPath);
-          console.log('✅ Service worker copied to dist/');
-        } else {
-          console.warn('⚠️ Service worker not found at:', sourcePath);
-          
-          // Create a basic service worker if missing
-          const basicSW = `
-// Basic service worker for Firebase
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
-  console.log('Service Worker installed');
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
-  console.log('Service Worker activated');
-});
-
-self.addEventListener('push', (event) => {
-  const data = event.data?.json() || {};
-  event.waitUntil(
-    self.registration.showNotification(
-      data.title || 'Merfume Store',
-      {
-        body: data.body || 'New notification',
-        icon: '/logo.png',
-        badge: '/badge.png'
+    // Remove the custom copy-service-worker plugin and use VitePWA instead
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['firebase-messaging-sw.js', 'logo.png', 'badge.png'],
+      manifest: false, // We're using our own manifest
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/firebase\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'firebase-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              }
+            }
+          }
+        ]
       }
-    )
-  );
-});
-          `;
-          
-          fs.writeFileSync(destPath, basicSW);
-          console.log('✅ Created basic service worker');
-        }
-      }
-    }
+    })
   ],
   resolve: {
     alias: {
