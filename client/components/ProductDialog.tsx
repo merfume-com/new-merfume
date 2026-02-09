@@ -5,9 +5,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Dialog, 
-  DialogContent, 
-  DialogHeader,
-  DialogTitle,
+  DialogContent,
   DialogClose 
 } from "@/components/ui/dialog";
 import { Heart, Star, Truck, Shield, RefreshCw, ShoppingCart, Check, Zap, X } from "lucide-react";
@@ -46,6 +44,28 @@ const api = axios.create({
   }
 });
 
+// Helper function to convert base64 to data URL
+const getImageUrl = (base64String?: string) => {
+  if (!base64String) return null;
+  
+  // Check if it's already a URL
+  if (base64String.startsWith('http')) {
+    return base64String;
+  }
+  
+  // Check if it's a base64 string
+  if (base64String.startsWith('data:image')) {
+    return base64String;
+  }
+  
+  // If it's base64 without data URL prefix, add it
+  if (base64String.length > 100) { // Simple check for base64
+    return `data:image/jpeg;base64,${base64String}`;
+  }
+  
+  return null;
+};
+
 export default function ProductDialog({ productId, open, onClose }: ProductDialogProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +85,18 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
       setError(null);
       try {
         const response = await api.get(`/api/products/${productId}`);
-        setProduct(response.data);
+        const productData = response.data;
+        
+        // Convert base64 images to data URLs if needed
+        const processedProduct = {
+          ...productData,
+          productImageUrl: getImageUrl(productData.productImageUrl) || productData.productImageUrl,
+          productBackImageUrl: productData.productBackImageUrl 
+            ? getImageUrl(productData.productBackImageUrl) || productData.productBackImageUrl
+            : undefined
+        };
+        
+        setProduct(processedProduct);
         
         // Load favorites from localStorage
         const favorites = JSON.parse(localStorage.getItem("merfume_favorites") || "[]");
@@ -192,6 +223,21 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
     }
   };
 
+  // Get current image URL based on active image state
+  const getCurrentImageUrl = () => {
+    if (!product) return "";
+    
+    if (activeImage === "front") {
+      return product.productImageUrl;
+    }
+    
+    if (activeImage === "back" && product.productBackImageUrl) {
+      return product.productBackImageUrl;
+    }
+    
+    return product.productImageUrl;
+  };
+
   const discount = product?.originalPrice 
     ? Math.round(((product.originalPrice - product.productPrice) / product.originalPrice) * 100)
     : 0;
@@ -286,9 +332,13 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.3 }}
-                        src={activeImage === "front" ? product.productImageUrl : product.productBackImageUrl || product.productImageUrl}
+                        src={getCurrentImageUrl()}
                         alt={product.productName}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback for image loading errors
+                          e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%23999' text-anchor='middle' dy='.3em'%3EProduct Image%3C/text%3E%3C/svg%3E";
+                        }}
                       />
                     </div>
 
@@ -568,10 +618,10 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
                         <span className="text-muted-foreground">({product.reviewCount} reviews)</span>
                       </div>
                     </div>
-                    <div>
+                    {/* <div>
                       <h4 className="font-semibold text-foreground mb-2">Product ID</h4>
                       <p className="text-muted-foreground font-mono">{product.productId}</p>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
