@@ -197,18 +197,15 @@
 // export default App;
 
 
-// src/App.tsx
 import "./global.css";
 import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/components/CartContext";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import useFCMNotifications from "@/hooks/useFCMNotifications";
-import SnapdealNotificationDisplay from "@/components/SnapdealNotificationDisplay";
 import Home from "./pages/Home/page";
 import About from "./pages/About";
 import { TeamPage } from "./pages/OurTeam";
@@ -227,57 +224,54 @@ import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
-import ProductDetails from "./pages/ProductDetails/ProductDetails"; // Add this import
+import ProductDetails from "./pages/ProductDetails/ProductDetails";
 
 const queryClient = new QueryClient();
 
 // FCM Notification Handler Component
 const FCMNotificationHandler = () => {
-  const { setupMessageHandling, activeNotification, clearNotification } = useFCMNotifications();
+  const { setupMessageHandling } = useFCMNotifications();
 
   useEffect(() => {
     // Setup message handling
-    setupMessageHandling((payload) => {
+    const messageHandler = (payload: any) => {
       console.log('Message received in App:', payload);
-    });
+      
+      // Handle notification actions
+      if (payload.data?.action === 'VIEW_PRODUCT' && payload.data?.productId) {
+        console.log('Product notification received:', payload.data.productId);
+        // Navigate to product page when notification is clicked
+        window.location.href = `/product/${payload.data.productId}`;
+      }
+    };
 
-    // Handle service worker messages
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
-          console.log('Notification clicked via service worker:', event.data.payload);
-          // Handle notification click - Updated to use product details page
-          if (event.data.payload.productId) {
-            window.location.href = `/product/${event.data.payload.productId}`;
-          }
+    setupMessageHandling(messageHandler);
+
+    // Handle service worker messages for notification clicks
+    const handleServiceWorkerMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
+        console.log('Notification clicked via service worker:', event.data.payload);
+        
+        if (event.data.payload.productId) {
+          window.location.href = `/product/${event.data.payload.productId}`;
         }
-      });
+      }
+    };
+
+    // Add event listener for service worker messages
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
     }
 
+    // Cleanup function
     return () => {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.removeEventListener('message', () => {});
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
       }
     };
   }, [setupMessageHandling]);
 
-  const handleViewProduct = (productId: string) => {
-    // Updated to navigate to product details page
-    window.location.href = `/product/${productId}`;
-    clearNotification();
-  };
-
-  return (
-    <>
-      {activeNotification && (
-        <SnapdealNotificationDisplay
-          notification={activeNotification}
-          onClose={clearNotification}
-          onViewProduct={handleViewProduct}
-        />
-      )}
-    </>
-  );
+  return null;
 };
 
 // Main App Component
@@ -297,6 +291,7 @@ const App = () => {
               <Route path="/about" element={<About />} />
               <Route path="/our-team" element={<TeamPage />} />
               <Route path="/store" element={<Store />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/ceo-vision" element={<CeoVision />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/cart" element={<Cart />} />
@@ -312,10 +307,6 @@ const App = () => {
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              
-              {/* ✅ Add Product Details Route */}
-              <Route path="/product/:id" element={<ProductDetails />} />
-
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
@@ -324,6 +315,8 @@ const App = () => {
     </CartProvider>
   );
 };
+
+export default App;
 
 
 
