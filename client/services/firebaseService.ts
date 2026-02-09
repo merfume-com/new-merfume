@@ -431,6 +431,11 @@ export interface SnapdealNotificationData {
   style?: string;
 }
 
+// ✅ FIXED: Create a custom MessagePayload type that allows boolean in data
+export interface CustomMessagePayload extends Omit<MessagePayload, 'data'> {
+  data?: { [key: string]: string | boolean | number };
+}
+
 export type { MessagePayload };
 
 // Define NotificationAction interface
@@ -624,33 +629,6 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
   }
 };
 
-// Listen for incoming messages
-export const setupMessageListener = (callback: (payload: MessagePayload) => void) => {
-  initializeFirebase().then(messagingInstance => {
-    if (messagingInstance) {
-      onMessage(messagingInstance, (payload: MessagePayload) => {
-        console.log('📩 Foreground message received:', payload);
-        
-        const data = payload.data || {};
-        
-        // Handle Snapdeal style notifications
-        if (data.style === 'snapdeal_premium') {
-          showSnapdealStyleNotification(data);
-        } else {
-          // Handle regular notifications
-          if (payload.notification) {
-            showNotification(payload.notification);
-          }
-        }
-        
-        if (callback && typeof callback === 'function') {
-          callback(payload);
-        }
-      });
-    }
-  });
-};
-
 // Custom NotificationOptions interface with extended properties
 interface ExtendedNotificationOptions {
   body?: string;
@@ -666,46 +644,206 @@ interface ExtendedNotificationOptions {
   actions?: NotificationAction[];
 }
 
-// Show Snapdeal style notification
+// ✅ FIXED: Helper function to convert string to boolean safely
+export const toBoolean = (value: any): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true' || value === '1';
+  }
+  if (typeof value === 'number') {
+    return value !== 0;
+  }
+  return Boolean(value);
+};
+
+// ✅ FIXED: Helper to convert boolean to string for Firebase data
+const boolToString = (value: boolean | undefined): string => {
+  return value ? 'true' : 'false';
+};
+
+// ✅ FIXED: Listen for incoming messages
+export const setupMessageListener = (callback: (payload: CustomMessagePayload) => void) => {
+  initializeFirebase().then(messagingInstance => {
+    if (messagingInstance) {
+      onMessage(messagingInstance, (payload: MessagePayload) => {
+        console.log('📩 Foreground message received:', payload);
+        
+        const data = payload.data || {};
+        const notification = payload.notification || {};
+        
+        // Log all data for debugging
+        console.log('📦 Full data object:', data);
+        console.log('📦 Full notification object:', notification);
+        
+        // ✅ CRITICAL FIX: Check if it's a Snapdeal-style notification
+        const isSnapdealStyle = 
+          data.style === 'snapdeal_premium' || 
+          data.notificationType === 'snapdeal' ||
+          data.productId ||
+          data.price ||
+          data.productName;
+        
+        if (isSnapdealStyle) {
+          console.log('🎯 Processing as Snapdeal-style notification');
+          
+          // Transform data to SnapdealNotificationData with proper type conversion
+          const snapdealData: SnapdealNotificationData = {
+            type: data.type || 'product_notification',
+            productId: data.productId || '',
+            productName: data.productName || data.product_name || notification.body || 'New Product',
+            brandName: data.brandName || notification.title || 'Merfume Store',
+            price: data.price || data.currentPrice || '',
+            originalPrice: data.originalPrice || data.oldPrice,
+            discountPercent: data.discountPercent || data.discount,
+            discountAmount: data.discountAmount || data.saveAmount,
+            rating: data.rating,
+            category: data.category || data.productCategory,
+            imageUrl: data.imageUrl || data.image || notification.image,
+            brandLogoUrl: data.brandLogoUrl || data.icon || notification.icon,
+            notificationColor: data.notificationColor || '#FF6B35',
+            showTimer: toBoolean(data.showTimer), // ✅ FIXED: Convert to boolean
+            timerText: data.timerText || 'Hurry! Offer ends soon',
+            showRating: toBoolean(data.showRating), // ✅ FIXED: Convert to boolean
+            showCategoryTag: toBoolean(data.showCategoryTag), // ✅ FIXED: Convert to boolean
+            deepLink: data.deepLink || data.url || `/store?product=${data.productId}`,
+            webLink: data.webLink,
+            style: 'snapdeal_premium'
+          };
+
+          console.log('🎯 Transformed Snapdeal data:', snapdealData);
+          
+          // Show Snapdeal-style notification
+          showSnapdealStyleNotification(snapdealData);
+          
+          // Also trigger the custom React component
+          if (callback) {
+            // Convert snapdealData back to string-only format for Firebase compatibility
+            const stringData: { [key: string]: string } = {
+              ...data,
+              type: snapdealData.type,
+              productId: snapdealData.productId,
+              productName: snapdealData.productName,
+              brandName: snapdealData.brandName,
+              price: snapdealData.price,
+              style: 'snapdeal_premium'
+            };
+            
+            // Add optional fields as strings
+            if (snapdealData.originalPrice) stringData.originalPrice = snapdealData.originalPrice;
+            if (snapdealData.discountPercent) stringData.discountPercent = snapdealData.discountPercent;
+            if (snapdealData.discountAmount) stringData.discountAmount = snapdealData.discountAmount;
+            if (snapdealData.rating) stringData.rating = snapdealData.rating;
+            if (snapdealData.category) stringData.category = snapdealData.category;
+            if (snapdealData.imageUrl) stringData.imageUrl = snapdealData.imageUrl;
+            if (snapdealData.brandLogoUrl) stringData.brandLogoUrl = snapdealData.brandLogoUrl;
+            if (snapdealData.notificationColor) stringData.notificationColor = snapdealData.notificationColor;
+            if (snapdealData.timerText) stringData.timerText = snapdealData.timerText;
+            if (snapdealData.deepLink) stringData.deepLink = snapdealData.deepLink;
+            if (snapdealData.webLink) stringData.webLink = snapdealData.webLink;
+            
+            // Convert boolean fields to strings
+            stringData.showTimer = boolToString(snapdealData.showTimer);
+            stringData.showRating = boolToString(snapdealData.showRating);
+            stringData.showCategoryTag = boolToString(snapdealData.showCategoryTag);
+            
+            callback({
+              ...payload,
+              data: stringData
+            } as CustomMessagePayload);
+          }
+          
+        } else if (notification.title || notification.body) {
+          // Regular notification
+          console.log('🎯 Processing as regular notification');
+          showNotification(notification);
+          
+          if (callback) {
+            callback(payload as CustomMessagePayload);
+          }
+        } else {
+          // Default fallback - show a rich notification
+          console.log('🎯 No proper data, showing default notification');
+          showDefaultNotification();
+          
+          if (callback) {
+            callback(payload as CustomMessagePayload);
+          }
+        }
+      });
+    }
+  });
+};
+
+// ✅ IMPROVED: Show Snapdeal style notification
 export const showSnapdealStyleNotification = (data: any): void => {
   if ('Notification' in window && Notification.permission === 'granted') {
     const snapdealData = data as SnapdealNotificationData;
     
-    // Construct Snapdeal style body
+    console.log('🎯 Creating foreground Snapdeal notification:', snapdealData);
+    
+    // Ensure we have proper data
+    const notificationData = {
+      style: 'snapdeal_premium',
+      ...snapdealData,
+      deepLink: snapdealData.deepLink || `/store?product=${snapdealData.productId}`,
+      notificationColor: snapdealData.notificationColor || '#FF6B35'
+    };
+    
+    // ✅ Construct RICH notification body like Snapdeal
     let bodyLines = [];
     
-    // Line 1: Product name
-    if (snapdealData.productName) bodyLines.push(snapdealData.productName);
-    
-    // Line 2: Pricing info
-    let priceLine = snapdealData.price || '';
-    if (snapdealData.originalPrice && snapdealData.discountPercent) {
-      priceLine += `  ${snapdealData.originalPrice}  ${snapdealData.discountPercent}`;
-      if (snapdealData.discountAmount && snapdealData.discountAmount !== '₹0') {
-        priceLine += ` (Save ${snapdealData.discountAmount})`;
-      }
+    // Line 1: Product Name (bold/large)
+    if (snapdealData.productName) {
+      bodyLines.push(`📦 ${snapdealData.productName}`);
     }
-    bodyLines.push(priceLine);
     
-    // Line 3: Rating or category
+    // Line 2: Price information
+    let priceLine = '';
+    if (snapdealData.price) {
+      priceLine += `💰 ${snapdealData.price}`;
+    }
+    if (snapdealData.originalPrice) {
+      priceLine += `   ~~${snapdealData.originalPrice}~~`;
+    }
+    if (snapdealData.discountPercent) {
+      priceLine += `   🔥 ${snapdealData.discountPercent} OFF`;
+    }
+    if (priceLine) {
+      bodyLines.push(priceLine);
+    }
+    
+    // Line 3: Additional details
+    let detailsLine = '';
     if (snapdealData.rating && parseFloat(snapdealData.rating) > 0) {
       const stars = getStarsFromRating(parseFloat(snapdealData.rating));
-      bodyLines.push(`${stars} ${snapdealData.rating}${snapdealData.category ? ' • ' + snapdealData.category : ''}`);
-    } else if (snapdealData.category) {
-      bodyLines.push(`🏷️ ${snapdealData.category}`);
+      detailsLine += `${stars} ${snapdealData.rating}`;
+    }
+    if (snapdealData.category) {
+      if (detailsLine) detailsLine += ' • ';
+      detailsLine += `🏷️ ${snapdealData.category}`;
+    }
+    if (snapdealData.discountAmount && snapdealData.discountAmount !== '₹0' && snapdealData.discountAmount !== '0') {
+      if (detailsLine) detailsLine += ' • ';
+      detailsLine += `💸 Save ${snapdealData.discountAmount}`;
+    }
+    if (detailsLine) {
+      bodyLines.push(detailsLine);
     }
     
     const body = bodyLines.join('\n');
     const title = snapdealData.brandName || 'Merfume Store';
     
-    // Create notification options
-    const options: ExtendedNotificationOptions = {
+    console.log('📝 Notification Body:', body);
+    
+    // Create rich notification options
+    const options: any = {
       body: body,
       icon: snapdealData.brandLogoUrl || '/merfume-logo.png',
-      tag: snapdealData.productId || 'snapdeal_style',
+      tag: snapdealData.productId || 'snapdeal_' + Date.now(),
+      data: notificationData,
       requireInteraction: snapdealData.showTimer || false,
       silent: false,
-      data: snapdealData
+      timestamp: Date.now()
     };
     
     // Add badge if supported
@@ -713,9 +851,10 @@ export const showSnapdealStyleNotification = (data: any): void => {
       options.badge = '/badge.png';
     }
     
-    // Add image if supported (Chrome-specific)
+    // Add image if supported
     if (snapdealData.imageUrl && 'image' in Notification.prototype) {
       options.image = snapdealData.imageUrl;
+      console.log('🖼️ Adding image to notification:', snapdealData.imageUrl);
     }
     
     // Add vibrate if supported
@@ -728,57 +867,84 @@ export const showSnapdealStyleNotification = (data: any): void => {
       options.actions = [
         {
           action: 'view_product',
-          title: 'View Product'
+          title: '👁️ View'
         },
         {
           action: 'shop_now',
-          title: 'Shop Now'
+          title: '🛒 Shop Now'
         }
       ];
     }
     
-    // Create notification (TypeScript ko batana hai ki options compatible hai)
-    const notification = new Notification(title, options as NotificationOptions);
+    // Create notification
+    try {
+      const notification = new Notification(title, options);
+      
+      notification.onclick = (event) => {
+        event.preventDefault();
+        if (notificationData.deepLink) {
+          window.location.href = notificationData.deepLink;
+        }
+        notification.close();
+      };
+      
+      console.log('✅ Foreground Snapdeal notification shown');
+    } catch (error) {
+      console.error('❌ Error creating notification:', error);
+      // Fallback to simpler notification
+      const fallbackOptions = {
+        body: snapdealData.productName || 'Check out our latest products!',
+        icon: snapdealData.brandLogoUrl || '/merfume-logo.png',
+        tag: 'fallback_' + Date.now()
+      };
+      
+      const fallbackNotification = new Notification(title, fallbackOptions);
+      fallbackNotification.onclick = () => {
+        if (notificationData.deepLink) {
+          window.location.href = notificationData.deepLink;
+        }
+        fallbackNotification.close();
+      };
+    }
+  } else {
+    console.warn('⚠️ Notifications not permitted or not supported');
+  }
+};
+
+// ✅ NEW: Show default notification
+const showDefaultNotification = (): void => {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    const title = 'Merfume Store';
+    const body = '🛍️ New products available! Shop now for exclusive deals.';
     
-    // Handle notification click
-    notification.onclick = (event) => {
-      event.preventDefault();
-      
-      if (snapdealData.deepLink) {
-        window.location.href = snapdealData.deepLink;
-      } else if (snapdealData.productId) {
-        window.location.href = `/store?product=${snapdealData.productId}`;
-      } else if (snapdealData.webLink) {
-        window.open(snapdealData.webLink, '_blank');
-      }
-      
-      notification.close();
+    const options: any = {
+      body: body,
+      icon: '/merfume-logo.png',
+      badge: '/badge.png',
+      tag: 'default_' + Date.now(),
+      data: { style: 'default' },
+      silent: false,
+      timestamp: Date.now()
     };
     
-    // Handle action button clicks
+    if ('vibrate' in Notification.prototype && navigator.vibrate) {
+      options.vibrate = [200, 100, 200];
+    }
+    
+    const notification = new Notification(title, options);
+    
     notification.onclick = (event) => {
-      const target = event.target as Notification;
-      const action = (target as any).action || 'default';
-      
-      if (action === 'view_product' || action === 'shop_now' || action === 'default') {
-        event.preventDefault();
-        
-        if (snapdealData.deepLink) {
-          window.location.href = snapdealData.deepLink;
-        } else if (snapdealData.productId) {
-          window.location.href = `/store?product=${snapdealData.productId}`;
-        } else if (snapdealData.webLink) {
-          window.open(snapdealData.webLink, '_blank');
-        }
-        
-        notification.close();
-      }
+      event.preventDefault();
+      window.location.href = '/store';
+      notification.close();
     };
   }
 };
 
 // Helper to create star rating
 const getStarsFromRating = (rating: number): string => {
+  if (!rating || isNaN(rating) || rating < 0) return '★★★★★';
+  
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating - fullStars >= 0.5;
   let stars = '';
@@ -802,8 +968,11 @@ const getStarsFromRating = (rating: number): string => {
 // Show regular browser notification
 const showNotification = (notification: any): void => {
   if ('Notification' in window && Notification.permission === 'granted') {
-    const options: ExtendedNotificationOptions = {
-      body: notification.body,
+    const title = notification.title || 'Merfume Store';
+    const body = notification.body || 'Check out our latest products!';
+    
+    const options: any = {
+      body: body,
       icon: notification.icon || '/merfume-logo.png',
       tag: 'merfume-notification',
       requireInteraction: false,
@@ -821,13 +990,101 @@ const showNotification = (notification: any): void => {
       options.vibrate = [200, 100, 200];
     }
     
-    const notif = new Notification(notification.title || 'Merfume Store', options as NotificationOptions);
+    // Add image if supported
+    if (notification.image && 'image' in Notification.prototype) {
+      options.image = notification.image;
+    }
+    
+    const notif = new Notification(title, options);
     
     notif.onclick = function(event: Event) {
       event.preventDefault();
       window.focus();
       notif.close();
     };
+  }
+};
+
+// ✅ NEW: Send test notification
+export const sendTestNotification = async (): Promise<boolean> => {
+  try {
+    const testData = {
+      style: 'snapdeal_premium',
+      notificationType: 'snapdeal',
+      type: 'product_alert',
+      productId: 'test_perfume_123',
+      productName: 'Luxury Eau de Parfum - Premium Collection',
+      brandName: 'Merfume Store',
+      price: '₹1,299',
+      originalPrice: '₹2,499',
+      discountPercent: '48% OFF',
+      discountAmount: '₹1,200',
+      rating: '4.5',
+      category: 'Premium Fragrances',
+      imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400',
+      brandLogoUrl: '/merfume-logo.png',
+      notificationColor: '#FF6B35',
+      showTimer: true,
+      timerText: 'Hurry! Limited time offer',
+      showRating: true,
+      showCategoryTag: true,
+      deepLink: '/store?product=test_perfume_123'
+    };
+    
+    // Get current FCM token
+    const token = await requestNotificationPermission();
+    
+    if (!token) {
+      console.error('❌ No FCM token available');
+      return false;
+    }
+    
+    // Send test notification to backend
+    const response = await fetch('https://merfume-backend-production-5068.up.railway.app/api/notifications/send-test', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token: token,
+        notification: testData
+      })
+    });
+    
+    if (response.ok) {
+      console.log('✅ Test notification sent successfully');
+      return true;
+    } else {
+      console.error('❌ Failed to send test notification');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error sending test notification:', error);
+    return false;
+  }
+};
+
+// ✅ NEW: Check if backend sends proper data
+export const checkBackendNotification = async (): Promise<any> => {
+  try {
+    const response = await fetch('https://merfume-backend-production-5068.up.railway.app/api/notifications/sample', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Backend sample notification:', data);
+      return data;
+    } else {
+      console.error('❌ Failed to get sample from backend');
+      return null;
+    }
+  } catch (error) {
+    console.error('❌ Error checking backend:', error);
+    return null;
   }
 };
 
@@ -975,6 +1232,21 @@ export const supportsNotificationActions = (): boolean => {
 
 export const supportsNotificationBadge = (): boolean => {
   return 'badge' in Notification.prototype;
+};
+
+// ✅ NEW: Debug function to log all notification data
+export const debugNotification = (payload: MessagePayload): void => {
+  console.log('🔍 DEBUG Notification Payload:');
+  console.log('📦 Full payload:', payload);
+  console.log('📦 Data object:', payload.data);
+  console.log('📦 Notification object:', payload.notification);
+  
+  if (payload.data) {
+    console.log('🔑 Data keys:', Object.keys(payload.data));
+    Object.entries(payload.data).forEach(([key, value]) => {
+      console.log(`  ${key}:`, value);
+    });
+  }
 };
 
 export default initializeFirebase;
