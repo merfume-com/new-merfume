@@ -3141,7 +3141,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
-import ProductDialog from "@/components/ProductDialog"; // Add this import
+import ProductDialog from "@/components/ProductDialog";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -3151,7 +3151,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, Heart, X, Sparkles, Shield, Truck, RefreshCw } from "lucide-react";
+import { Search, Filter, Heart, X, Shield, Truck, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -3236,8 +3236,228 @@ const saveFavoritesToStorage = (favorites: number[]) => {
   }
 };
 
-// Skeleton Loading Components (keep the same as before)
-// ... [Keep all the skeleton components exactly as they were]
+// Define skeleton components BEFORE the main component
+const HeroSkeleton = () => {
+  return (
+    <div className="relative bg-gradient-to-r from-luxury-black via-luxury-black/95 to-luxury-black/90 py-12 overflow-hidden mb-6 rounded-2xl animate-pulse">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="text-center">
+          <div className="h-12 w-3/4 mx-auto bg-luxury-black/50 rounded mb-4"></div>
+          <div className="h-6 w-1/2 mx-auto bg-luxury-black/30 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FeaturesSkeleton = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-background to-background/50 border border-border/20 animate-pulse">
+          <div className="h-8 w-8 bg-muted rounded"></div>
+          <div className="flex-1">
+            <div className="h-5 w-32 bg-muted rounded mb-1"></div>
+            <div className="h-4 w-24 bg-muted/50 rounded"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const FiltersSkeleton = () => {
+  return (
+    <div className="bg-gradient-to-br from-background to-background/80 border border-border/30 rounded-2xl p-6 animate-pulse">
+      <div className="h-6 w-24 bg-muted rounded mb-4"></div>
+      <div className="space-y-4">
+        <div>
+          <div className="h-5 w-32 bg-muted/50 rounded mb-2"></div>
+          <div className="h-10 w-full bg-muted/30 rounded"></div>
+        </div>
+        <div>
+          <div className="h-5 w-24 bg-muted/50 rounded mb-2"></div>
+          <div className="h-2 w-full bg-muted/30 rounded"></div>
+          <div className="flex justify-between mt-2">
+            <div className="h-4 w-16 bg-muted/30 rounded"></div>
+            <div className="h-4 w-16 bg-muted/30 rounded"></div>
+          </div>
+        </div>
+        <div>
+          <div className="h-5 w-24 bg-muted/50 rounded mb-2"></div>
+          <div className="space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="h-4 w-4 bg-muted/30 rounded"></div>
+                <div className="h-4 w-20 bg-muted/30 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="h-10 w-full bg-muted/30 rounded mt-4"></div>
+    </div>
+  );
+};
+
+const SearchControlsSkeleton = () => {
+  return (
+    <div className="bg-gradient-to-br from-background to-background/80 border border-border/30 rounded-2xl p-6 mb-6 animate-pulse">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="relative flex-1 max-w-2xl">
+          <div className="h-12 w-full bg-muted/30 rounded-xl"></div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex border border-border/30 rounded-lg overflow-hidden">
+            <div className="h-10 w-16 bg-muted/30"></div>
+            <div className="h-10 w-16 bg-muted/50"></div>
+          </div>
+          <div className="h-12 w-[180px] bg-muted/30 rounded-xl"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProductSkeleton = ({ variant = "grid" }: { variant?: "grid" | "list" }) => {
+  if (variant === "grid") {
+    return (
+      <div className="group relative animate-pulse">
+        <div className="h-full border border-border/40 bg-gradient-to-b from-background to-background/95 overflow-hidden rounded-xl">
+          {/* Image Skeleton */}
+          <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-muted/20 to-muted/10">
+            <div className="w-full h-full bg-muted"></div>
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="p-4 flex flex-col h-[240px]">
+            <div className="flex items-center justify-between mb-2">
+              <div className="h-6 w-16 bg-muted rounded-full"></div>
+              <div className="flex items-center gap-1">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-3 w-3 bg-muted/50 rounded"></div>
+                  ))}
+                </div>
+                <div className="h-4 w-8 bg-muted/50 rounded ml-1"></div>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-3">
+              <div className="h-5 w-3/4 bg-muted rounded"></div>
+              <div className="h-4 w-full bg-muted/50 rounded"></div>
+            </div>
+
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1.5">
+                <div className="h-6 w-16 bg-muted/50 rounded-full"></div>
+                <div className="h-6 w-14 bg-muted/50 rounded-full"></div>
+              </div>
+            </div>
+
+            <div className="mt-auto pt-3 border-t border-border/20">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <div className="h-7 w-20 bg-muted rounded"></div>
+                    <div className="h-5 w-16 bg-muted/50 rounded"></div>
+                  </div>
+                  <div className="h-3 w-32 bg-muted/30 rounded"></div>
+                </div>
+                <div className="h-9 w-28 bg-muted rounded-lg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // List View Skeleton
+  return (
+    <div className="group animate-pulse">
+      <div className="border border-border/40 bg-gradient-to-r from-background to-background/95 overflow-hidden rounded-xl">
+        <div className="flex flex-col md:flex-row">
+          {/* Image Skeleton */}
+          <div className="md:w-48 lg:w-56 relative h-48 md:h-auto md:min-h-[200px] bg-muted"></div>
+
+          {/* Content Skeleton */}
+          <div className="flex-1 p-4 md:p-6">
+            <div className="h-full flex flex-col">
+              <div className="md:hidden mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="h-6 w-20 bg-muted rounded-full"></div>
+                  <div className="flex items-center gap-1">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="h-3 w-3 bg-muted/50 rounded"></div>
+                      ))}
+                    </div>
+                    <div className="h-4 w-8 bg-muted/50 rounded ml-1"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="hidden md:block mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="h-6 w-24 bg-muted rounded-full"></div>
+                  <div className="flex items-center gap-1">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="h-3.5 w-3.5 bg-muted/50 rounded"></div>
+                      ))}
+                    </div>
+                    <div className="h-4 w-8 bg-muted/50 rounded ml-1"></div>
+                    <div className="h-4 w-12 bg-muted/30 rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2 mb-3">
+                <div className="h-6 w-3/4 bg-muted rounded"></div>
+                <div className="hidden md:block h-4 w-full bg-muted/50 rounded"></div>
+              </div>
+
+              <div className="mb-3 md:mb-4">
+                <div className="flex flex-wrap gap-1.5 md:gap-2">
+                  <div className="h-6 w-20 bg-muted/50 rounded-full"></div>
+                  <div className="h-6 w-16 bg-muted/50 rounded-full"></div>
+                  <div className="h-6 w-18 bg-muted/50 rounded-full"></div>
+                </div>
+              </div>
+
+              <div className="md:hidden mt-auto">
+                <div className="space-y-3">
+                  <div className="flex items-baseline gap-2">
+                    <div className="h-7 w-24 bg-muted rounded"></div>
+                    <div className="h-5 w-20 bg-muted/50 rounded"></div>
+                  </div>
+                  <div className="h-10 w-full bg-muted rounded-lg"></div>
+                </div>
+              </div>
+
+              <div className="hidden md:block mt-auto pt-4 border-t border-border/20">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-3">
+                      <div className="h-8 w-28 bg-muted rounded"></div>
+                      <div className="h-6 w-24 bg-muted/50 rounded"></div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 bg-muted/50 rounded"></div>
+                      <div className="h-4 w-48 bg-muted/30 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-12 w-40 bg-muted rounded-lg"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function Store() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -3738,7 +3958,7 @@ export default function Store() {
                             {...product}
                             onToggleFavorite={handleToggleFavorite}
                             isFavorite={favorites.includes(product.productId)}
-                            onProductClick={handleProductClick} // Add this prop
+                            onProductClick={handleProductClick}
                             variant="grid"
                             className="w-full"
                           />
@@ -3752,7 +3972,7 @@ export default function Store() {
                             {...product}
                             onToggleFavorite={handleToggleFavorite}
                             isFavorite={favorites.includes(product.productId)}
-                            onProductClick={handleProductClick} // Add this prop
+                            onProductClick={handleProductClick}
                             variant="list"
                             className="w-full"
                           />
