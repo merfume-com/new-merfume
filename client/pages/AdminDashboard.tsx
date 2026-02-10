@@ -8538,60 +8538,136 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handle updating product
-  const handleUpdateProduct = async (productId: number) => {
+  // // Handle updating product
+  // const handleUpdateProduct = async (productId: number) => {
+  //   if (!selectedProduct) return;
+    
+  //   setIsUpdatingProduct(true);
+    
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("product", JSON.stringify({
+  //       ...selectedProduct,
+  //       productId,
+  //       productPrice: Number(selectedProduct.productPrice),
+  //       originalPrice: selectedProduct.originalPrice ? Number(selectedProduct.originalPrice) : undefined,
+  //       notes: selectedProduct.notes,
+  //       rating: selectedProduct.rating || 0,
+  //       reviewCount: selectedProduct.reviewCount || 0
+  //     }));
+      
+  //     if (frontImage) formData.append("frontImage", frontImage);
+  //     if (backImage) formData.append("backImage", backImage);
+      
+  //     const response = await api.put(`/api/products/update/${productId}`, formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+      
+  //     toast({
+  //       title: "Success",
+  //       description: response.data.message || "Product updated successfully",
+  //     });
+      
+  //     setProductDialogOpen(false);
+  //     fetchProductsFromBackend();
+  //     setFrontImage(null);
+  //     setBackImage(null);
+      
+  //   } catch (error: any) {
+  //     console.error("Error updating product:", error);
+      
+  //     let errorMessage = "Failed to update product. ";
+  //     if (error.response?.data?.message) {
+  //       errorMessage = error.response.data.message;
+  //     }
+      
+  //     toast({
+  //       title: "Error",
+  //       description: errorMessage,
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setIsUpdatingProduct(false);
+  //   }
+  // };
+
+// Handle updating product
+  // Update product handler
+const handleUpdateProduct = async (productId: number) => {
     if (!selectedProduct) return;
     
     setIsUpdatingProduct(true);
     
     try {
-      const formData = new FormData();
-      formData.append("product", JSON.stringify({
-        ...selectedProduct,
-        productId,
-        productPrice: Number(selectedProduct.productPrice),
-        originalPrice: selectedProduct.originalPrice ? Number(selectedProduct.originalPrice) : undefined,
-        notes: selectedProduct.notes,
-        rating: selectedProduct.rating || 0,
-        reviewCount: selectedProduct.reviewCount || 0
-      }));
-      
-      if (frontImage) formData.append("frontImage", frontImage);
-      if (backImage) formData.append("backImage", backImage);
-      
-      const response = await api.put(`/api/products/update/${productId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      
-      toast({
-        title: "Success",
-        description: response.data.message || "Product updated successfully",
-      });
-      
-      setProductDialogOpen(false);
-      fetchProductsFromBackend();
-      setFrontImage(null);
-      setBackImage(null);
-      
+        // Create form data
+        const formData = new FormData();
+        
+        // Prepare product data for JSON
+        const productData = {
+            productId: selectedProduct.productId,
+            productName: selectedProduct.productName,
+            brand: selectedProduct.brand,
+            productCategory: selectedProduct.productCategory,
+            productPrice: Number(selectedProduct.productPrice),
+            originalPrice: selectedProduct.originalPrice ? Number(selectedProduct.originalPrice) : null,
+            productDescription: selectedProduct.productDescription,
+            notes: selectedProduct.notes || [], // Ensure notes is array
+            rating: selectedProduct.rating || 0,
+            reviewCount: selectedProduct.reviewCount || 0,
+            deleted: selectedProduct.isDeleted || false
+        };
+        
+        // Add product as JSON string
+        formData.append("product", JSON.stringify(productData));
+        
+        // Add images only if they were changed
+        if (frontImage) {
+            formData.append("frontImage", frontImage);
+        }
+        if (backImage) {
+            formData.append("backImage", backImage);
+        }
+        
+        console.log("Updating product:", productData);
+        
+        const response = await api.put(`/api/products/update/${productId}`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        
+        toast({
+            title: "Success",
+            description: response.data.message || "Product updated successfully",
+        });
+        
+        setProductDialogOpen(false);
+        fetchProductsFromBackend();
+        setFrontImage(null);
+        setBackImage(null);
+        
     } catch (error: any) {
-      console.error("Error updating product:", error);
-      
-      let errorMessage = "Failed to update product. ";
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-      
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+        console.error("Error updating product:", error);
+        
+        let errorMessage = "Failed to update product. ";
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.response?.data) {
+            errorMessage = JSON.stringify(error.response.data);
+        }
+        
+        toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+        });
     } finally {
-      setIsUpdatingProduct(false);
+        setIsUpdatingProduct(false);
     }
-  };
+};
+
 
   // Soft delete product
   const softDeleteProduct = async (productId: number, productName: string) => {
