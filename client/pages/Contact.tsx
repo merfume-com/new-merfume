@@ -2376,7 +2376,9 @@ export default function Contact() {
       {/* Contact Information Cards */}
       <section className="py-20 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Center align 3 cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-center">
+            {/* Commented out Visit Our Store card */}
             {/* <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
@@ -2408,6 +2410,7 @@ export default function Contact() {
               </CardContent>
             </Card> */}
 
+            {/* Call Us Card */}
             <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
@@ -2450,6 +2453,7 @@ export default function Contact() {
               </CardContent>
             </Card>
 
+            {/* Email Us Card */}
             <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
@@ -2490,6 +2494,7 @@ export default function Contact() {
               </CardContent>
             </Card>
 
+            {/* Store Hours Card */}
             <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
@@ -2524,9 +2529,8 @@ export default function Contact() {
       {/* Main Content: Form and Additional Info */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Changed from grid-cols-2 to grid-cols-3 and adjusted column spans */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Contact Form Section - Now takes 2/3 of the width */}
+            {/* Contact Form Section - Takes 2/3 width */}
             <div className="lg:col-span-2 space-y-8">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -2539,7 +2543,7 @@ export default function Contact() {
                 </p>
               </div>
 
-              {/* Form Card with max-w-none to take full width */}
+              {/* Form Card with full width */}
               <Card className="border-gold/20 shadow-lg max-w-none">
                 <CardHeader>
                   <CardTitle className="flex items-center text-foreground">
@@ -2703,7 +2707,7 @@ export default function Contact() {
                 </CardContent>
               </Card>
 
-              {/* Connect With Us Section - Moved here */}
+              {/* Connect With Us Section */}
               <Card className="border-gold/20 shadow-lg max-w-none">
                 <CardHeader>
                   <CardTitle className="flex items-center text-foreground">
@@ -2741,7 +2745,7 @@ export default function Contact() {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       Join thousands of satisfied customers who have found their
-                       signature scent with Merfume. Our team is dedicated to
+                      signature scent with Merfume. Our team is dedicated to
                       providing exceptional service and helping you discover the
                       perfect fragrance for every occasion.
                     </p>
@@ -2750,17 +2754,16 @@ export default function Contact() {
               </Card>
             </div>
 
-            {/* Right Column - Now only has Quick FAQs */}
-            <div className="lg:col-span-1 space-y-8">
-              {/* Quick FAQs Section - Without Scroll */}
-              <Card className="border-gold/20 shadow-lg">
+            {/* Right Column - Quick FAQs */}
+            <div className="lg:col-span-1">
+              {/* Quick FAQs Section */}
+              <Card className="border-gold/20 shadow-lg sticky top-8">
                 <CardHeader>
                   <CardTitle className="text-foreground">
                     Quick FAQs
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {/* Removed h-[500px] overflow-y-auto to disable scroll */}
                   <div className="space-y-4">
                     {faqs.map((faq, index) => (
                       <div
@@ -2769,15 +2772,15 @@ export default function Contact() {
                       >
                         <button
                           onClick={() => toggleFaq(index)}
-                          className="flex justify-between items-center w-full text-left"
+                          className="flex justify-between items-center w-full text-left hover:text-gold transition-colors"
                         >
-                          <span className="font-medium text-foreground">
+                          <span className="font-medium text-foreground text-left">
                             {faq.question}
                           </span>
                           {openFaqs.includes(index) ? (
-                            <ChevronUp className="w-4 h-4 text-gold" />
+                            <ChevronUp className="w-4 h-4 text-gold flex-shrink-0" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-gold" />
+                            <ChevronDown className="w-4 h-4 text-gold flex-shrink-0" />
                           )}
                         </button>
                         {openFaqs.includes(index) && (
