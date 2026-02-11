@@ -46,7 +46,7 @@ export default function TermsOfService() {
                 <h3 className="text-lg font-semibold text-foreground mb-2">Important Notice</h3>
                 <p className="text-muted-foreground">
                   By accessing or using our Website (<a href="https://merfume.in" className="text-gold hover:text-gold-dark font-medium">https://merfume.in</a>), 
-                  you agree to be bound by these Terms of Service. If you do not agree, please do not use the Website.
+                  you agree to be bound by these Terms of Service.
                 </p>
               </div>
             </div>
