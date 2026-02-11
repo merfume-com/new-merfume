@@ -657,7 +657,7 @@ export default function PrivacyPolicy() {
                   Learn about our return and exchange policies
                 </p>
                 <a
-                  href="/returns-policy"
+                  href="/refund-policy"
                   className="text-gold hover:text-gold-dark text-sm font-medium"
                 >
                   Read Policy →
