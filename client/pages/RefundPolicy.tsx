@@ -615,7 +615,7 @@ export default function RefundPolicy() {
                 </li>
                 <li>
                   <a
-                    href="/returns-policy"
+                    href="/refund-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Returns & Exchanges
