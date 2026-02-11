@@ -2374,10 +2374,10 @@ export default function Contact() {
       </section>
 
       {/* Contact Information Cards */}
-      <section className="py-20 bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <section className="py-20 bg-card">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Center align 3 cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-center">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-items-center">
             {/* Commented out Visit Our Store card */}
             {/* <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
               <CardContent className="p-8 text-center">
@@ -2411,117 +2411,117 @@ export default function Contact() {
             </Card> */}
 
             {/* Call Us Card */}
-            <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <Phone className="w-8 h-8 text-gold" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  Call Us
-                </h3>
-                <div className="space-y-2 text-muted-foreground">
-                  <div>
-                    <p className="font-medium">Customer Service</p>
-                    <a
-                      href="tel:+917489635061"
-                      className="text-gold hover:text-gold-dark transition-colors"
-                    >
-                      +91 7489635061
-                    </a>
-                  </div>
-                  <div>
-                    <p className="font-medium">Sales Team</p>
-                    <a
-                      href="tel:+917489635061"
-                      className="text-gold hover:text-gold-dark transition-colors"
-                    >
-                      +91 7489635061
-                    </a>
-                  </div>
-                  <div>
-                    <p className="font-medium">WhatsApp</p>
-                    <a
-                      href="https://wa.me/917489635061"
-                      className="text-gold hover:text-gold-dark transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      +91 7489635061
-                    </a>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg w-full max-w-md">
+        <CardContent className="p-8 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+            <Phone className="w-8 h-8 text-gold" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Call Us
+          </h3>
+          <div className="space-y-2 text-muted-foreground">
+            <div>
+              <p className="font-medium">Customer Service</p>
+              <a
+                href="tel:+917489635061"
+                className="text-gold hover:text-gold-dark transition-colors"
+              >
+                +91 7489635061
+              </a>
+            </div>
+            <div>
+              <p className="font-medium">Sales Team</p>
+              <a
+                href="tel:+917489635061"
+                className="text-gold hover:text-gold-dark transition-colors"
+              >
+                +91 7489635061
+              </a>
+            </div>
+            <div>
+              <p className="font-medium">WhatsApp</p>
+              <a
+                href="https://wa.me/917489635061"
+                className="text-gold hover:text-gold-dark transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                +91 7489635061
+              </a>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
             {/* Email Us Card */}
-            <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <Mail className="w-8 h-8 text-gold" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  Email Us
-                </h3>
-                <div className="space-y-2 text-muted-foreground">
-                  <div>
-                    <p className="font-medium">General Inquiries</p>
-                    <a
-                      href="mailto:info@merfume.com"
-                      className="text-gold hover:text-gold-dark transition-colors"
-                    >
-                      info@merfume.com
-                    </a>
-                  </div>
-                  <div>
-                    <p className="font-medium">Customer Support</p>
-                    <a
-                      href="mailto:support@merfume.com"
-                      className="text-gold hover:text-gold-dark transition-colors"
-                    >
-                      support@merfume.com
-                    </a>
-                  </div>
-                  <div>
-                    <p className="font-medium">Partnerships</p>
-                    <a
-                      href="mailto:partners@merfume.com"
-                      className="text-gold hover:text-gold-dark transition-colors"
-                    >
-                      partners@merfume.com
-                    </a>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg w-full max-w-md">
+        <CardContent className="p-8 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+            <Mail className="w-8 h-8 text-gold" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Email Us
+          </h3>
+          <div className="space-y-2 text-muted-foreground">
+            <div>
+              <p className="font-medium">General Inquiries</p>
+              <a
+                href="mailto:info@merfume.com"
+                className="text-gold hover:text-gold-dark transition-colors"
+              >
+                info@merfume.com
+              </a>
+            </div>
+            <div>
+              <p className="font-medium">Customer Support</p>
+              <a
+                href="mailto:support@merfume.com"
+                className="text-gold hover:text-gold-dark transition-colors"
+              >
+                support@merfume.com
+              </a>
+            </div>
+            <div>
+              <p className="font-medium">Partnerships</p>
+              <a
+                href="mailto:partners@merfume.com"
+                className="text-gold hover:text-gold-dark transition-colors"
+              >
+                partners@merfume.com
+              </a>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
             {/* Store Hours Card */}
-            <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                  <Clock className="w-8 h-8 text-gold" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  Store Hours
-                </h3>
-                <div className="space-y-2 text-muted-foreground">
-                  <div className="flex justify-between">
-                    <span>Monday - Friday</span>
-                    <span className="text-gold">9:00 - 21:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Saturday</span>
-                    <span className="text-gold">10:00 - 22:00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sunday</span>
-                    <span className="text-gold">12:00 - 20:00</span>
-                  </div>
-                  <p className="text-sm mt-4 italic">
-                    Extended hours during holidays
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+             <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg w-full max-w-md">
+        <CardContent className="p-8 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+            <Clock className="w-8 h-8 text-gold" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Store Hours
+          </h3>
+          <div className="space-y-2 text-muted-foreground">
+            <div className="flex justify-between">
+              <span>Monday - Friday</span>
+              <span className="text-gold">9:00 - 21:00</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Saturday</span>
+              <span className="text-gold">10:00 - 22:00</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Sunday</span>
+              <span className="text-gold">12:00 - 20:00</span>
+            </div>
+            <p className="text-sm mt-4 italic">
+              Extended hours during holidays
+            </p>
+          </div>
+        </CardContent>
+      </Card>
           </div>
         </div>
       </section>
