@@ -19,9 +19,9 @@ export default function ShippingPolicy() {
                 <Truck className="w-12 h-12 text-luxury-black" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 tracking-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6">
               Shipping
-              <span className="block text-gold bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent">
+               <span className="block text-gold bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent pb-2 md:pb-3">
                 Policy
               </span>
             </h1>
