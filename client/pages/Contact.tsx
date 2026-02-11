@@ -2377,7 +2377,7 @@ export default function Contact() {
       <section className="py-20 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
+            {/* <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                   <MapPin className="w-8 h-8 text-gold" />
@@ -2406,7 +2406,7 @@ export default function Contact() {
                   Get Directions
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <Card className="border-border/50 hover:border-gold/50 transition-all duration-300 group hover:shadow-lg">
               <CardContent className="p-8 text-center">
