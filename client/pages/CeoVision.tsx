@@ -58,7 +58,7 @@ export default function CeoVision() {
             <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
               <p className="text-xl font-medium text-foreground">
                 "At Merfume, we believe that fragrance is more than just a
-                scent—it's an emotional journey, a memory, and a connection that
+                scent. it's an emotional journey, a memory, and a connection that
                 transcends boundaries."
               </p>
               <p>
