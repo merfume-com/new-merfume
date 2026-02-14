@@ -1,18 +1,18 @@
-import Navigation from "@/components/Navigation";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Heart,
-  Clock,
-  Leaf,
-  Award,
-  Globe,
-  Users,
-  Sparkles,
-  Flame,
-  ShoppingBag,
-  Star,
-  Crown,
-} from "lucide-react";
+// import Navigation from "@/components/Navigation";
+// import { Card, CardContent } from "@/components/ui/card";
+// import {
+//   Heart,
+//   Clock,
+//   Leaf,
+//   Award,
+//   Globe,
+//   Users,
+//   Sparkles,
+//   Flame,
+//   ShoppingBag,
+//   Star,
+//   Crown,
+// } from "lucide-react";
 
 // export default function About() {
 //   return (
@@ -457,6 +457,23 @@ import {
 //   );
 // }
 
+
+import Navigation from "@/components/Navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom"; // ✅ Added this import for footer links
+import {
+  Heart,
+  Clock,
+  Leaf,
+  Award,
+  Globe,
+  Users,
+  Sparkles,
+  Flame,
+  ShoppingBag,
+  Star,
+  Crown,
+} from "lucide-react";
 
 export default function About() {
   return (
