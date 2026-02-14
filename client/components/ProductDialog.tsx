@@ -2361,6 +2361,7 @@
 
 
 // components/ProductDialog.tsx
+// components/ProductDialog.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -2440,7 +2441,7 @@ const getImageUrl = (base64String?: string) => {
 };
 
 // Parse product specifications from description
-const parseProductSpecifications = (description: string): Record<string, string> => {
+const parseProductSpecifications = (description: string): { cleanDescription: string; specifications: Record<string, string> } => {
   const specKeys = [
     'Type Perfume',
     'Best Usage', 
@@ -2454,51 +2455,70 @@ const parseProductSpecifications = (description: string): Record<string, string>
   // Split the description into lines
   const lines = description.split('\n');
   
-  let currentKey: string | null = null;
-  let currentValue: string[] = [];
-  
-  lines.forEach(line => {
-    const trimmedLine = line.trim();
-    if (!trimmedLine) return;
-    
-    // Check if this line starts with any of our keys
-    const matchedKey = specKeys.find(key => 
-      trimmedLine.toLowerCase().startsWith(key.toLowerCase()) && 
-      trimmedLine.includes(':')
-    );
-    
-    if (matchedKey) {
-      // Save previous key-value if exists
-      if (currentKey && currentValue.length > 0) {
-        specifications[currentKey] = currentValue.join(' ').trim();
-      }
-      
-      // Start new key-value
-      currentKey = matchedKey;
-      // Extract value after the colon
-      const valuePart = trimmedLine.substring(trimmedLine.indexOf(':') + 1).trim();
-      currentValue = valuePart ? [valuePart] : [];
-    } else if (currentKey && !specKeys.some(key => trimmedLine.toLowerCase().startsWith(key.toLowerCase()))) {
-      // Continue building current value
-      currentValue.push(trimmedLine);
+  // Find where specifications section starts
+  let specStartIndex = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (specKeys.some(key => line.startsWith(key) && line.includes(':'))) {
+      specStartIndex = i;
+      break;
     }
-  });
-  
-  // Save the last key-value
-  if (currentKey && currentValue.length > 0) {
-    specifications[currentKey] = currentValue.join(' ').trim();
   }
   
-  // Clean up values - remove trailing commas and extra spaces
-  Object.keys(specifications).forEach(key => {
-    specifications[key] = specifications[key]
-      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-      .replace(/\s*,\s*/g, ', ') // Format commas
-      .replace(/\.$/, '') // Remove trailing period
-      .trim();
-  });
+  // If specifications found, extract them
+  if (specStartIndex !== -1) {
+    // Get clean description (everything before specifications)
+    const cleanDescription = lines.slice(0, specStartIndex).join('\n').trim();
+    
+    // Process each specification line
+    let currentKey: string | null = null;
+    let currentValue: string[] = [];
+    
+    for (let i = specStartIndex; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      // Check if this line starts with any of our keys
+      const matchedKey = specKeys.find(key => 
+        line.toLowerCase().startsWith(key.toLowerCase()) && line.includes(':')
+      );
+      
+      if (matchedKey) {
+        // Save previous key-value if exists
+        if (currentKey && currentValue.length > 0) {
+          specifications[currentKey] = currentValue.join(' ').trim();
+        }
+        
+        // Start new key-value
+        currentKey = matchedKey;
+        // Extract value after the colon
+        const valuePart = line.substring(line.indexOf(':') + 1).trim();
+        currentValue = valuePart ? [valuePart] : [];
+      } else if (currentKey && !specKeys.some(key => line.toLowerCase().startsWith(key.toLowerCase()))) {
+        // Continue building current value
+        currentValue.push(line);
+      }
+    }
+    
+    // Save the last key-value
+    if (currentKey && currentValue.length > 0) {
+      specifications[currentKey] = currentValue.join(' ').trim();
+    }
+    
+    // Clean up values
+    Object.keys(specifications).forEach(key => {
+      specifications[key] = specifications[key]
+        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+        .replace(/\s*,\s*/g, ', ') // Format commas
+        .replace(/\.$/, '') // Remove trailing period
+        .trim();
+    });
+    
+    return { cleanDescription, specifications };
+  }
   
-  return specifications;
+  // If no specifications found, return original description
+  return { cleanDescription: description, specifications: {} };
 };
 
 // Specifications Display Component
@@ -2507,25 +2527,25 @@ const SpecificationsDisplay = ({ specifications }: { specifications: Record<stri
   
   // Map of display names for better formatting
   const displayNames: Record<string, string> = {
-    'Type Perfume': 'Perfume Type',
-    'Best Usage': 'Best For',
-    'Target Gender': 'Gender',
-    'Item Form': 'Form',
-    'Item Volume': 'Volume'
+    'Type Perfume': 'Type Perfume',
+    'Best Usage': 'Best Usage',
+    'Target Gender': 'Target Gender',
+    'Item Form': 'Item Form',
+    'Item Volume': 'Item Volume'
   };
   
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-foreground mb-3">Product Specifications</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {Object.entries(specifications).map(([key, value]) => (
-          <div key={key} className="p-4 rounded-xl bg-card border">
-            <h4 className="font-medium text-foreground mb-2">{displayNames[key] || key}</h4>
-            <div className="text-muted-foreground">
+          <div key={key} className="flex items-start gap-4 p-4 rounded-xl bg-card border">
+            <div className="min-w-[120px] font-medium text-foreground">{displayNames[key] || key}:</div>
+            <div className="text-muted-foreground flex-1">
               {value.split(',').map((item, index) => (
                 <span key={index} className="inline-block">
                   {item.trim()}
-                  {index < value.split(',').length - 1 && <span className="mx-1">•</span>}
+                  {index < value.split(',').length - 1 && <span className="mx-2">•</span>}
                 </span>
               ))}
             </div>
@@ -2550,6 +2570,7 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
   const [newRating, setNewRating] = useState(5);
   const [userName, setUserName] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [cleanDescription, setCleanDescription] = useState("");
 
   // Load user name from localStorage or set default
   useEffect(() => {
@@ -2572,7 +2593,7 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
         const productData = productResponse.data;
         
         // Parse specifications from description
-        const specifications = parseProductSpecifications(productData.productDescription);
+        const { cleanDescription, specifications } = parseProductSpecifications(productData.productDescription);
         
         // Convert base64 images to data URLs if needed
         const processedProduct = {
@@ -2581,10 +2602,12 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
           productBackImageUrl: productData.productBackImageUrl 
             ? getImageUrl(productData.productBackImageUrl) || productData.productBackImageUrl
             : undefined,
-          specifications // Add parsed specifications
+          specifications,
+          productDescription: cleanDescription // Update description to remove specs
         };
         
         setProduct(processedProduct);
+        setCleanDescription(cleanDescription);
         
         // Fetch reviews for this product
         try {
@@ -2626,6 +2649,7 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
       setAddedToCart(false);
       setQuantity(1);
       setReviews([]);
+      setCleanDescription("");
     }
   }, [open]);
 
@@ -2997,15 +3021,15 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
 
                       <Separator />
 
-                      {/* Description */}
+                      {/* Description - Now clean without specifications */}
                       <div>
                         <h3 className="text-lg font-semibold text-foreground mb-3">Description</h3>
                         <p className="text-muted-foreground text-lg leading-relaxed">
-                          {product.productDescription.split('\n')[0]} {/* Show only first paragraph of description */}
+                          {cleanDescription || product.productDescription}
                         </p>
                       </div>
 
-                      {/* Specifications Section - Add this here */}
+                      {/* Specifications Section - Display as separate fields */}
                       {product.specifications && Object.keys(product.specifications).length > 0 && (
                         <>
                           <Separator />
