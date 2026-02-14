@@ -364,89 +364,91 @@ export default function About() {
                 alt="Merfume"
                 className="h-20 w-auto mb-4 brightness-110"
               />
-              <p className="text-cream/80 max-w-md">
-                Discover the world of luxury fragrances with Merfume. Each scent
-                tells a story, each bottle holds a memory.
+              <p className="text-cream/80 max-w-md leading-relaxed">
+                Your premier online destination for luxury fragrances. Each
+                scent tells a story, each bottle holds a memory of affection and
+                love.
               </p>
             </div>
             <div>
               <h3 className="text-gold font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    to="/about"
+                  <a
+                    href="/"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    About Us
-                  </Link>
+                    Home
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/store"
+                  <a
+                    href="/store"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Store
-                  </Link>
+                    Online Store
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/ceo-vision"
+                  <a
+                    href="/ceo-vision"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     CEO Vision
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/contact"
+                  <a
+                    href="/contact"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Contact
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-gold font-semibold mb-4">Support</h3>
+              <h3 className="text-gold font-semibold mb-4">Customer Care</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    to="/track-order"
+                  <a
+                    href="#"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Track Order
-                  </Link>
+                    Help Center
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/shipping-policy"
+                  <a
+                    href="/shipping-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Shipping Policies
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/privacy-policy"
+                  <a
+                    href="#"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Privacy Policies
-                  </Link>
+                    Returns Policy
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/how-to-manage-fragrance"
+                  <a
+                    href="#"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Fragrance care tips
-                  </Link>
+                    Fragrance Care
+                  </a>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-cream/20 mt-12 pt-8 text-center">
             <p className="text-cream/60">
-              © 2024 Merfume. All rights reserved. Crafted with luxury in mind.
+              © 2024 Merfume Online Store. All rights reserved. Premium
+              perfumes delivered with love.
             </p>
           </div>
         </div>
