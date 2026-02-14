@@ -3165,7 +3165,7 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
                           <Truck className="h-6 w-6 text-primary" />
                           <div>
                             <h4 className="font-medium text-foreground">Free Shipping</h4>
-                            <p className="text-sm text-muted-foreground">On orders above ₹5000</p>
+                            <p className="text-sm text-muted-foreground">On orders above ₹500</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 p-4 rounded-xl bg-card border">
