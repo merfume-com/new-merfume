@@ -2444,7 +2444,7 @@ export default function ProductCard({
                     <div className="flex items-center gap-2">
                       <Zap className="h-4 w-4 text-green-500" />
                       <p className="text-sm text-muted-foreground">
-                        Free shipping on orders over ₹5000
+                        Free shipping on orders over ₹500
                       </p>
                     </div>
 
