@@ -4697,7 +4697,7 @@ export default function Store() {
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-medium text-foreground mb-2">Brands</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-2">Brand Inspiration</h4>
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {brands.map((brand) => (
                           <div key={brand} className="flex items-center space-x-2">
