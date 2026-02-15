@@ -12,6 +12,7 @@ import {
   Lightbulb,
   Star,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function CeoVision() {
   return (
@@ -294,107 +295,89 @@ export default function CeoVision() {
                 alt="Merfume"
                 className="h-20 w-auto mb-4 brightness-110"
               />
-              <p className="text-cream/80 max-w-md leading-relaxed">
-                Leading the future of luxury perfumery with innovation,
-                tradition, and an unwavering commitment to excellence.
+              <p className="text-cream/80 max-w-md">
+                Discover the world of luxury fragrances with Merfume. Each scent
+                tells a story, each bottle holds a memory.
               </p>
             </div>
             <div>
               <h3 className="text-gold font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="/"
-                    className="text-cream/80 hover:text-gold transition-colors"
-                  >
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/about"
+                  <Link
+                    to="/about"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     About Us
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/store"
+                  <Link
+                    to="/store"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Store
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/contact"
+                  <Link
+                    to="/ceo-vision"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    CEO Vision
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Contact
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-gold font-semibold mb-4">Our Vision</h3>
+              <h3 className="text-gold font-semibold mb-4">Support</h3>
               <ul className="space-y-2">
                 <li>
-                  <span className="text-cream/80">Excellence</span>
-                </li>
-                <li>
-                  <span className="text-cream/80">Innovation</span>
-                </li>
-                <li>
-                  <span className="text-cream/80">Heritage</span>
-                </li>
-                <li>
-                  <span className="text-cream/80">Connection</span>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-gold font-semibold mb-4">Customer Care</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/track-order"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Help Center
-                  </a>
+                    Track Order
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/shipping-policy"
+                  <Link
+                    to="/shipping-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Shipping Policies
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/privacy-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Returns Policy
-                  </a>
+                    Privacy Policies
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/how-to-manage-fragrance"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Fragrance Care
-                  </a>
+                    Fragrance care tips
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-cream/20 mt-12 pt-8 text-center">
             <p className="text-cream/60">
-              © 2024 Merfume. All rights reserved. Building the future of
-              luxury fragrance.
+              © 2024 Merfume. All rights reserved. Crafted with luxury in mind.
             </p>
           </div>
         </div>
