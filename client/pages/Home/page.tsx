@@ -2169,7 +2169,7 @@ export default function Home() {
            <Link to="/store">
   <Button 
     variant="outline" 
-    className="border-2 border-white bg-white text-emerald-900 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 px-6 py-3 text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+    className="border-2 border-white bg-emerald-600 text-emerald-900 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 px-6 py-3 text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg"
   >
     Explore Our Collection
   </Button>
