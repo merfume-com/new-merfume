@@ -294,70 +294,89 @@ export default function CeoVision() {
                 alt="Merfume"
                 className="h-20 w-auto mb-4 brightness-110"
               />
-              <p className="text-cream/80 max-w-md leading-relaxed">
-                Leading the future of luxury perfumery with innovation,
-                tradition, and an unwavering commitment to excellence.
+              <p className="text-cream/80 max-w-md">
+                Discover the world of luxury fragrances with Merfume. Each scent
+                tells a story, each bottle holds a memory.
               </p>
             </div>
             <div>
               <h3 className="text-gold font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="/"
-                    className="text-cream/80 hover:text-gold transition-colors"
-                  >
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/about"
+                  <Link
+                    to="/about"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     About Us
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/store"
+                  <Link
+                    to="/store"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Store
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/contact"
+                  <Link
+                    to="/ceo-vision"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    CEO Vision
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Contact
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-gold font-semibold mb-4">Our Vision</h3>
+              <h3 className="text-gold font-semibold mb-4">Support</h3>
               <ul className="space-y-2">
                 <li>
-                  <span className="text-cream/80">Excellence</span>
+                  <Link
+                    to="/track-order"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Track Order
+                  </Link>
                 </li>
                 <li>
-                  <span className="text-cream/80">Innovation</span>
+                  <Link
+                    to="/shipping-policy"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Shipping Policies
+                  </Link>
                 </li>
                 <li>
-                  <span className="text-cream/80">Heritage</span>
+                  <Link
+                    to="/privacy-policy"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Privacy Policies
+                  </Link>
                 </li>
                 <li>
-                  <span className="text-cream/80">Connection</span>
+                  <Link
+                    to="/how-to-manage-fragrance"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Fragrance care tips
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-cream/20 mt-12 pt-8 text-center">
             <p className="text-cream/60">
-              © 2024 Merfume. All rights reserved. Building the future of
-              luxury fragrance.
+              © 2024 Merfume. All rights reserved. Crafted with luxury in mind.
             </p>
           </div>
         </div>
