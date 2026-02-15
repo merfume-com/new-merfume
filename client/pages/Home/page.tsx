@@ -2157,19 +2157,19 @@ export default function Home() {
             🌙 Ramadan Mubarak! 50% OFF on Premium Perfumes
           </h2>
           <p className="text-emerald-100 mb-6 max-w-2xl mx-auto text-sm md:text-base">
-            Celebrate the holy month with our exclusive collection of traditional Attars and Oud. 
+            Celebrate the holy month with our exclusive collection of traditional Perfumes. 
             Specially curated for Ramadan prayers and spiritual moments.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/store?category=attars">
               <Button className="bg-yellow-400 hover:bg-yellow-500 text-emerald-900 font-bold px-6 py-3 text-base shadow-lg hover:shadow-xl transition-all group">
-                Shop Attars Collection
+                Shop Perfume Collection
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/store?category=oud">
-              <Button variant="outline" className="border-white text-white hover:bg-white/10 px-6 py-3 text-base">
-                Explore Oud Collection
+            <Link to="/store">
+              <Button variant="outline" className="border-white text-white hover:bg-emerald-300 px-6 py-3 text-base">
+                Explore Our Collection
               </Button>
             </Link>
           </div>
