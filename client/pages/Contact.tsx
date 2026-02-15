@@ -2223,6 +2223,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -2874,45 +2875,45 @@ export default function Contact() {
                 alt="Merfume"
                 className="h-20 w-auto mb-4 brightness-110"
               />
-              <p className="text-cream/80 max-w-md leading-relaxed">
-                Get in touch with our team for any questions about our luxury
-                fragrances and exceptional customer service.
+              <p className="text-cream/80 max-w-md">
+                Discover the world of luxury fragrances with Merfume. Each scent
+                tells a story, each bottle holds a memory.
               </p>
             </div>
             <div>
               <h3 className="text-gold font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="/"
-                    className="text-cream/80 hover:text-gold transition-colors"
-                  >
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/about"
+                  <Link
+                    to="/about"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     About Us
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/store"
+                  <Link
+                    to="/store"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Store
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/ceo-vision"
+                  <Link
+                    to="/ceo-vision"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     CEO Vision
-                  </a>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Contact
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -2920,36 +2921,36 @@ export default function Contact() {
               <h3 className="text-gold font-semibold mb-4">Support</h3>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/track-order"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Help Center
-                  </a>
+                    Track Order
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/shipping-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Shipping Info
-                  </a>
+                    Shipping Policies
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/privacy-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Returns
-                  </a>
+                    Privacy Policies
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/how-to-manage-fragrance"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Contact Us
-                  </a>
+                    Fragrance care tips
+                  </Link>
                 </li>
               </ul>
             </div>
