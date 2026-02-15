@@ -12,7 +12,6 @@ import {
   Lightbulb,
   Star,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export default function CeoVision() {
   return (
@@ -59,7 +58,7 @@ export default function CeoVision() {
             <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
               <p className="text-xl font-medium text-foreground">
                 "At Merfume, we believe that fragrance is more than just a
-                scent. it's an emotional journey, a memory, and a connection that
+                scent—it's an emotional journey, a memory, and a connection that
                 transcends boundaries."
               </p>
               <p>
@@ -295,89 +294,107 @@ export default function CeoVision() {
                 alt="Merfume"
                 className="h-20 w-auto mb-4 brightness-110"
               />
-              <p className="text-cream/80 max-w-md">
-                Discover the world of luxury fragrances with Merfume. Each scent
-                tells a story, each bottle holds a memory.
+              <p className="text-cream/80 max-w-md leading-relaxed">
+                Leading the future of luxury perfumery with innovation,
+                tradition, and an unwavering commitment to excellence.
               </p>
             </div>
             <div>
               <h3 className="text-gold font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    to="/about"
+                  <a
+                    href="/"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/about"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     About Us
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/store"
+                  <a
+                    href="/store"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Store
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/ceo-vision"
-                    className="text-cream/80 hover:text-gold transition-colors"
-                  >
-                    CEO Vision
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/contact"
+                  <a
+                    href="/contact"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Contact
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-gold font-semibold mb-4">Support</h3>
+              <h3 className="text-gold font-semibold mb-4">Our Vision</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    to="/track-order"
-                    className="text-cream/80 hover:text-gold transition-colors"
-                  >
-                    Track Order
-                  </Link>
+                  <span className="text-cream/80">Excellence</span>
                 </li>
                 <li>
-                  <Link
-                    to="/shipping-policy"
+                  <span className="text-cream/80">Innovation</span>
+                </li>
+                <li>
+                  <span className="text-cream/80">Heritage</span>
+                </li>
+                <li>
+                  <span className="text-cream/80">Connection</span>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-gold font-semibold mb-4">Customer Care</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a
+                    href="#"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/shipping-policy"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
                     Shipping Policies
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/privacy-policy"
+                  <a
+                    href="#"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Privacy Policies
-                  </Link>
+                    Returns Policy
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/how-to-manage-fragrance"
+                  <a
+                    href="#"
                     className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    Fragrance care tips
-                  </Link>
+                    Fragrance Care
+                  </a>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-cream/20 mt-12 pt-8 text-center">
             <p className="text-cream/60">
-              © 2024 Merfume. All rights reserved. Crafted with luxury in mind.
+              © 2024 Merfume. All rights reserved. Building the future of
+              luxury fragrance.
             </p>
           </div>
         </div>
