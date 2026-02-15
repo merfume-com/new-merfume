@@ -363,7 +363,7 @@ const teamData = [
   {
     "name": "Sarin Ahmed",
     "position": "Inventory & Warehouse Executive",
-    "quote": "The journey of our fragrances doesn't end with creation—it begins in our meticulous inventory management. Like a perfectly balanced perfume, our warehouse operations require harmony between precision and anticipation. Every bottle has its place, every scent its story, and ensuring this symphony flows seamlessly is what allows our customers to experience luxury without compromise. We manage more than stock; we safeguard the promise of quality.",
+    "quote": "The journey of our fragrances doesn't end with creation it begins in our meticulous inventory management. Like a perfectly balanced perfume, our warehouse operations require harmony between precision and anticipation. Every bottle has its place, every scent its story, and ensuring this symphony flows seamlessly is what allows our customers to experience luxury without compromise. We manage more than stock; we safeguard the promise of quality.",
     "image": "https://res.cloudinary.com/dhkdhupwg/image/upload/v1769247220/team_member_3_mfowji.jpg",
     "imageAlt": "Portrait of Sarin Ahmed",
     "imageSize": "xxlarge"
@@ -371,7 +371,7 @@ const teamData = [
   {
     "name": "Yusuf Rahman",
     "position": "Packaging & Dispatch Supervisor",
-    "quote": "The final touch before a fragrance finds its home is where artistry meets functionality. Our packaging isn't just protection—it's the first tangible experience of luxury. Each box we prepare carries not just a bottle, but the anticipation of discovery. We ensure that from our hands to our customers', every item arrives as perfect as when it left our facility, because the unboxing experience is part of the fragrance journey itself.",
+    "quote": "The final touch before a fragrance finds its home is where artistry meets functionality. Our packaging isn't just protection. it's the first tangible experience of luxury. Each box we prepare carries not just a bottle, but the anticipation of discovery. We ensure that from our hands to our customers', every item arrives as perfect as when it left our facility, because the unboxing experience is part of the fragrance journey itself.",
     "image": "https://res.cloudinary.com/dhkdhupwg/image/upload/v1769260071/Merfume_Packaging_Team_Member_photo_cotpcb.jpg",
     "imageAlt": "Portrait of Yusuf Rahman",
     "imageSize": "xxlarge"
