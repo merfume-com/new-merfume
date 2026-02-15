@@ -2325,11 +2325,6 @@ export default function Contact() {
       "Orders are usually delivered within 3–7 business days across India. Metro cities may receive orders faster, while remote locations can take slightly longer."
   },
   {
-    question: "Do you offer Cash on Delivery (COD)?",
-    answer:
-      "Yes, Cash on Delivery is available on selected PIN codes and order values. You can check COD availability at checkout."
-  },
-  {
     question: "Are Merfume perfumes 100% authentic?",
     answer:
       "Absolutely. All Merfume fragrances are 100% authentic and sourced from trusted suppliers and verified manufacturers to ensure premium quality."
