@@ -2166,12 +2166,14 @@ export default function Home() {
                 Shop Perfume Collection
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
-            </Link>
-            <Link to="/store">
-              <Button variant="outline" className="border-white text-white hover:bg-emerald-300 px-6 py-3 text-base">
-                Explore Our Collection
-              </Button>
-            </Link>
+           <Link to="/store">
+  <Button 
+    variant="outline" 
+    className="border-2 border-white bg-white text-emerald-900 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 px-6 py-3 text-base font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+  >
+    Explore Our Collection
+  </Button>
+</Link>
           </div>
         </div>
       </section>
