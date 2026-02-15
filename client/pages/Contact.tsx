@@ -2319,31 +2319,48 @@ export default function Contact() {
   };
 
   const faqs = [
-    {
-      question: "How long does shipping take?",
-      answer: "We offer same-day delivery in Dubai and 2-3 business days across the UAE. International shipping takes 5-7 business days."
-    },
-    {
-      question: "Do you offer fragrance consultations?",
-      answer: "Yes! Book a complimentary consultation with our expert perfumers to find your perfect scent based on your preferences."
-    },
-    {
-      question: "What is your return policy?",
-      answer: "We offer a 30-day return policy for unopened products and a satisfaction guarantee for our fragrance consultations."
-    },
-    {
-      question: "Are your perfumes authentic?",
-      answer: "Absolutely! All our fragrances are 100% authentic and sourced directly from authorized distributors and our own laboratory."
-    },
-    {
-      question: "Can I visit your store for a personal consultation?",
-      answer: "Yes, our flagship store in Dubai offers personalized fragrance consultations with our expert perfumers. Walk-ins are welcome, but we recommend booking an appointment for the best experience."
-    },
-    {
-      question: "Do you offer international shipping?",
-      answer: "Yes, we ship worldwide. International orders typically take 5-7 business days to arrive, depending on the destination."
-    }
-  ];
+  {
+    question: "How long does delivery take in India?",
+    answer:
+      "Orders are usually delivered within 3–7 business days across India. Metro cities may receive orders faster, while remote locations can take slightly longer."
+  },
+  {
+    question: "Do you offer Cash on Delivery (COD)?",
+    answer:
+      "Yes, Cash on Delivery is available on selected PIN codes and order values. You can check COD availability at checkout."
+  },
+  {
+    question: "Are Merfume perfumes 100% authentic?",
+    answer:
+      "Absolutely. All Merfume fragrances are 100% authentic and sourced from trusted suppliers and verified manufacturers to ensure premium quality."
+  },
+  {
+    question: "What is your return or replacement policy?",
+    answer:
+      "We offer a hassle-free replacement if you receive a damaged, leaking, or incorrect product. Requests must be raised within 48 hours of delivery."
+  },
+  {
+    question: "How can I track my order?",
+    answer:
+      "Once your order is shipped, you’ll receive a tracking link via SMS or email to monitor your delivery status in real time."
+  },
+  {
+    question: "Do perfumes last in Indian weather?",
+    answer:
+      "Yes. For best longevity, store your perfume in a cool, dry place away from direct sunlight and heat to maintain fragrance quality."
+  },
+  {
+    question: "What payment methods do you accept?",
+    answer:
+      "We accept UPI, Debit/Credit Cards, Net Banking, Wallets, and Cash on Delivery where available."
+  },
+  {
+    question: "How can I contact Merfume support?",
+    answer:
+      "You can contact us via WhatsApp, phone, or email from the Contact page. Our support team typically responds within 24 hours."
+  }
+];
+
 
   return (
     <div className="min-h-screen bg-background">
