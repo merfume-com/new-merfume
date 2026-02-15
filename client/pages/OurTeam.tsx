@@ -346,7 +346,7 @@ import Navigation from '@/components/Navigation';
 const teamData = [
   {
     name: "Syed Musaib Ali",
-    position: "CEO & Founder of Merfumes",
+    position: "CEO & Founder of Merfume",
     quote: "In every drop of fragrance lies a memory waiting to be created. We don't just sell perfumes; we craft stories that linger in the soul long after the scent has faded. Our vision is to transform ordinary moments into extraordinary memories through the power of scent. Just as each person has a unique essence, so too should every fragrance tell a personal tale of elegance, passion, and timeless beauty.",
     image: "https://res.cloudinary.com/dhkdhupwg/image/upload/v1769090232/syed-musaib-ali_ikfbdh.jpg",
     imageAlt: "Portrait of Syed Musaib Ali",
@@ -387,7 +387,7 @@ const teamData = [
   {
     "name": "Elina Zahra",
     "position": "Customer Experience Manager",
-    "quote": "A fragrance isn't truly experienced until it becomes part of someone's story. My role is to ensure that from the first inquiry to years of loyalty, every interaction with Merfume feels personal and exceptional. We don't just sell scents—we build relationships. Because the perfect fragrance might last hours, but a perfect experience lasts a lifetime.",
+    "quote": "A fragrance isn't truly experienced until it becomes part of someone's story. My role is to ensure that from the first inquiry to years of loyalty, every interaction with Merfume feels personal and exceptional. We don't just sell scents. we build relationships. Because the perfect fragrance might last hours, but a perfect experience lasts a lifetime.",
     "image": "https://res.cloudinary.com/dhkdhupwg/image/upload/v1769260453/Merfume_Customer_Experience_Manager_Team_memeber_photo_ywgonq.jpg",
     "imageAlt": "Portrait of Elina Zahra",
     "imageSize": "xxlarge"
@@ -403,7 +403,7 @@ const teamData = [
   {
     "name": "Dibyendu Poddar",
     "position": "Key Account Manager (Distributors & Wholesalers)",
-    "quote": "Building relationships with our partners is like crafting a perfect blend—it requires balance, understanding, and shared vision. We work closely with distributors to ensure our fragrances reach every corner with the same quality and care we put into creating them. It's about creating a network that shares our commitment to excellence, ensuring that wherever you find Merfume, you find luxury.",
+    "quote": "Building relationships with our partners is like crafting a perfect blend it requires balance, understanding, and shared vision. We work closely with distributors to ensure our fragrances reach every corner with the same quality and care we put into creating them. It's about creating a network that shares our commitment to excellence, ensuring that wherever you find Merfume, you find luxury.",
     "image": "https://res.cloudinary.com/dhkdhupwg/image/upload/v1769260651/Merfume_Key_Account_Manager_Team_Member_ak3pqt.jpg",
     "imageAlt": "Portrait of Dibyendu Poddar",
     "imageSize": "xxlarge"
@@ -411,7 +411,7 @@ const teamData = [
   {
     "name": "Sarah Khan",
     "position": "HR & Compliance",
-    "quote": "Our greatest asset at Merfume isn't our fragrances—it's our people. I help build a team that's as exceptional as the scents we create, ensuring our workplace nurtures creativity, values integrity, and celebrates diversity. We cultivate an environment where passion for perfumery meets professional excellence, because creating luxury requires a team that feels valued, inspired, and empowered.",
+    "quote": "Our greatest asset at Merfume isn't our fragrances it's our people. I help build a team that's as exceptional as the scents we create, ensuring our workplace nurtures creativity, values integrity, and celebrates diversity. We cultivate an environment where passion for perfumery meets professional excellence, because creating luxury requires a team that feels valued, inspired, and empowered.",
     "image": "https://res.cloudinary.com/dhkdhupwg/image/upload/v1769259902/Merfumes_HR_Team_Member_photo.jpg_jgmdti.jpg",
     "imageAlt": "Portrait of Sarah Khan",
     "imageSize": "xxlarge"
