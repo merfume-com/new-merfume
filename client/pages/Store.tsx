@@ -4911,61 +4911,98 @@ export default function Store() {
         </div>
       </section>
 
-      <footer className="bg-gradient-to-b from-luxury-black to-black text-cream py-16">
+      <footer className="bg-luxury-black text-cream py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-2">
               <img
                 src="https://cdn.builder.io/api/v1/assets/df01e345c2d146ff8c27b0570e833c11/merfume-logo-74e35c?format=webp&width=800"
                 alt="Merfume"
-                className="h-24 w-auto mb-6 brightness-110"
+                className="h-20 w-auto mb-4 brightness-110"
               />
-              <p className="text-cream/80 max-w-xl leading-relaxed text-lg">
-                Discover luxury fragrances that tell your story. Each scent in our collection 
-                is carefully curated to evoke emotions and create lasting memories.
+              <p className="text-cream/80 max-w-md">
+                Discover the world of luxury fragrances with Merfume. Each scent
+                tells a story, each bottle holds a memory.
               </p>
             </div>
             <div>
-              <h3 className="text-gold font-semibold text-lg mb-6">Shop</h3>
-              <ul className="space-y-3">
-                {["All Fragrances", "New Arrivals", "Best Sellers", "Limited Edition", "Gift Sets"].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-cream/80 hover:text-gold transition-colors text-lg">
-                      {item}
-                    </a>
-                  </li>
-                ))}
+              <h3 className="text-gold font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to="/about"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/store"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Store
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/ceo-vision"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    CEO Vision
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-gold font-semibold text-lg mb-6">Help</h3>
-              <ul className="space-y-3">
+              <h3 className="text-gold font-semibold mb-4">Support</h3>
+              <ul className="space-y-2">
                 <li>
-                  <a href="/contact" className="text-cream/80 hover:text-gold transition-colors text-lg">
-                    Contact Us
-                  </a>
+                  <Link
+                    to="/track-order"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Track Order
+                  </Link>
                 </li>
                 <li>
-                  <a href="/faq" className="text-cream/80 hover:text-gold transition-colors text-lg">
-                    FAQ
-                  </a>
+                  <Link
+                    to="/shipping-policy"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Shipping Policies
+                  </Link>
                 </li>
                 <li>
-                  <a href="/shipping-policy" className="text-cream/80 hover:text-gold transition-colors text-lg">
-                    Shipping Policy
-                  </a>
+                  <Link
+                    to="/privacy-policy"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Privacy Policies
+                  </Link>
                 </li>
                 <li>
-                  <a href="/privacy-policy" className="text-cream/80 hover:text-gold transition-colors text-lg">
-                    Privacy Policy
-                  </a>
+                  <Link
+                    to="/how-to-manage-fragrance"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Fragrance care tips
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-cream/20 mt-12 pt-8 text-center">
-            <p className="text-cream/60 text-lg">
-              © 2024 Merfume. All rights reserved. Crafted with passion in India.
+            <p className="text-cream/60">
+              © 2024 Merfume. All rights reserved. Crafted with luxury in mind.
             </p>
           </div>
         </div>
