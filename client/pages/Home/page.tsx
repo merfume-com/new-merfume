@@ -1990,7 +1990,7 @@ export default function Home() {
               </div>
               <div className="text-white text-xs md:text-sm font-medium">
                 <span>on all</span>
-                <span className="block font-bold text-yellow-300">Premium Attars & Oud</span>
+                <span className="block font-bold text-yellow-300">Premium Perfume</span>
               </div>
             </div>
 
@@ -2034,7 +2034,7 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 mb-4 bg-emerald-100 dark:bg-emerald-900/30 backdrop-blur-sm rounded-full px-4 py-1.5 border border-emerald-500/30">
               <IslamicCrescentIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-xs md:text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                🌙 Ramadan Blessings - Extra 50% Off on Attars
+                🌙 Ramadan Blessings - Extra 50% Off on Premium Perfumes
               </span>
               <BadgePercent className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
