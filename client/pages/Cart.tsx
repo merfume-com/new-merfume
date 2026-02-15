@@ -1509,89 +1509,98 @@ export default function Cart() {
       />
 
       {/* Footer */}
-      <footer className="bg-gradient-to-b from-background to-muted/20 border-t mt-16 py-12">
+      <footer className="bg-luxury-black text-cream py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                  <ShoppingBag className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">Merfume</span>
-              </div>
-              <p className="text-muted-foreground max-w-md leading-relaxed">
-                Continue shopping our luxury fragrance collection to find your
-                perfect scent and create lasting memories.
+              <img
+                src="https://cdn.builder.io/api/v1/assets/df01e345c2d146ff8c27b0570e833c11/merfume-logo-74e35c?format=webp&width=800"
+                alt="Merfume"
+                className="h-20 w-auto mb-4 brightness-110"
+              />
+              <p className="text-cream/80 max-w-md">
+                Discover the world of luxury fragrances with Merfume. Each scent
+                tells a story, each bottle holds a memory.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-4">Shop</h3>
+              <h3 className="text-gold font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
                   <Link
+                    to="/about"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/store"
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+                    className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    All Perfumes
+                    Store
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/store?category=fresh"
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+                    to="/ceo-vision"
+                    className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Fresh
+                    CEO Vision
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/store?category=luxury"
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+                    to="/contact"
+                    className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Luxury
+                    Contact
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-4">Support</h3>
+              <h3 className="text-gold font-semibold mb-4">Support</h3>
               <ul className="space-y-2">
                 <li>
                   <Link
-                    to="/contact"
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+                    to="/track-order"
+                    className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Contact Us
+                    Track Order
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/shipping"
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+                    to="/shipping-policy"
+                    className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Shipping Info
+                    Shipping Policies
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/returns"
-                    className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+                    to="/privacy-policy"
+                    className="text-cream/80 hover:text-gold transition-colors"
                   >
-                    <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Returns
+                    Privacy Policies
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/how-to-manage-fragrance"
+                    className="text-cream/80 hover:text-gold transition-colors"
+                  >
+                    Fragrance care tips
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="border-t mt-8 pt-8 text-center">
-            <p className="text-muted-foreground">
-              © {new Date().getFullYear()} Merfume. All rights reserved.
+          <div className="border-t border-cream/20 mt-12 pt-8 text-center">
+            <p className="text-cream/60">
+              © 2024 Merfume. All rights reserved. Crafted with luxury in mind.
             </p>
           </div>
         </div>
