@@ -5235,7 +5235,7 @@ export default function Store() {
       </section>
 
       {/* Disclaimer Section */}
-      <section className="py-6 bg-gradient-to-r from-amber-50/50 to-amber-100/30 dark:from-amber-950/20 dark:to-amber-900/10 border-y border-amber-200/30 dark:border-amber-800/30">
+      {/* <section className="py-6 bg-gradient-to-r from-amber-50/50 to-amber-100/30 dark:from-amber-950/20 dark:to-amber-900/10 border-y border-amber-200/30 dark:border-amber-800/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-start gap-4 p-4 bg-white/50 dark:bg-black/20 backdrop-blur-sm rounded-xl border border-amber-200/50 dark:border-amber-800/50 shadow-sm">
             <div className="flex-shrink-0">
@@ -5246,12 +5246,12 @@ export default function Store() {
             <div className="flex-1 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
               <p className="font-medium text-amber-800 dark:text-amber-400 mb-1">Important Note:</p>
               <p>
-                {/* Our crafted perfumes and oils are artisanal interpretations inspired by the essence of well-known brands, yet are independent creations. We wish to clarify that we are not affiliated with the mentioned designers or manufacturers. Merfume offers both its own branded perfumes as well as original perfumes from other brands, depending on the product listing. Trademarks and copyrights associated with these brands are the sole property of their respective owners. We utilize these references for comparison purposes, providing our customers with an understanding of the fragrance's unique character and scent profile. */}
+                Our crafted perfumes and oils are artisanal interpretations inspired by the essence of well-known brands, yet are independent creations. We wish to clarify that we are not affiliated with the mentioned designers or manufacturers. Merfume offers both its own branded perfumes as well as original perfumes from other brands, depending on the product listing. Trademarks and copyrights associated with these brands are the sole property of their respective owners. We utilize these references for comparison purposes, providing our customers with an understanding of the fragrance's unique character and scent profile.
               </p>
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="py-6 bg-background border-y border-border/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
