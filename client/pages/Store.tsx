@@ -5246,7 +5246,7 @@ export default function Store() {
             <div className="flex-1 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
               <p className="font-medium text-amber-800 dark:text-amber-400 mb-1">Important Note:</p>
               <p>
-                Our crafted perfumes and oils are artisanal interpretations inspired by the essence of well-known brands, yet are independent creations. We wish to clarify that we are not affiliated with the mentioned designers or manufacturers. Merfume offers both its own branded perfumes as well as original perfumes from other brands, depending on the product listing. Trademarks and copyrights associated with these brands are the sole property of their respective owners. We utilize these references for comparison purposes, providing our customers with an understanding of the fragrance's unique character and scent profile.
+                {/* Our crafted perfumes and oils are artisanal interpretations inspired by the essence of well-known brands, yet are independent creations. We wish to clarify that we are not affiliated with the mentioned designers or manufacturers. Merfume offers both its own branded perfumes as well as original perfumes from other brands, depending on the product listing. Trademarks and copyrights associated with these brands are the sole property of their respective owners. We utilize these references for comparison purposes, providing our customers with an understanding of the fragrance's unique character and scent profile. */}
               </p>
             </div>
           </div>
