@@ -7850,6 +7850,2343 @@
 
 
 
+
+
+
+// import { useEffect, useState, useCallback, useRef } from "react";
+// import axios, { AxiosError, CancelTokenSource } from "axios";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "@/components/ui/table";
+// import { 
+//   Download, 
+//   Plus, 
+//   Search, 
+//   RefreshCw, 
+//   Trash2, 
+//   Eye, 
+//   Edit, 
+//   Filter, 
+//   AlertTriangle,
+//   Undo,
+//   Archive,
+//   CheckCircle,
+//   XCircle,
+//   Database,
+//   Package
+// } from "lucide-react";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+//   DialogFooter,
+// } from "@/components/ui/dialog";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Textarea } from "@/components/ui/textarea";
+// import { useToast } from "@/components/ui/use-toast";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { Badge } from "@/components/ui/badge";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { ScrollArea } from "@/components/ui/scroll-area";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
+// import { Switch } from "@/components/ui/switch";
+// import { Separator } from "@/components/ui/separator";
+
+// interface Product {
+//   productId?: number;
+//   productName: string;
+//   brand: string;
+//   productPrice: number;
+//   originalPrice?: number;
+//   productDescription: string;
+//   productImageUrl?: string;
+//   productBackImageUrl?: string;
+//   notes: string[];
+//   productCategory: string;
+//   rating?: number;
+//   reviewCount?: number;
+//   isDeleted?: boolean;
+//   deletedAt?: string;
+//   createdAt?: string;
+//   updatedAt?: string;
+// }
+
+// interface OrderItem {
+//   productId: string | number;
+//   productName: string;
+//   quantity: number;
+//   priceAtPurchase: number | null;
+// }
+
+// interface Payment {
+//   paymentId: string | number;
+//   status: string;
+//   amount: number;
+//   method: string;
+//   transactionId?: string;
+// }
+
+// interface UserDetails {
+//   userId?: string;
+//   name?: string;
+//   userName?: string;
+//   email: string;
+//   phone: string;
+//   address: string;
+// }
+
+// interface Order {
+//   orderId: string | number;
+//   orderNumber: string;
+//   orderDate: string;
+//   status: "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+//   total: number;
+//   userDetails: UserDetails;
+//   payment?: Payment;
+//   items: OrderItem[];
+// }
+
+// interface Inquiry {
+//   inquiryId: string | number;
+//   name: string;
+//   email: string;
+//   phone: string;
+//   inquiryType: string;
+//   subject: string;
+//   message: string;
+//   timestamp: string;
+//   status?: "NEW" | "READ" | "RESPONDED" | "ARCHIVED";
+// }
+
+// // Available order statuses from backend enum
+// const ORDER_STATUSES = [
+//   "PENDING",
+//   "CONFIRMED",
+//   "PROCESSING",
+//   "SHIPPED",
+//   "DELIVERED",
+//   "CANCELLED",
+//   "REFUNDED"
+// ] as const;
+
+// // Create axios instance with configuration
+// const api = axios.create({
+//   baseURL: "https://merfume-backend-production-5068.up.railway.app",
+//   headers: {
+//     "Content-Type": "application/json",
+//     // "ngrok-skip-browser-warning": "69420",
+//     "Accept": "application/json",
+//   },
+// });
+
+// // Add request interceptor
+// api.interceptors.request.use(
+//   (config) => {
+//     console.log(`Making ${config.method?.toUpperCase()} request to: ${config.url}`);
+//     if (config.method?.toLowerCase() === "get" && config.url) {
+//       const timestamp = `_t=${Date.now()}`;
+//       config.url += config.url.includes("?") ? `&${timestamp}` : `?${timestamp}`;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     console.error("Request interceptor error:", error);
+//     return Promise.reject(error);
+//   }
+// );
+
+// // Add response interceptor with retry logic
+// api.interceptors.response.use(
+//   (response) => {
+//     console.log(`Response received: ${response.status}`, response.config.url);
+//     return response;
+//   },
+//   async (error: AxiosError) => {
+//     const originalRequest = error.config as any;
+    
+//     if (!error.response && !originalRequest?._retry) {
+//       originalRequest._retry = true;
+//       console.log("Retrying request due to network error...");
+      
+//       await new Promise(resolve => setTimeout(resolve, 1500));
+      
+//       if (originalRequest.url) {
+//         originalRequest.url = originalRequest.url.split("?")[0];
+//       }
+      
+//       return api(originalRequest);
+//     }
+    
+//     if (error.response) {
+//       console.error("API Error Details:", {
+//         status: error.response.status,
+//         statusText: error.response.statusText,
+//         url: error.config?.url,
+//         method: error.config?.method,
+//         data: error.response.data,
+//       });
+//     } else if (error.request) {
+//       console.error("Network Error - No response received:", error.message);
+//     } else {
+//       console.error("Request Setup Error:", error.message);
+//     }
+    
+//     return Promise.reject(error);
+//   }
+// );
+
+// export default function AdminDashboard() {
+//   const [activeTab, setActiveTab] = useState("orders");
+//   const [orders, setOrders] = useState<Order[]>([]);
+//   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+//   const [products, setProducts] = useState<Product[]>([]);
+//   const [deletedProducts, setDeletedProducts] = useState<Product[]>([]);
+//   const [showDeletedProducts, setShowDeletedProducts] = useState(false);
+//   const [loading, setLoading] = useState({
+//     orders: false,
+//     inquiries: false,
+//     products: false,
+//     deletedProducts: false
+//   });
+//   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+//   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+//   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+//   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+//   const [inquiryDialogOpen, setInquiryDialogOpen] = useState(false);
+//   const [productDialogOpen, setProductDialogOpen] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [addProductDialogOpen, setAddProductDialogOpen] = useState(false);
+//   const [newProduct, setNewProduct] = useState<Product>({
+//     productName: "",
+//     brand: "",
+//     productPrice: 0,
+//     originalPrice: undefined,
+//     productDescription: "",
+//     notes: [],
+//     productCategory: "",
+//     rating: 0,
+//     reviewCount: 0
+//   });
+//   const [frontImage, setFrontImage] = useState<File | null>(null);
+//   const [backImage, setBackImage] = useState<File | null>(null);
+//   const [notesInput, setNotesInput] = useState("");
+//   const [isAddingProduct, setIsAddingProduct] = useState(false);
+//   const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
+//   const [isUpdatingOrderStatus, setIsUpdatingOrderStatus] = useState(false);
+//   const [statusFilter, setStatusFilter] = useState("all");
+//   const [newOrderStatus, setNewOrderStatus] = useState<string>("");
+//   const [stats, setStats] = useState({
+//     totalOrders: 0,
+//     totalRevenue: 0,
+//     pendingOrders: 0,
+//     newInquiries: 0,
+//     activeProducts: 0,
+//     deletedProducts: 0
+//   });
+  
+//   const { toast } = useToast();
+//   const cancelTokenSourceRef = useRef<CancelTokenSource | null>(null);
+
+//   // Get status badge color
+//   const getStatusColor = (status: string) => {
+//     switch (status) {
+//       case "DELIVERED":
+//       case "RESPONDED":
+//         return "bg-green-100 text-green-800 hover:bg-green-100";
+//       case "PENDING":
+//       case "NEW":
+//         return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
+//       case "CONFIRMED":
+//         return "bg-blue-100 text-blue-800 hover:bg-blue-100";
+//       case "PROCESSING":
+//         return "bg-indigo-100 text-indigo-800 hover:bg-indigo-100";
+//       case "SHIPPED":
+//         return "bg-purple-100 text-purple-800 hover:bg-purple-100";
+//       case "CANCELLED":
+//       case "ARCHIVED":
+//         return "bg-red-100 text-red-800 hover:bg-red-100";
+//       case "REFUNDED":
+//         return "bg-orange-100 text-orange-800 hover:bg-orange-100";
+//       default:
+//         return "bg-gray-100 text-gray-800 hover:bg-gray-100";
+//     }
+//   };
+
+//   // Fetch orders with axios
+//   const fetchOrdersFromBackend = useCallback(async () => {
+//     if (cancelTokenSourceRef.current) {
+//       cancelTokenSourceRef.current.cancel("Operation cancelled due to new request");
+//     }
+    
+//     const source = axios.CancelToken.source();
+//     cancelTokenSourceRef.current = source;
+    
+//     setLoading(prev => ({ ...prev, orders: true }));
+    
+//     try {
+//       console.log("Fetching orders...");
+//       const response = await api.get("/api/orders/admin/all-orders", {
+//         cancelToken: source.token,
+//       });
+      
+//       console.log("Orders response:", response.data);
+      
+//       if (Array.isArray(response.data)) {
+//         const processedOrders = response.data.map((order: any) => {
+//           const userDetails = order.userDetails || {};
+//           const userName = userDetails.userName || userDetails.name || "N/A";
+          
+//           return {
+//             ...order,
+//             orderId: String(order.orderId),
+//             orderNumber: order.orderNumber || `ORDER-${order.orderId}`,
+//             orderDate: order.orderDate || new Date().toISOString(),
+//             total: order.total || 0,
+//             userDetails: {
+//               userId: userDetails.userId || "N/A",
+//               name: userName,
+//               userName: userName,
+//               email: userDetails.email || "N/A",
+//               phone: String(userDetails.phone || ''),
+//               address: userDetails.address || 'Address not provided'
+//             },
+//             items: Array.isArray(order.items) ? order.items.map((item: any) => ({
+//               ...item,
+//               productId: String(item.productId || "N/A"),
+//               priceAtPurchase: item.priceAtPurchase !== null && item.priceAtPurchase !== undefined 
+//                 ? Number(item.priceAtPurchase) 
+//                 : 0
+//             })) : [],
+//             payment: order.payment ? {
+//               paymentId: String(order.payment.paymentId || "N/A"),
+//               status: order.payment.status || "N/A",
+//               amount: order.payment.amount || 0,
+//               method: order.payment.method || "N/A",
+//               transactionId: order.payment.transactionId
+//             } : undefined
+//           };
+//         });
+        
+//         setOrders(processedOrders);
+        
+//         // Update stats
+//         setStats(prev => ({
+//           ...prev,
+//           totalOrders: processedOrders.length,
+//           totalRevenue: processedOrders.reduce((sum: number, order: Order) => sum + (order.total || 0), 0),
+//           pendingOrders: processedOrders.filter((order: Order) => 
+//             order.status === "PENDING" || order.status === "PROCESSING"
+//           ).length
+//         }));
+//       } else {
+//         console.error("Invalid response format: expected array");
+//         setOrders([]);
+//         toast({
+//           title: "Warning",
+//           description: "Received invalid data format from server.",
+//           variant: "destructive",
+//         });
+//       }
+//     } catch (error: any) {
+//       if (axios.isCancel(error)) {
+//         console.log("Order fetch cancelled:", error.message);
+//         return;
+//       }
+      
+//       console.error("❌ Fetch orders error:", error);
+      
+//       let errorMessage = "Failed to load orders. ";
+//       if (error.code === "ECONNABORTED") {
+//         errorMessage += "Request timeout. Please check your connection.";
+//       } else if (error.message?.includes("Network Error")) {
+//         errorMessage += "Network error. Please check your internet connection.";
+//       } else if (error.response?.status === 401) {
+//         errorMessage = "Unauthorized access. Please log in again.";
+//       } else if (error.response?.status === 404) {
+//         errorMessage = "Orders API endpoint not found.";
+//       } else if (error.response?.status >= 500) {
+//         errorMessage = "Server error. Please try again later.";
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     } finally {
+//       setLoading(prev => ({ ...prev, orders: false }));
+//       cancelTokenSourceRef.current = null;
+//     }
+//   }, [toast]);
+
+//   // Fetch inquiries with axios
+//   const fetchInquiriesFromBackend = useCallback(async () => {
+//     setLoading(prev => ({ ...prev, inquiries: true }));
+    
+//     try {
+//       console.log("Fetching inquiries...");
+//       const response = await api.get("/api/inquiries/all");
+      
+//       console.log("Inquiries response:", response.data);
+      
+//       if (Array.isArray(response.data)) {
+//         const processedInquiries = response.data.map((inquiry: any) => ({
+//           ...inquiry,
+//           inquiryId: String(inquiry.inquiryId),
+//           phone: String(inquiry.phone || ''),
+//           timestamp: new Date(inquiry.timestamp).toLocaleString(),
+//           status: inquiry.status || "NEW"
+//         }));
+//         setInquiries(processedInquiries);
+        
+//         // Update stats
+//         setStats(prev => ({
+//           ...prev,
+//           newInquiries: processedInquiries.filter((inq: Inquiry) => inq.status === "NEW").length
+//         }));
+//       } else {
+//         console.error("Invalid response format: expected array");
+//         setInquiries([]);
+//         toast({
+//           title: "Warning",
+//           description: "Received invalid data format from server.",
+//           variant: "destructive",
+//         });
+//       }
+//     } catch (error: any) {
+//       console.error("❌ Fetch inquiries error:", error);
+      
+//       let errorMessage = "Failed to load inquiries. ";
+//       if (error.code === "ECONNABORTED") {
+//         errorMessage += "Request timeout.";
+//       } else if (error.message?.includes("Network Error")) {
+//         errorMessage += "Network error.";
+//       } else if (error.response?.status === 404) {
+//         errorMessage = "Inquiries API endpoint not found.";
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     } finally {
+//       setLoading(prev => ({ ...prev, inquiries: false }));
+//     }
+//   }, [toast]);
+
+//   // Fetch active products
+//   const fetchProductsFromBackend = useCallback(async () => {
+//     setLoading(prev => ({ ...prev, products: true }));
+    
+//     try {
+//       console.log("Fetching active products...");
+//       const response = await api.get("/api/products/all");
+      
+//       console.log("Products response:", response.data);
+      
+//       if (Array.isArray(response.data)) {
+//         setProducts(response.data);
+        
+//         // Update stats
+//         setStats(prev => ({
+//           ...prev,
+//           activeProducts: response.data.length
+//         }));
+//       } else {
+//         console.error("Invalid response format: expected array");
+//         setProducts([]);
+//         toast({
+//           title: "Warning",
+//           description: "Received invalid data format from server.",
+//           variant: "destructive",
+//         });
+//       }
+//     } catch (error: any) {
+//       console.error("❌ Fetch products error:", error);
+      
+//       let errorMessage = "Failed to load products. ";
+//       if (error.code === "ECONNABORTED") {
+//         errorMessage += "Request timeout.";
+//       } else if (error.message?.includes("Network Error")) {
+//         errorMessage += "Network error.";
+//       } else if (error.response?.status === 404) {
+//         errorMessage = "Products API endpoint not found.";
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     } finally {
+//       setLoading(prev => ({ ...prev, products: false }));
+//     }
+//   }, [toast]);
+
+//   // Fetch deleted products
+//   const fetchDeletedProducts = useCallback(async () => {
+//     setLoading(prev => ({ ...prev, deletedProducts: true }));
+    
+//     try {
+//       console.log("Fetching deleted products...");
+//       const response = await api.get("/api/products/deleted");
+      
+//       console.log("Deleted products response:", response.data);
+      
+//       if (Array.isArray(response.data)) {
+//         setDeletedProducts(response.data);
+        
+//         // Update stats
+//         setStats(prev => ({
+//           ...prev,
+//           deletedProducts: response.data.length
+//         }));
+//       } else {
+//         console.error("Invalid response format: expected array");
+//         setDeletedProducts([]);
+//       }
+//     } catch (error: any) {
+//       console.error("❌ Fetch deleted products error:", error);
+      
+//       let errorMessage = "Failed to load deleted products. ";
+//       if (error.code === "ECONNABORTED") {
+//         errorMessage += "Request timeout.";
+//       } else if (error.message?.includes("Network Error")) {
+//         errorMessage += "Network error.";
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     } finally {
+//       setLoading(prev => ({ ...prev, deletedProducts: false }));
+//     }
+//   }, []);
+
+//   // Fetch available order statuses from backend
+//   const fetchOrderStatuses = async () => {
+//     try {
+//       const response = await api.get("/api/orders/statuses");
+//       console.log("Available order statuses:", response.data);
+//     } catch (error) {
+//       console.error("Failed to fetch order statuses:", error);
+//     }
+//   };
+
+//   // Update order status using backend API
+//   const updateOrderStatus = async (orderId: string | number, status: string) => {
+//     setIsUpdatingOrderStatus(true);
+    
+//     try {
+//       console.log(`Updating order ${orderId} status to ${status}`);
+      
+//       const response = await api.put(`/api/orders/${orderId}/status`, {
+//         status: status
+//       });
+      
+//       console.log("Status update response:", response.data);
+      
+//       toast({
+//         title: "Success",
+//         description: `Order status updated to ${status}`,
+//       });
+      
+//       fetchOrdersFromBackend();
+//       setOrderDialogOpen(false);
+      
+//     } catch (error: any) {
+//       console.error("❌ Error updating order status:", error);
+      
+//       let errorMessage = "Failed to update order status. ";
+//       if (error.response?.data?.error) {
+//         errorMessage = error.response.data.error;
+//       } else if (error.code === "ECONNABORTED") {
+//         errorMessage += "Request timeout.";
+//       } else if (error.message?.includes("Network Error")) {
+//         errorMessage += "Network error.";
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     } finally {
+//       setIsUpdatingOrderStatus(false);
+//     }
+//   };
+
+//   // Update order status by order number
+//   const updateOrderStatusByOrderNumber = async (orderNumber: string, status: string) => {
+//     setIsUpdatingOrderStatus(true);
+    
+//     try {
+//       console.log(`Updating order ${orderNumber} status to ${status}`);
+      
+//       const response = await api.put(`/api/orders/order-number/${orderNumber}/status`, {
+//         status: status
+//       });
+      
+//       console.log("Status update response:", response.data);
+      
+//       toast({
+//         title: "Success",
+//         description: `Order status updated to ${status}`,
+//       });
+      
+//       fetchOrdersFromBackend();
+//       setOrderDialogOpen(false);
+      
+//     } catch (error: any) {
+//       console.error("❌ Error updating order status:", error);
+      
+//       let errorMessage = "Failed to update order status. ";
+//       if (error.response?.data?.error) {
+//         errorMessage = error.response.data.error;
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     } finally {
+//       setIsUpdatingOrderStatus(false);
+//     }
+//   };
+
+//   // Handle adding product
+//   const handleAddProduct = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setIsAddingProduct(true);
+
+//     try {
+//       // Validate required fields
+//       if (!newProduct.productName.trim()) {
+//         throw new Error("Product name is required");
+//       }
+//       if (!newProduct.brand.trim()) {
+//         throw new Error("Brand is required");
+//       }
+//       if (newProduct.productPrice <= 0) {
+//         throw new Error("Price must be greater than 0");
+//       }
+//       if (!frontImage || !backImage) {
+//         throw new Error("Please upload both front and back images");
+//       }
+
+//       const formData = new FormData();
+//       formData.append("product", JSON.stringify({
+//         ...newProduct,
+//         productPrice: Number(newProduct.productPrice),
+//         originalPrice: newProduct.originalPrice ? Number(newProduct.originalPrice) : undefined,
+//         notes: newProduct.notes,
+//         rating: newProduct.rating || 0,
+//         reviewCount: newProduct.reviewCount || 0
+//       }));
+//       formData.append("frontImage", frontImage);
+//       formData.append("backImage", backImage);
+
+//       console.log("Adding product:", newProduct);
+      
+//       const response = await api.post("/api/products/add", formData, {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       });
+
+//       toast({
+//         title: "Success",
+//         description: response.data.message || "Product added successfully",
+//       });
+      
+//       resetProductForm();
+//       setAddProductDialogOpen(false);
+//       fetchProductsFromBackend();
+      
+//     } catch (error: any) {
+//       console.error("Error adding product:", error);
+      
+//       let errorMessage = "Failed to add product. ";
+//       if (error.code === "ECONNABORTED") {
+//         errorMessage += "Request timeout.";
+//       } else if (error.message?.includes("Network Error")) {
+//         errorMessage += "Network error.";
+//       } else if (error.response?.data?.message) {
+//         errorMessage = error.response.data.message;
+//       } else if (error.message) {
+//         errorMessage = error.message;
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     } finally {
+//       setIsAddingProduct(false);
+//     }
+//   };
+
+//   // // Handle updating product
+//   // const handleUpdateProduct = async (productId: number) => {
+//   //   if (!selectedProduct) return;
+    
+//   //   setIsUpdatingProduct(true);
+    
+//   //   try {
+//   //     const formData = new FormData();
+//   //     formData.append("product", JSON.stringify({
+//   //       ...selectedProduct,
+//   //       productId,
+//   //       productPrice: Number(selectedProduct.productPrice),
+//   //       originalPrice: selectedProduct.originalPrice ? Number(selectedProduct.originalPrice) : undefined,
+//   //       notes: selectedProduct.notes,
+//   //       rating: selectedProduct.rating || 0,
+//   //       reviewCount: selectedProduct.reviewCount || 0
+//   //     }));
+      
+//   //     if (frontImage) formData.append("frontImage", frontImage);
+//   //     if (backImage) formData.append("backImage", backImage);
+      
+//   //     const response = await api.put(`/api/products/update/${productId}`, formData, {
+//   //       headers: {
+//   //         "Content-Type": "multipart/form-data",
+//   //       },
+//   //     });
+      
+//   //     toast({
+//   //       title: "Success",
+//   //       description: response.data.message || "Product updated successfully",
+//   //     });
+      
+//   //     setProductDialogOpen(false);
+//   //     fetchProductsFromBackend();
+//   //     setFrontImage(null);
+//   //     setBackImage(null);
+      
+//   //   } catch (error: any) {
+//   //     console.error("Error updating product:", error);
+      
+//   //     let errorMessage = "Failed to update product. ";
+//   //     if (error.response?.data?.message) {
+//   //       errorMessage = error.response.data.message;
+//   //     }
+      
+//   //     toast({
+//   //       title: "Error",
+//   //       description: errorMessage,
+//   //       variant: "destructive",
+//   //     });
+//   //   } finally {
+//   //     setIsUpdatingProduct(false);
+//   //   }
+//   // };
+
+// // Handle updating product
+//   // Update product handler
+// const handleUpdateProduct = async (productId: number) => {
+//     if (!selectedProduct) return;
+    
+//     setIsUpdatingProduct(true);
+    
+//     try {
+//         // Create form data
+//         const formData = new FormData();
+        
+//         // Prepare product data for JSON
+//         const productData = {
+//             productId: selectedProduct.productId,
+//             productName: selectedProduct.productName,
+//             brand: selectedProduct.brand,
+//             productCategory: selectedProduct.productCategory,
+//             productPrice: Number(selectedProduct.productPrice),
+//             originalPrice: selectedProduct.originalPrice ? Number(selectedProduct.originalPrice) : null,
+//             productDescription: selectedProduct.productDescription,
+//             notes: selectedProduct.notes || [], // Ensure notes is array
+//             rating: selectedProduct.rating || 0,
+//             reviewCount: selectedProduct.reviewCount || 0,
+//             deleted: selectedProduct.isDeleted || false
+//         };
+        
+//         // Add product as JSON string
+//         formData.append("product", JSON.stringify(productData));
+        
+//         // Add images only if they were changed
+//         if (frontImage) {
+//             formData.append("frontImage", frontImage);
+//         }
+//         if (backImage) {
+//             formData.append("backImage", backImage);
+//         }
+        
+//         console.log("Updating product:", productData);
+        
+//         const response = await api.put(`/api/products/update/${productId}`, formData, {
+//             headers: {
+//                 "Content-Type": "multipart/form-data",
+//             },
+//         });
+        
+//         toast({
+//             title: "Success",
+//             description: response.data.message || "Product updated successfully",
+//         });
+        
+//         setProductDialogOpen(false);
+//         fetchProductsFromBackend();
+//         setFrontImage(null);
+//         setBackImage(null);
+        
+//     } catch (error: any) {
+//         console.error("Error updating product:", error);
+        
+//         let errorMessage = "Failed to update product. ";
+//         if (error.response?.data?.message) {
+//             errorMessage = error.response.data.message;
+//         } else if (error.response?.data) {
+//             errorMessage = JSON.stringify(error.response.data);
+//         }
+        
+//         toast({
+//             title: "Error",
+//             description: errorMessage,
+//             variant: "destructive",
+//         });
+//     } finally {
+//         setIsUpdatingProduct(false);
+//     }
+// };
+
+
+//   // Soft delete product
+//   const softDeleteProduct = async (productId: number, productName: string) => {
+//     if (!confirm(`Are you sure you want to move "${productName}" to trash?`)) return;
+    
+//     try {
+//       const response = await api.delete(`/api/products/soft-delete/${productId}`);
+      
+//       toast({
+//         title: "Success",
+//         description: response.data.message || "Product moved to trash",
+//       });
+      
+//       fetchProductsFromBackend();
+//       fetchDeletedProducts();
+      
+//     } catch (error: any) {
+//       console.error("Error soft deleting product:", error);
+      
+//       let errorMessage = "Failed to delete product. ";
+//       if (error.response?.data?.message) {
+//         errorMessage = error.response.data.message;
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   // Restore product
+//   const restoreProduct = async (productId: number, productName: string) => {
+//     if (!confirm(`Are you sure you want to restore "${productName}"?`)) return;
+    
+//     try {
+//       const response = await api.post(`/api/products/restore/${productId}`);
+      
+//       toast({
+//         title: "Success",
+//         description: response.data.message || "Product restored successfully",
+//       });
+      
+//       fetchProductsFromBackend();
+//       fetchDeletedProducts();
+      
+//     } catch (error: any) {
+//       console.error("Error restoring product:", error);
+      
+//       let errorMessage = "Failed to restore product. ";
+//       if (error.response?.data?.message) {
+//         errorMessage = error.response.data.message;
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   // Permanent delete product
+//   const permanentDeleteProduct = async (productId: number, productName: string) => {
+//     if (!confirm(`WARNING: This will permanently delete "${productName}" and cannot be undone. Continue?`)) return;
+    
+//     try {
+//       const response = await api.delete(`/api/products/permanent-delete/${productId}`);
+      
+//       toast({
+//         title: "Success",
+//         description: response.data.message || "Product permanently deleted",
+//       });
+      
+//       fetchDeletedProducts();
+      
+//     } catch (error: any) {
+//       console.error("Error permanently deleting product:", error);
+      
+//       let errorMessage = "Failed to permanently delete product. ";
+//       if (error.response?.data?.message) {
+//         errorMessage = error.response.data.message;
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   // Reset product form
+//   const resetProductForm = () => {
+//     setNewProduct({
+//       productName: "",
+//       brand: "",
+//       productPrice: 0,
+//       originalPrice: undefined,
+//       productDescription: "",
+//       notes: [],
+//       productCategory: "",
+//       rating: 0,
+//       reviewCount: 0
+//     });
+//     setFrontImage(null);
+//     setBackImage(null);
+//     setNotesInput("");
+//   };
+
+//   // Add note to product
+//   const addNote = () => {
+//     if (notesInput.trim()) {
+//       setNewProduct({
+//         ...newProduct,
+//         notes: [...newProduct.notes, notesInput.trim()]
+//       });
+//       setNotesInput("");
+//     }
+//   };
+
+//   // Remove note from product
+//   const removeNote = (index: number) => {
+//     setNewProduct({
+//       ...newProduct,
+//       notes: newProduct.notes.filter((_, i) => i !== index)
+//     });
+//   };
+
+//   // Delete inquiry
+//   const deleteInquiry = async (inquiryId: string | number) => {
+//     if (!confirm("Are you sure you want to delete this inquiry?")) return;
+    
+//     try {
+//       const response = await api.delete(`/api/inquiries/${inquiryId}`);
+      
+//       toast({
+//         title: "Success",
+//         description: response.data.message || "Inquiry deleted successfully",
+//       });
+      
+//       fetchInquiriesFromBackend();
+//       setInquiryDialogOpen(false);
+      
+//     } catch (error: any) {
+//       console.error("Error deleting inquiry:", error);
+      
+//       let errorMessage = "Failed to delete inquiry. ";
+//       if (error.response?.data?.message) {
+//         errorMessage = error.response.data.message;
+//       }
+      
+//       toast({
+//         title: "Error",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   // Update inquiry status
+//   const updateInquiryStatus = async (inquiryId: string | number, newStatus: Inquiry["status"]) => {
+//     try {
+//       const response = await api.patch(`/api/inquiries/${inquiryId}/status`, {
+//         status: newStatus,
+//       });
+      
+//       toast({
+//         title: "Success",
+//         description: `Inquiry status updated to ${newStatus}`,
+//       });
+      
+//       fetchInquiriesFromBackend();
+//       setInquiryDialogOpen(false);
+      
+//     } catch (error: any) {
+//       console.error("Error updating inquiry status:", error);
+//       toast({
+//         title: "Error",
+//         description: "Failed to update inquiry status",
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   // Refresh data
+//   const refreshData = () => {
+//     if (activeTab === "orders") {
+//       fetchOrdersFromBackend();
+//     } else if (activeTab === "inquiries") {
+//       fetchInquiriesFromBackend();
+//     } else if (activeTab === "products") {
+//       if (showDeletedProducts) {
+//         fetchDeletedProducts();
+//       } else {
+//         fetchProductsFromBackend();
+//       }
+//     }
+    
+//     toast({
+//       title: "Refreshing",
+//       description: "Fetching latest data...",
+//     });
+//   };
+
+//   // Open order details
+//   const openOrderDetails = (order: Order) => {
+//     console.log("Opening order details:", order);
+//     setSelectedOrder(order);
+//     setNewOrderStatus(order.status);
+//     setOrderDialogOpen(true);
+//   };
+
+//   // Open inquiry details
+//   const openInquiryDetails = (inquiry: Inquiry) => {
+//     console.log("Opening inquiry details:", inquiry);
+//     setSelectedInquiry(inquiry);
+//     setInquiryDialogOpen(true);
+//   };
+
+//   // Open product details
+//   const openProductDetails = (product: Product) => {
+//     console.log("Opening product details:", product);
+//     setSelectedProduct(product);
+//     setProductDialogOpen(true);
+//     setFrontImage(null);
+//     setBackImage(null);
+//   };
+
+//   // Handle order status change
+//   const handleOrderStatusChange = (orderId: string | number, orderNumber: string) => {
+//     if (!newOrderStatus || newOrderStatus === selectedOrder?.status) {
+//       toast({
+//         title: "No Change",
+//         description: "Please select a different status",
+//         variant: "destructive",
+//       });
+//       return;
+//     }
+
+//     if (confirm(`Are you sure you want to change order status to ${newOrderStatus}?`)) {
+//       if (orderNumber) {
+//         updateOrderStatusByOrderNumber(orderNumber, newOrderStatus);
+//       } else {
+//         updateOrderStatus(orderId, newOrderStatus);
+//       }
+//     }
+//   };
+
+//   // Export to CSV
+//   const exportToCSV = async (type: "orders" | "inquiries" | "products") => {
+//     try {
+//       let headers: string[] = [];
+//       let data: (string | number)[][] = [];
+
+//       if (type === "orders") {
+//         headers = [
+//           "Order ID",
+//           "Order Number",
+//           "Date",
+//           "Customer Name",
+//           "Customer Email",
+//           "Customer Phone",
+//           "Status",
+//           "Total Amount",
+//           "Payment Method",
+//           "Payment Status",
+//           "Payment ID",
+//           "Items Count"
+//         ];
+
+//         data = orders.map((order) => [
+//           order.orderId,
+//           order.orderNumber,
+//           new Date(order.orderDate).toISOString(),
+//           order.userDetails.name || order.userDetails.userName || "N/A",
+//           order.userDetails.email,
+//           order.userDetails.phone,
+//           order.status,
+//           order.total,
+//           order.payment?.method || "N/A",
+//           order.payment?.status || "N/A",
+//           order.payment?.paymentId || "N/A",
+//           order.items.length
+//         ]);
+//       } else if (type === "inquiries") {
+//         headers = [
+//           "Inquiry ID",
+//           "Name",
+//           "Email",
+//           "Phone",
+//           "Type",
+//           "Subject",
+//           "Message",
+//           "Status",
+//           "Timestamp"
+//         ];
+
+//         data = inquiries.map((inquiry) => [
+//           inquiry.inquiryId,
+//           inquiry.name,
+//           inquiry.email,
+//           inquiry.phone,
+//           inquiry.inquiryType,
+//           inquiry.subject,
+//           `"${inquiry.message.replace(/"/g, '""')}"`,
+//           inquiry.status || "NEW",
+//           inquiry.timestamp
+//         ]);
+//       } else {
+//         const productsToExport = showDeletedProducts ? deletedProducts : products;
+        
+//         headers = [
+//           "Product ID",
+//           "Product Name",
+//           "Brand",
+//           "Category",
+//           "Price",
+//           "Original Price",
+//           "Rating",
+//           "Review Count",
+//           "Status",
+//           "Deleted At",
+//           "Notes"
+//         ];
+
+//         data = productsToExport.map((product) => [
+//           product.productId || "N/A",
+//           product.productName,
+//           product.brand,
+//           product.productCategory,
+//           product.productPrice,
+//           product.originalPrice || "N/A",
+//           product.rating || 0,
+//           product.reviewCount || 0,
+//           product.isDeleted ? "Deleted" : "Active",
+//           product.deletedAt || "N/A",
+//           `"${product.notes.join(", ")}"`
+//         ]);
+//       }
+
+//       const csvData = data.map(row => row.map(value => String(value)));
+//       const csv = [
+//         headers.join(","),
+//         ...csvData.map(row => row.join(",")),
+//       ].join("\n");
+
+//       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+//       const url = URL.createObjectURL(blob);
+//       const link = document.createElement("a");
+//       link.href = url;
+//       link.download = `${type}_${showDeletedProducts ? 'deleted_' : ''}export_${new Date().toISOString().split('T')[0]}.csv`;
+//       document.body.appendChild(link);
+//       link.click();
+//       document.body.removeChild(link);
+//       URL.revokeObjectURL(url);
+
+//       toast({
+//         title: "Success",
+//         description: `${type.charAt(0).toUpperCase() + type.slice(1)} exported successfully`,
+//       });
+//     } catch (error) {
+//       console.error("Export error:", error);
+//       toast({
+//         title: "Error",
+//         description: "Failed to export data",
+//         variant: "destructive",
+//       });
+//     }
+//   };
+
+//   // Filter data based on search and status
+//   const filteredOrders = orders.filter((order) => {
+//     const matchesSearch = (
+//       String(order.orderId).toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       (order.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+//       (order.userDetails?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+//       (order.userDetails?.userName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+//       (order.userDetails?.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+//       (order.userDetails?.phone?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
+//     );
+    
+//     const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+    
+//     return matchesSearch && matchesStatus;
+//   });
+
+//   const filteredInquiries = inquiries.filter((inquiry) => {
+//     const matchesSearch = (
+//       String(inquiry.inquiryId).toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       inquiry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       inquiry.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       inquiry.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       inquiry.subject.toLowerCase().includes(searchQuery.toLowerCase())
+//     );
+    
+//     const matchesStatus = statusFilter === "all" || inquiry.status === statusFilter;
+    
+//     return matchesSearch && matchesStatus;
+//   });
+
+//   const filteredProducts = (showDeletedProducts ? deletedProducts : products).filter((product) => {
+//     return (
+//       product.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       product.productCategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       product.notes.some(note => note.toLowerCase().includes(searchQuery.toLowerCase()))
+//     );
+//   });
+
+//   // Format date
+//   const formatDate = (dateString?: string) => {
+//     if (!dateString) return "N/A";
+//     try {
+//       return new Date(dateString).toLocaleString();
+//     } catch {
+//       return "Invalid Date";
+//     }
+//   };
+
+//   // Fetch data on component mount
+//   useEffect(() => {
+//     console.log("AdminDashboard mounted - fetching initial data");
+    
+//     fetchOrdersFromBackend();
+//     fetchInquiriesFromBackend();
+//     fetchProductsFromBackend();
+//     fetchDeletedProducts();
+//     fetchOrderStatuses();
+    
+//     return () => {
+//       console.log("AdminDashboard unmounting");
+//       if (cancelTokenSourceRef.current) {
+//         cancelTokenSourceRef.current.cancel("Component unmounting");
+//       }
+//     };
+//   }, []);
+
+//   // Fetch data when showDeletedProducts changes
+//   useEffect(() => {
+//     if (showDeletedProducts) {
+//       fetchDeletedProducts();
+//     } else {
+//       fetchProductsFromBackend();
+//     }
+//   }, [showDeletedProducts]);
+
+//   return (
+//     <div className="p-6 space-y-6">
+//       {/* Header */}
+//       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+//         <div>
+//           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+//           <p className="text-muted-foreground">Manage orders, inquiries, and products</p>
+//         </div>
+        
+//         <div className="flex items-center gap-2">
+//           <Button variant="outline" onClick={refreshData} size="sm">
+//             <RefreshCw className="h-4 w-4 mr-2" />
+//             Refresh
+//           </Button>
+          
+//           {activeTab === "orders" && (
+//             <Button onClick={() => exportToCSV("orders")} size="sm">
+//               <Download className="h-4 w-4 mr-2" />
+//               Export CSV
+//             </Button>
+//           )}
+          
+//           {activeTab === "inquiries" && (
+//             <Button onClick={() => exportToCSV("inquiries")} size="sm">
+//               <Download className="h-4 w-4 mr-2" />
+//               Export CSV
+//             </Button>
+//           )}
+          
+//           {activeTab === "products" && (
+//             <Button onClick={() => exportToCSV("products")} size="sm">
+//               <Download className="h-4 w-4 mr-2" />
+//               Export CSV
+//             </Button>
+//           )}
+//         </div>
+//       </div>
+
+//       {/* Stats Cards */}
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+//         <Card>
+//           <CardHeader className="pb-2">
+//             <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <div className="text-2xl font-bold">{stats.totalOrders}</div>
+//             <p className="text-xs text-muted-foreground">All time orders</p>
+//           </CardContent>
+//         </Card>
+        
+//         <Card>
+//           <CardHeader className="pb-2">
+//             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <div className="text-2xl font-bold">₹{stats.totalRevenue.toFixed(2)}</div>
+//             <p className="text-xs text-muted-foreground">Gross revenue</p>
+//           </CardContent>
+//         </Card>
+        
+//         <Card>
+//           <CardHeader className="pb-2">
+//             <CardTitle className="text-sm font-medium">Active Products</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <div className="text-2xl font-bold">{stats.activeProducts}</div>
+//             <p className="text-xs text-muted-foreground">Available in store</p>
+//           </CardContent>
+//         </Card>
+        
+//         <Card>
+//           <CardHeader className="pb-2">
+//             <CardTitle className="text-sm font-medium">Deleted Products</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <div className="text-2xl font-bold">{stats.deletedProducts}</div>
+//             <p className="text-xs text-muted-foreground">In trash</p>
+//           </CardContent>
+//         </Card>
+//       </div>
+
+//       {/* Search and Filters */}
+//       <div className="flex flex-col md:flex-row gap-4">
+//         <div className="relative flex-1">
+//           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+//           <Input
+//             placeholder={`Search ${activeTab}...`}
+//             value={searchQuery}
+//             onChange={(e) => setSearchQuery(e.target.value)}
+//             className="pl-10"
+//           />
+//         </div>
+        
+//         <div className="flex gap-2">
+//           <Select value={statusFilter} onValueChange={setStatusFilter}>
+//             <SelectTrigger className="w-[180px]">
+//               <SelectValue placeholder="Filter by status" />
+//             </SelectTrigger>
+//             <SelectContent>
+//               <SelectItem value="all">All Status</SelectItem>
+//               {activeTab === "orders" && (
+//                 <>
+//                   <SelectItem value="PENDING">Pending</SelectItem>
+//                   <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+//                   <SelectItem value="PROCESSING">Processing</SelectItem>
+//                   <SelectItem value="SHIPPED">Shipped</SelectItem>
+//                   <SelectItem value="DELIVERED">Delivered</SelectItem>
+//                   <SelectItem value="CANCELLED">Cancelled</SelectItem>
+//                   <SelectItem value="REFUNDED">Refunded</SelectItem>
+//                 </>
+//               )}
+//               {activeTab === "inquiries" && (
+//                 <>
+//                   <SelectItem value="NEW">New</SelectItem>
+//                   <SelectItem value="READ">Read</SelectItem>
+//                   <SelectItem value="RESPONDED">Responded</SelectItem>
+//                   <SelectItem value="ARCHIVED">Archived</SelectItem>
+//                 </>
+//               )}
+//             </SelectContent>
+//           </Select>
+          
+//           <Button variant="outline" size="icon" title="Clear filters" onClick={() => setStatusFilter("all")}>
+//             <Filter className="h-4 w-4" />
+//           </Button>
+//         </div>
+//       </div>
+
+//       {/* Tabs */}
+//       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+//         <TabsList className="grid w-full grid-cols-3">
+//           <TabsTrigger value="orders">Orders ({orders.length})</TabsTrigger>
+//           <TabsTrigger value="inquiries">Inquiries ({inquiries.length})</TabsTrigger>
+//           <TabsTrigger value="products">Products ({showDeletedProducts ? deletedProducts.length : products.length})</TabsTrigger>
+//         </TabsList>
+
+//         {/* Orders Tab */}
+//         <TabsContent value="orders">
+//           {loading.orders ? (
+//             <div className="flex justify-center items-center h-64">
+//               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+//               <span className="ml-3">Loading orders...</span>
+//             </div>
+//           ) : filteredOrders.length === 0 ? (
+//             <div className="text-center py-12">
+//               <p className="text-muted-foreground">No orders found</p>
+//               <Button variant="outline" onClick={fetchOrdersFromBackend} className="mt-4">
+//                 Try Again
+//               </Button>
+//             </div>
+//           ) : (
+//             <div className="border rounded-lg">
+//               <ScrollArea className="h-[600px]">
+//                 <Table>
+//                   <TableHeader className="sticky top-0 bg-background">
+//                     <TableRow>
+//                       <TableHead>Order Number</TableHead>
+//                       <TableHead>Customer</TableHead>
+//                       <TableHead>Date</TableHead>
+//                       <TableHead>Status</TableHead>
+//                       <TableHead>Total</TableHead>
+//                       <TableHead>Payment</TableHead>
+//                       <TableHead>Actions</TableHead>
+//                     </TableRow>
+//                   </TableHeader>
+//                   <TableBody>
+//                     {filteredOrders.map((order) => (
+//                       <TableRow key={order.orderId} className="hover:bg-gray-50 cursor-pointer" onClick={() => openOrderDetails(order)}>
+//                         <TableCell className="font-mono text-sm">
+//                           {order.orderNumber || order.orderId}
+//                         </TableCell>
+//                         <TableCell>
+//                           <div>
+//                             <p className="font-medium">{order.userDetails.name || order.userDetails.userName || "N/A"}</p>
+//                             <p className="text-xs text-muted-foreground">{order.userDetails.email}</p>
+//                           </div>
+//                         </TableCell>
+//                         <TableCell>
+//                           {new Date(order.orderDate).toLocaleDateString()}
+//                         </TableCell>
+//                         <TableCell>
+//                           <Badge className={getStatusColor(order.status)}>
+//                             {order.status}
+//                           </Badge>
+//                         </TableCell>
+//                         <TableCell className="font-medium">
+//                           ₹{order.total.toFixed(2)}
+//                         </TableCell>
+//                         <TableCell>
+//                           <Badge variant="outline">
+//                             {order.payment?.method || "N/A"}
+//                           </Badge>
+//                         </TableCell>
+//                         <TableCell>
+//                           <div className="flex gap-2">
+//                             <Button
+//                               variant="ghost"
+//                               size="sm"
+//                               onClick={(e) => {
+//                                 e.stopPropagation();
+//                                 openOrderDetails(order);
+//                               }}
+//                             >
+//                               <Eye className="h-4 w-4" />
+//                             </Button>
+//                           </div>
+//                         </TableCell>
+//                       </TableRow>
+//                     ))}
+//                   </TableBody>
+//                 </Table>
+//               </ScrollArea>
+//             </div>
+//           )}
+//         </TabsContent>
+
+//         {/* Inquiries Tab */}
+//         <TabsContent value="inquiries">
+//           {loading.inquiries ? (
+//             <div className="flex justify-center items-center h-64">
+//               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+//               <span className="ml-3">Loading inquiries...</span>
+//             </div>
+//           ) : filteredInquiries.length === 0 ? (
+//             <div className="text-center py-12">
+//               <p className="text-muted-foreground">No inquiries found</p>
+//               <Button variant="outline" onClick={fetchInquiriesFromBackend} className="mt-4">
+//                 Try Again
+//               </Button>
+//             </div>
+//           ) : (
+//             <div className="border rounded-lg">
+//               <ScrollArea className="h-[600px]">
+//                 <Table>
+//                   <TableHeader className="sticky top-0 bg-background">
+//                     <TableRow>
+//                       <TableHead>ID</TableHead>
+//                       <TableHead>Name</TableHead>
+//                       <TableHead>Email</TableHead>
+//                       <TableHead>Type</TableHead>
+//                       <TableHead>Subject</TableHead>
+//                       <TableHead>Status</TableHead>
+//                       <TableHead>Date</TableHead>
+//                       <TableHead>Actions</TableHead>
+//                     </TableRow>
+//                   </TableHeader>
+//                   <TableBody>
+//                     {filteredInquiries.map((inquiry) => (
+//                       <TableRow key={inquiry.inquiryId} className="hover:bg-gray-50 cursor-pointer" onClick={() => openInquiryDetails(inquiry)}>
+//                         <TableCell className="font-mono text-sm">
+//                           {String(inquiry.inquiryId).substring(0, 8)}
+//                         </TableCell>
+//                         <TableCell>{inquiry.name}</TableCell>
+//                         <TableCell>{inquiry.email}</TableCell>
+//                         <TableCell>{inquiry.inquiryType}</TableCell>
+//                         <TableCell className="max-w-[200px] truncate">
+//                           {inquiry.subject}
+//                         </TableCell>
+//                         <TableCell>
+//                           <Badge className={getStatusColor(inquiry.status || "NEW")}>
+//                             {inquiry.status || "NEW"}
+//                           </Badge>
+//                         </TableCell>
+//                         <TableCell>
+//                           {new Date(inquiry.timestamp).toLocaleDateString()}
+//                         </TableCell>
+//                         <TableCell>
+//                           <div className="flex gap-2">
+//                             <Button
+//                               variant="ghost"
+//                               size="sm"
+//                               onClick={(e) => {
+//                                 e.stopPropagation();
+//                                 openInquiryDetails(inquiry);
+//                               }}
+//                             >
+//                               <Eye className="h-4 w-4" />
+//                             </Button>
+//                           </div>
+//                         </TableCell>
+//                       </TableRow>
+//                     ))}
+//                   </TableBody>
+//                 </Table>
+//               </ScrollArea>
+//             </div>
+//           )}
+//         </TabsContent>
+
+//         {/* Products Tab */}
+//         <TabsContent value="products">
+//           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+//             <div className="flex items-center gap-4">
+//               <Dialog open={addProductDialogOpen} onOpenChange={setAddProductDialogOpen}>
+//                 <DialogTrigger asChild>
+//                   <Button>
+//                     <Plus className="h-4 w-4 mr-2" /> Add Product
+//                   </Button>
+//                 </DialogTrigger>
+//                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+//                   <DialogHeader>
+//                     <DialogTitle>Add New Product</DialogTitle>
+//                   </DialogHeader>
+//                   <form onSubmit={handleAddProduct}>
+//                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                       {/* Left Column */}
+//                       <div className="space-y-4">
+//                         <div>
+//                           <Label>Product Name*</Label>
+//                           <Input
+//                             value={newProduct.productName}
+//                             onChange={(e) => setNewProduct({...newProduct, productName: e.target.value})}
+//                             required
+//                           />
+//                         </div>
+//                         <div>
+//                           <Label>Brand*</Label>
+//                           <Input
+//                             value={newProduct.brand}
+//                             onChange={(e) => setNewProduct({...newProduct, brand: e.target.value})}
+//                             required
+//                           />
+//                         </div>
+//                         <div>
+//                           <Label>Current Price*</Label>
+//                           <Input
+//                             type="number"
+//                             value={newProduct.productPrice}
+//                             onChange={(e) => setNewProduct({...newProduct, productPrice: Number(e.target.value)})}
+//                             min="0.01"
+//                             step="0.01"
+//                             required
+//                           />
+//                         </div>
+//                         <div>
+//                           <Label>Original Price (optional)</Label>
+//                           <Input
+//                             type="number"
+//                             value={newProduct.originalPrice || ""}
+//                             onChange={(e) => setNewProduct({...newProduct, originalPrice: Number(e.target.value) || undefined})}
+//                             min="0.01"
+//                             step="0.01"
+//                           />
+//                         </div>
+//                         <div>
+//                           <Label>Category*</Label>
+//                           <Input
+//                             value={newProduct.productCategory}
+//                             onChange={(e) => setNewProduct({...newProduct, productCategory: e.target.value})}
+//                             required
+//                           />
+//                         </div>
+//                         <div className="grid grid-cols-2 gap-3">
+//                           <div>
+//                             <Label>Rating</Label>
+//                             <Input
+//                               type="number"
+//                               value={newProduct.rating || ""}
+//                               onChange={(e) => setNewProduct({...newProduct, rating: Number(e.target.value) || 0})}
+//                               min="0"
+//                               max="5"
+//                               step="0.1"
+//                             />
+//                           </div>
+//                           <div>
+//                             <Label>Review Count</Label>
+//                             <Input
+//                               type="number"
+//                               value={newProduct.reviewCount || ""}
+//                               onChange={(e) => setNewProduct({...newProduct, reviewCount: Number(e.target.value) || 0})}
+//                               min="0"
+//                             />
+//                           </div>
+//                         </div>
+//                       </div>
+                      
+//                       {/* Right Column */}
+//                       <div className="space-y-4">
+//                         <div>
+//                           <Label>Description*</Label>
+//                           <Textarea
+//                             value={newProduct.productDescription}
+//                             onChange={(e) => setNewProduct({...newProduct, productDescription: e.target.value})}
+//                             required
+//                             rows={4}
+//                           />
+//                         </div>
+//                         <div>
+//                           <Label>Notes (Add one at a time)</Label>
+//                           <div className="flex gap-2">
+//                             <Input
+//                               value={notesInput}
+//                               onChange={(e) => setNotesInput(e.target.value)}
+//                               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addNote())}
+//                               placeholder="Add a note and press Enter"
+//                             />
+//                             <Button type="button" onClick={addNote}>Add</Button>
+//                           </div>
+//                           <div className="flex flex-wrap gap-2 mt-2">
+//                             {newProduct.notes.map((note, index) => (
+//                               <div key={index} className="flex items-center bg-secondary px-2 py-1 rounded">
+//                                 <span className="text-sm">{note}</span>
+//                                 <button 
+//                                   type="button"
+//                                   onClick={() => removeNote(index)}
+//                                   className="ml-2 text-red-500 hover:text-red-700"
+//                                 >
+//                                   ×
+//                                 </button>
+//                               </div>
+//                             ))}
+//                           </div>
+//                         </div>
+//                         <div>
+//                           <Label>Front Image*</Label>
+//                           <Input
+//                             type="file"
+//                             accept="image/*"
+//                             onChange={(e) => setFrontImage(e.target.files?.[0] || null)}
+//                             required
+//                           />
+//                         </div>
+//                         <div>
+//                           <Label>Back Image*</Label>
+//                           <Input
+//                             type="file"
+//                             accept="image/*"
+//                             onChange={(e) => setBackImage(e.target.files?.[0] || null)}
+//                             required
+//                           />
+//                         </div>
+//                       </div>
+//                     </div>
+//                     <DialogFooter className="mt-6">
+//                       <Button 
+//                         type="button"
+//                         variant="outline" 
+//                         onClick={() => {
+//                           setAddProductDialogOpen(false);
+//                           resetProductForm();
+//                         }}
+//                       >
+//                         Cancel
+//                       </Button>
+//                       <Button type="submit" disabled={isAddingProduct}>
+//                         {isAddingProduct ? "Adding..." : "Add Product"}
+//                       </Button>
+//                     </DialogFooter>
+//                   </form>
+//                 </DialogContent>
+//               </Dialog>
+              
+//               <div className="flex items-center space-x-2">
+//                 <Switch
+//                   checked={showDeletedProducts}
+//                   onCheckedChange={setShowDeletedProducts}
+//                   id="show-deleted"
+//                 />
+//                 <Label htmlFor="show-deleted" className="cursor-pointer flex items-center gap-2">
+//                   {showDeletedProducts ? (
+//                     <>
+//                       <Archive className="h-4 w-4" />
+//                       Show Deleted Products
+//                     </>
+//                   ) : (
+//                     <>
+//                       <Package className="h-4 w-4" />
+//                       Show Active Products
+//                     </>
+//                   )}
+//                 </Label>
+//               </div>
+//             </div>
+            
+//             <div className="flex items-center gap-2">
+//               <div className="relative">
+//                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+//                 <Input
+//                   placeholder={`Search ${showDeletedProducts ? 'deleted' : 'active'} products...`}
+//                   value={searchQuery}
+//                   onChange={(e) => setSearchQuery(e.target.value)}
+//                   className="pl-10 w-full md:w-[300px]"
+//                 />
+//               </div>
+//             </div>
+//           </div>
+
+//           {(loading.products && !showDeletedProducts) || (loading.deletedProducts && showDeletedProducts) ? (
+//             <div className="flex justify-center items-center h-64">
+//               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+//               <span className="ml-3">
+//                 {showDeletedProducts ? "Loading deleted products..." : "Loading products..."}
+//               </span>
+//             </div>
+//           ) : filteredProducts.length === 0 ? (
+//             <div className="text-center py-12">
+//               <p className="text-muted-foreground">
+//                 {showDeletedProducts ? "No deleted products found" : "No products found"}
+//               </p>
+//               <Button 
+//                 variant="outline" 
+//                 onClick={showDeletedProducts ? fetchDeletedProducts : fetchProductsFromBackend} 
+//                 className="mt-4"
+//               >
+//                 Try Again
+//               </Button>
+//             </div>
+//           ) : (
+//             <div className="border rounded-lg">
+//               <ScrollArea className="h-[600px]">
+//                 <Table>
+//                   <TableHeader className="sticky top-0 bg-background">
+//                     <TableRow>
+//                       <TableHead>Product</TableHead>
+//                       <TableHead>Brand</TableHead>
+//                       <TableHead>Category</TableHead>
+//                       <TableHead>Price</TableHead>
+//                       <TableHead>Rating</TableHead>
+//                       <TableHead>Status</TableHead>
+//                       {showDeletedProducts && <TableHead>Deleted At</TableHead>}
+//                       <TableHead>Actions</TableHead>
+//                     </TableRow>
+//                   </TableHeader>
+//                   <TableBody>
+//                     {filteredProducts.map((product) => (
+//                       <TableRow key={product.productId} className="hover:bg-gray-50">
+//                         <TableCell>
+//                           <div className="flex items-center gap-3">
+//                             {product.productImageUrl && (
+//                               <img
+//                                 src={product.productImageUrl}
+//                                 alt={product.productName}
+//                                 className="w-10 h-10 object-cover rounded"
+//                               />
+//                             )}
+//                             <div>
+//                               <p className="font-medium">{product.productName}</p>
+//                               <p className="text-xs text-muted-foreground">ID: {product.productId}</p>
+//                             </div>
+//                           </div>
+//                         </TableCell>
+//                         <TableCell>{product.brand}</TableCell>
+//                         <TableCell>
+//                           <Badge variant="outline">{product.productCategory}</Badge>
+//                         </TableCell>
+//                         <TableCell>
+//                           <div>
+//                             <p className="font-medium">₹{product.productPrice?.toFixed(2) || "0.00"}</p>
+//                             {product.originalPrice && product.originalPrice > 0 && (
+//                               <p className="text-xs text-muted-foreground line-through">
+//                                 ₹{product.originalPrice.toFixed(2)}
+//                               </p>
+//                             )}
+//                           </div>
+//                         </TableCell>
+//                         <TableCell>
+//                           <div className="flex items-center gap-1">
+//                             <span className="font-medium">{product.rating?.toFixed(1) || "0.0"}</span>
+//                             <span className="text-xs text-muted-foreground">
+//                               ({product.reviewCount || 0})
+//                             </span>
+//                           </div>
+//                         </TableCell>
+//                         <TableCell>
+//                           <Badge className={product.isDeleted ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}>
+//                             {product.isDeleted ? (
+//                               <span className="flex items-center gap-1">
+//                                 <Trash2 className="h-3 w-3" /> Deleted
+//                               </span>
+//                             ) : (
+//                               <span className="flex items-center gap-1">
+//                                 <CheckCircle className="h-3 w-3" /> Active
+//                               </span>
+//                             )}
+//                           </Badge>
+//                         </TableCell>
+//                         {showDeletedProducts && (
+//                           <TableCell>
+//                             <span className="text-sm text-muted-foreground">
+//                               {formatDate(product.deletedAt)}
+//                             </span>
+//                           </TableCell>
+//                         )}
+//                         <TableCell>
+//                           <div className="flex gap-2">
+//                             {!showDeletedProducts ? (
+//                               <>
+//                                 <Button
+//                                   variant="ghost"
+//                                   size="sm"
+//                                   onClick={() => openProductDetails(product)}
+//                                   title="Edit product"
+//                                 >
+//                                   <Edit className="h-4 w-4" />
+//                                 </Button>
+//                                 <Button
+//                                   variant="ghost"
+//                                   size="sm"
+//                                   onClick={() => product.productId && softDeleteProduct(product.productId, product.productName)}
+//                                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
+//                                   title="Move to trash"
+//                                 >
+//                                   <Trash2 className="h-4 w-4" />
+//                                 </Button>
+//                               </>
+//                             ) : (
+//                               <>
+//                                 <Button
+//                                   variant="ghost"
+//                                   size="sm"
+//                                   onClick={() => product.productId && restoreProduct(product.productId, product.productName)}
+//                                   className="text-green-600 hover:text-green-700 hover:bg-green-50"
+//                                   title="Restore product"
+//                                 >
+//                                   <Undo className="h-4 w-4" />
+//                                 </Button>
+//                                 <Button
+//                                   variant="ghost"
+//                                   size="sm"
+//                                   onClick={() => product.productId && permanentDeleteProduct(product.productId, product.productName)}
+//                                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
+//                                   title="Permanently delete"
+//                                 >
+//                                   <XCircle className="h-4 w-4" />
+//                                 </Button>
+//                               </>
+//                             )}
+//                           </div>
+//                         </TableCell>
+//                       </TableRow>
+//                     ))}
+//                   </TableBody>
+//                 </Table>
+//               </ScrollArea>
+//             </div>
+//           )}
+//         </TabsContent>
+//       </Tabs>
+
+//       {/* Order Details Dialog */}
+//       <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
+//         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+//           <DialogHeader>
+//             <DialogTitle>
+//               Order Details - {selectedOrder?.orderNumber || selectedOrder?.orderId}
+//             </DialogTitle>
+//           </DialogHeader>
+//           {selectedOrder ? (
+//             <div className="space-y-6">
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                 <Card>
+//                   <CardHeader>
+//                     <CardTitle className="text-lg">Customer Information</CardTitle>
+//                   </CardHeader>
+//                   <CardContent className="space-y-2">
+//                     <p><span className="font-medium">Name:</span> {selectedOrder.userDetails.name || selectedOrder.userDetails.userName || "N/A"}</p>
+//                     <p><span className="font-medium">Email:</span> {selectedOrder.userDetails.email || "N/A"}</p>
+//                     <p><span className="font-medium">Phone:</span> {selectedOrder.userDetails.phone || "N/A"}</p>
+//                     <p><span className="font-medium">Address:</span> {selectedOrder.userDetails.address || "Address not provided"}</p>
+//                   </CardContent>
+//                 </Card>
+                
+//                 <Card>
+//                   <CardHeader>
+//                     <CardTitle className="text-lg">Order Information</CardTitle>
+//                   </CardHeader>
+//                   <CardContent className="space-y-2">
+//                     <p><span className="font-medium">Order ID:</span> {selectedOrder.orderId}</p>
+//                     <p><span className="font-medium">Order Number:</span> {selectedOrder.orderNumber}</p>
+//                     <p><span className="font-medium">Date:</span> {new Date(selectedOrder.orderDate).toLocaleString()}</p>
+//                     <p className="flex items-center gap-2">
+//                       <span className="font-medium">Status:</span>
+//                       <Badge className={getStatusColor(selectedOrder.status)}>
+//                         {selectedOrder.status}
+//                       </Badge>
+//                     </p>
+//                     <p><span className="font-medium">Total:</span> ₹{selectedOrder.total.toFixed(2)}</p>
+//                   </CardContent>
+//                 </Card>
+//               </div>
+
+//               {/* Payment Information */}
+//               {selectedOrder.payment && (
+//                 <Card>
+//                   <CardHeader>
+//                     <CardTitle className="text-lg">Payment Information</CardTitle>
+//                   </CardHeader>
+//                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                     <div className="space-y-2">
+//                       <p><span className="font-medium">Payment ID:</span> {selectedOrder.payment.paymentId}</p>
+//                       <p><span className="font-medium">Status:</span> {selectedOrder.payment.status}</p>
+//                     </div>
+//                     <div className="space-y-2">
+//                       <p><span className="font-medium">Amount:</span> ₹{selectedOrder.payment.amount.toFixed(2)}</p>
+//                       <p><span className="font-medium">Method:</span> {selectedOrder.payment.method}</p>
+//                       {selectedOrder.payment.transactionId && (
+//                         <p><span className="font-medium">Transaction ID:</span> {selectedOrder.payment.transactionId}</p>
+//                       )}
+//                     </div>
+//                   </CardContent>
+//                 </Card>
+//               )}
+
+//               {/* Order Items */}
+//               <Card>
+//                 <CardHeader>
+//                   <CardTitle className="text-lg">Order Items ({selectedOrder.items.length})</CardTitle>
+//                 </CardHeader>
+//                 <CardContent>
+//                   {selectedOrder.items.length > 0 ? (
+//                     <Table>
+//                       <TableHeader>
+//                         <TableRow>
+//                           <TableHead>Product</TableHead>
+//                           <TableHead>Price</TableHead>
+//                           <TableHead>Quantity</TableHead>
+//                           <TableHead className="text-right">Total</TableHead>
+//                         </TableRow>
+//                       </TableHeader>
+//                       <TableBody>
+//                         {selectedOrder.items.map((item, index) => (
+//                           <TableRow key={index}>
+//                             <TableCell>
+//                               <div className="font-medium">{item.productName}</div>
+//                               <div className="text-sm text-muted-foreground">ID: {item.productId}</div>
+//                             </TableCell>
+//                             <TableCell>
+//                               {item.priceAtPurchase !== null && item.priceAtPurchase !== undefined 
+//                                 ? `₹${item.priceAtPurchase.toFixed(2)}`
+//                                 : "N/A"
+//                               }
+//                             </TableCell>
+//                             <TableCell>{item.quantity}</TableCell>
+//                             <TableCell className="text-right font-medium">
+//                               {item.priceAtPurchase !== null && item.priceAtPurchase !== undefined 
+//                                 ? `₹${(item.priceAtPurchase * item.quantity).toFixed(2)}`
+//                                 : "N/A"
+//                               }
+//                             </TableCell>
+//                           </TableRow>
+//                         ))}
+//                       </TableBody>
+//                     </Table>
+//                   ) : (
+//                     <p className="text-muted-foreground text-center py-4">No items found in this order</p>
+//                   )}
+//                   <div className="flex justify-end mt-4">
+//                     <div className="text-right space-y-1">
+//                       <p className="text-lg font-bold">
+//                         Order Total: ₹{selectedOrder.total.toFixed(2)}
+//                       </p>
+//                     </div>
+//                   </div>
+//                 </CardContent>
+//               </Card>
+
+//               {/* Status Update Section */}
+//               <Card>
+//                 <CardHeader>
+//                   <CardTitle className="text-lg">Update Order Status</CardTitle>
+//                 </CardHeader>
+//                 <CardContent>
+//                   <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+//                     <div className="flex-1">
+//                       <Label htmlFor="status-select">Select New Status</Label>
+//                       <Select value={newOrderStatus} onValueChange={setNewOrderStatus}>
+//                         <SelectTrigger id="status-select" className="w-full">
+//                           <SelectValue placeholder="Select status" />
+//                         </SelectTrigger>
+//                         <SelectContent>
+//                           {ORDER_STATUSES.map((status) => (
+//                             <SelectItem key={status} value={status}>
+//                               <div className="flex items-center gap-2">
+//                                 <div className={`w-3 h-3 rounded-full ${getStatusColor(status).split(' ')[0]}`} />
+//                                 {status}
+//                               </div>
+//                             </SelectItem>
+//                           ))}
+//                         </SelectContent>
+//                       </Select>
+//                     </div>
+                    
+//                     <div className="flex gap-2">
+//                       <Button
+//                         variant="outline"
+//                         onClick={() => setOrderDialogOpen(false)}
+//                         disabled={isUpdatingOrderStatus}
+//                       >
+//                         Cancel
+//                       </Button>
+//                       <Button
+//                         onClick={() => handleOrderStatusChange(
+//                           selectedOrder.orderId, 
+//                           selectedOrder.orderNumber
+//                         )}
+//                         disabled={isUpdatingOrderStatus || !newOrderStatus || newOrderStatus === selectedOrder.status}
+//                       >
+//                         {isUpdatingOrderStatus ? (
+//                           <>
+//                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+//                             Updating...
+//                           </>
+//                         ) : (
+//                           "Update Status"
+//                         )}
+//                       </Button>
+//                     </div>
+//                   </div>
+                  
+//                   {newOrderStatus && newOrderStatus !== selectedOrder.status && (
+//                     <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+//                       <p className="text-sm text-blue-800">
+//                         <strong>Status Change:</strong> {selectedOrder.status} → {newOrderStatus}
+//                       </p>
+//                     </div>
+//                   )}
+//                 </CardContent>
+//               </Card>
+//             </div>
+//           ) : (
+//             <div className="text-center py-8">
+//               <p className="text-muted-foreground">Loading order details...</p>
+//             </div>
+//           )}
+//         </DialogContent>
+//       </Dialog>
+
+//       {/* Inquiry Details Dialog */}
+//       <Dialog open={inquiryDialogOpen} onOpenChange={setInquiryDialogOpen}>
+//         <DialogContent className="max-w-2xl">
+//           <DialogHeader>
+//             <DialogTitle>Inquiry Details</DialogTitle>
+//           </DialogHeader>
+//           {selectedInquiry ? (
+//             <div className="space-y-6">
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                 <div>
+//                   <h3 className="font-semibold mb-2">Contact Information</h3>
+//                   <div className="space-y-1">
+//                     <p><span className="font-medium">Name:</span> {selectedInquiry.name}</p>
+//                     <p><span className="font-medium">Email:</span> {selectedInquiry.email}</p>
+//                     <p><span className="font-medium">Phone:</span> {selectedInquiry.phone}</p>
+//                   </div>
+//                 </div>
+                
+//                 <div>
+//                   <h3 className="font-semibold mb-2">Inquiry Details</h3>
+//                   <div className="space-y-1">
+//                     <p><span className="font-medium">Type:</span> {selectedInquiry.inquiryType}</p>
+//                     <p><span className="font-medium">Subject:</span> {selectedInquiry.subject}</p>
+//                     <p><span className="font-medium">Date:</span> {selectedInquiry.timestamp}</p>
+//                     <p className="flex items-center gap-2">
+//                       <span className="font-medium">Status:</span>
+//                       <Badge className={getStatusColor(selectedInquiry.status || "NEW")}>
+//                         {selectedInquiry.status || "NEW"}
+//                       </Badge>
+//                     </p>
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div>
+//                 <h3 className="font-semibold mb-2">Message</h3>
+//                 <div className="bg-muted p-4 rounded-lg">
+//                   <p className="whitespace-pre-line">{selectedInquiry.message}</p>
+//                 </div>
+//               </div>
+
+//               <div className="flex justify-between gap-2">
+//                 <Button 
+//                   variant="destructive"
+//                   onClick={() => deleteInquiry(selectedInquiry.inquiryId)}
+//                 >
+//                   <Trash2 className="h-4 w-4 mr-2" />
+//                   Delete Inquiry
+//                 </Button>
+                
+//                 <div className="flex gap-2">
+//                   <Button
+//                     variant="outline"
+//                     onClick={() => updateInquiryStatus(selectedInquiry.inquiryId, "READ")}
+//                     disabled={selectedInquiry.status === "READ"}
+//                   >
+//                     Mark as Read
+//                   </Button>
+//                   <Button
+//                     onClick={() => updateInquiryStatus(selectedInquiry.inquiryId, "RESPONDED")}
+//                     disabled={selectedInquiry.status === "RESPONDED"}
+//                   >
+//                     Mark as Responded
+//                   </Button>
+//                 </div>
+//               </div>
+//             </div>
+//           ) : (
+//             <div className="text-center py-8">
+//               <p className="text-muted-foreground">Loading inquiry details...</p>
+//             </div>
+//           )}
+//         </DialogContent>
+//       </Dialog>
+
+//       {/* Product Details Dialog */}
+//       <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
+//         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+//           <DialogHeader>
+//             <DialogTitle>Product Details</DialogTitle>
+//           </DialogHeader>
+//           {selectedProduct ? (
+//             <div className="space-y-6">
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                 <div>
+//                   <h3 className="font-semibold mb-4">Product Information</h3>
+//                   <div className="space-y-3">
+//                     <div>
+//                       <Label>Product Name</Label>
+//                       <Input
+//                         value={selectedProduct.productName}
+//                         onChange={(e) => setSelectedProduct({...selectedProduct, productName: e.target.value})}
+//                       />
+//                     </div>
+//                     <div>
+//                       <Label>Brand</Label>
+//                       <Input
+//                         value={selectedProduct.brand}
+//                         onChange={(e) => setSelectedProduct({...selectedProduct, brand: e.target.value})}
+//                       />
+//                     </div>
+//                     <div>
+//                       <Label>Price</Label>
+//                       <Input
+//                         type="number"
+//                         value={selectedProduct.productPrice}
+//                         onChange={(e) => setSelectedProduct({...selectedProduct, productPrice: Number(e.target.value)})}
+//                       />
+//                     </div>
+//                     <div>
+//                       <Label>Original Price</Label>
+//                       <Input
+//                         type="number"
+//                         value={selectedProduct.originalPrice || ""}
+//                         onChange={(e) => setSelectedProduct({...selectedProduct, originalPrice: Number(e.target.value) || undefined})}
+//                       />
+//                     </div>
+//                     <div>
+//                       <Label>Category</Label>
+//                       <Input
+//                         value={selectedProduct.productCategory}
+//                         onChange={(e) => setSelectedProduct({...selectedProduct, productCategory: e.target.value})}
+//                       />
+//                     </div>
+//                     <div className="grid grid-cols-2 gap-3">
+//                       <div>
+//                         <Label>Rating</Label>
+//                         <Input
+//                           type="number"
+//                           value={selectedProduct.rating || ""}
+//                           onChange={(e) => setSelectedProduct({...selectedProduct, rating: Number(e.target.value) || 0})}
+//                           min="0"
+//                           max="5"
+//                           step="0.1"
+//                         />
+//                       </div>
+//                       <div>
+//                         <Label>Review Count</Label>
+//                         <Input
+//                           type="number"
+//                           value={selectedProduct.reviewCount || ""}
+//                           onChange={(e) => setSelectedProduct({...selectedProduct, reviewCount: Number(e.target.value) || 0})}
+//                           min="0"
+//                         />
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+                
+//                 <div>
+//                   <h3 className="font-semibold mb-4">Images</h3>
+//                   <div className="space-y-4">
+//                     <div>
+//                       <Label>Update Front Image (Optional)</Label>
+//                       <Input
+//                         type="file"
+//                         accept="image/*"
+//                         onChange={(e) => setFrontImage(e.target.files?.[0] || null)}
+//                       />
+//                       {selectedProduct.productImageUrl && (
+//                         <div className="mt-2">
+//                           <p className="text-sm text-muted-foreground mb-1">Current Image:</p>
+//                           <img
+//                             src={selectedProduct.productImageUrl}
+//                             alt="Front"
+//                             className="w-32 h-32 object-cover rounded"
+//                           />
+//                         </div>
+//                       )}
+//                     </div>
+//                     <div>
+//                       <Label>Update Back Image (Optional)</Label>
+//                       <Input
+//                         type="file"
+//                         accept="image/*"
+//                         onChange={(e) => setBackImage(e.target.files?.[0] || null)}
+//                       />
+//                       {selectedProduct.productBackImageUrl && (
+//                         <div className="mt-2">
+//                           <p className="text-sm text-muted-foreground mb-1">Current Image:</p>
+//                           <img
+//                             src={selectedProduct.productBackImageUrl}
+//                             alt="Back"
+//                             className="w-32 h-32 object-cover rounded"
+//                           />
+//                         </div>
+//                       )}
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div>
+//                 <Label>Description</Label>
+//                 <Textarea
+//                   value={selectedProduct.productDescription}
+//                   onChange={(e) => setSelectedProduct({...selectedProduct, productDescription: e.target.value})}
+//                   rows={4}
+//                 />
+//               </div>
+
+//               <div>
+//                 <Label>Notes</Label>
+//                 <div className="flex flex-wrap gap-2 mt-2">
+//                   {selectedProduct.notes.map((note, index) => (
+//                     <span key={index} className="bg-secondary px-3 py-1 rounded-full text-sm">
+//                       {note}
+//                     </span>
+//                   ))}
+//                 </div>
+//               </div>
+
+//               <div className="flex justify-end gap-2">
+//                 <Button
+//                   variant="outline"
+//                   onClick={() => setProductDialogOpen(false)}
+//                 >
+//                   Cancel
+//                 </Button>
+//                 <Button
+//                   onClick={() => selectedProduct.productId && handleUpdateProduct(selectedProduct.productId)}
+//                   disabled={isUpdatingProduct}
+//                 >
+//                   {isUpdatingProduct ? "Updating..." : "Update Product"}
+//                 </Button>
+//               </div>
+//             </div>
+//           ) : (
+//             <div className="text-center py-8">
+//               <p className="text-muted-foreground">Loading product details...</p>
+//             </div>
+//           )}
+//         </DialogContent>
+//       </Dialog>
+//     </div>
+//   );
+// }
+
+
+
+
 import { useEffect, useState, useCallback, useRef } from "react";
 import axios, { AxiosError, CancelTokenSource } from "axios";
 import { Button } from "@/components/ui/button";
@@ -7876,7 +10213,10 @@ import {
   CheckCircle,
   XCircle,
   Database,
-  Package
+  Package,
+  AlertCircle,
+  Box,
+  TrendingDown
 } from "lucide-react";
 import {
   Dialog,
@@ -7898,6 +10238,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Product {
   productId?: number;
@@ -7916,6 +10262,14 @@ interface Product {
   deletedAt?: string;
   createdAt?: string;
   updatedAt?: string;
+  // Stock fields
+  stockQuantity?: number;
+  lowStockThreshold?: number;
+  trackInventory?: boolean;
+  allowBackorders?: boolean;
+  inStock?: boolean;
+  isLowStock?: boolean;
+  isOutOfStock?: boolean;
 }
 
 interface OrderItem {
@@ -7981,9 +10335,9 @@ const api = axios.create({
   baseURL: "https://merfume-backend-production-5068.up.railway.app",
   headers: {
     "Content-Type": "application/json",
-    // "ngrok-skip-browser-warning": "69420",
     "Accept": "application/json",
   },
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Add request interceptor
@@ -8011,7 +10365,7 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
     
-    if (!error.response && !originalRequest?._retry) {
+    if (!error.response && !originalRequest?._retry && originalRequest?.method?.toLowerCase() === 'get') {
       originalRequest._retry = true;
       console.log("Retrying request due to network error...");
       
@@ -8072,7 +10426,12 @@ export default function AdminDashboard() {
     notes: [],
     productCategory: "",
     rating: 0,
-    reviewCount: 0
+    reviewCount: 0,
+    // Stock fields with defaults
+    stockQuantity: 100,
+    lowStockThreshold: 5,
+    trackInventory: true,
+    allowBackorders: false
   });
   const [frontImage, setFrontImage] = useState<File | null>(null);
   const [backImage, setBackImage] = useState<File | null>(null);
@@ -8088,7 +10447,9 @@ export default function AdminDashboard() {
     pendingOrders: 0,
     newInquiries: 0,
     activeProducts: 0,
-    deletedProducts: 0
+    deletedProducts: 0,
+    lowStockProducts: 0,
+    outOfStockProducts: 0
   });
   
   const { toast } = useToast();
@@ -8119,7 +10480,36 @@ export default function AdminDashboard() {
     }
   };
 
-  // Fetch orders with axios
+  // Get stock status badge
+  const getStockStatusBadge = (product: Product) => {
+    if (product.isDeleted) return null;
+    
+    if (product.isOutOfStock) {
+      return (
+        <Badge className="bg-red-100 text-red-800 flex items-center gap-1">
+          <AlertCircle className="h-3 w-3" />
+          Out of Stock
+        </Badge>
+      );
+    } else if (product.isLowStock) {
+      return (
+        <Badge className="bg-yellow-100 text-yellow-800 flex items-center gap-1">
+          <TrendingDown className="h-3 w-3" />
+          Low Stock ({product.stockQuantity})
+        </Badge>
+      );
+    } else if (product.trackInventory) {
+      return (
+        <Badge className="bg-green-100 text-green-800 flex items-center gap-1">
+          <Package className="h-3 w-3" />
+          In Stock ({product.stockQuantity})
+        </Badge>
+      );
+    }
+    return null;
+  };
+
+  // Fetch orders from backend
   const fetchOrdersFromBackend = useCallback(async () => {
     if (cancelTokenSourceRef.current) {
       cancelTokenSourceRef.current.cancel("Operation cancelled due to new request");
@@ -8226,7 +10616,7 @@ export default function AdminDashboard() {
     }
   }, [toast]);
 
-  // Fetch inquiries with axios
+  // Fetch inquiries from backend
   const fetchInquiriesFromBackend = useCallback(async () => {
     setLoading(prev => ({ ...prev, inquiries: true }));
     
@@ -8293,12 +10683,28 @@ export default function AdminDashboard() {
       console.log("Products response:", response.data);
       
       if (Array.isArray(response.data)) {
-        setProducts(response.data);
+        const productsWithStock = response.data.map((product: any) => ({
+          ...product,
+          stockQuantity: product.stockQuantity || 0,
+          lowStockThreshold: product.lowStockThreshold || 5,
+          trackInventory: product.trackInventory !== false,
+          allowBackorders: product.allowBackorders || false,
+          inStock: product.inStock !== undefined ? product.inStock : (product.stockQuantity > 0),
+          isLowStock: product.isLowStock || false,
+          isOutOfStock: product.isOutOfStock !== undefined ? product.isOutOfStock : (product.stockQuantity <= 0)
+        }));
+        
+        setProducts(productsWithStock);
         
         // Update stats
+        const lowStock = productsWithStock.filter((p: Product) => p.isLowStock && !p.isDeleted).length;
+        const outOfStock = productsWithStock.filter((p: Product) => p.isOutOfStock && !p.isDeleted).length;
+        
         setStats(prev => ({
           ...prev,
-          activeProducts: response.data.length
+          activeProducts: productsWithStock.length,
+          lowStockProducts: lowStock,
+          outOfStockProducts: outOfStock
         }));
       } else {
         console.error("Invalid response format: expected array");
@@ -8342,12 +10748,20 @@ export default function AdminDashboard() {
       console.log("Deleted products response:", response.data);
       
       if (Array.isArray(response.data)) {
-        setDeletedProducts(response.data);
+        const deletedWithStock = response.data.map((product: any) => ({
+          ...product,
+          stockQuantity: product.stockQuantity || 0,
+          lowStockThreshold: product.lowStockThreshold || 5,
+          trackInventory: product.trackInventory !== false,
+          allowBackorders: product.allowBackorders || false
+        }));
+        
+        setDeletedProducts(deletedWithStock);
         
         // Update stats
         setStats(prev => ({
           ...prev,
-          deletedProducts: response.data.length
+          deletedProducts: deletedWithStock.length
         }));
       } else {
         console.error("Invalid response format: expected array");
@@ -8492,7 +10906,11 @@ export default function AdminDashboard() {
         originalPrice: newProduct.originalPrice ? Number(newProduct.originalPrice) : undefined,
         notes: newProduct.notes,
         rating: newProduct.rating || 0,
-        reviewCount: newProduct.reviewCount || 0
+        reviewCount: newProduct.reviewCount || 0,
+        stockQuantity: newProduct.stockQuantity || 100,
+        lowStockThreshold: newProduct.lowStockThreshold || 5,
+        trackInventory: newProduct.trackInventory !== false,
+        allowBackorders: newProduct.allowBackorders || false
       }));
       formData.append("frontImage", frontImage);
       formData.append("backImage", backImage);
@@ -8538,64 +10956,8 @@ export default function AdminDashboard() {
     }
   };
 
-  // // Handle updating product
-  // const handleUpdateProduct = async (productId: number) => {
-  //   if (!selectedProduct) return;
-    
-  //   setIsUpdatingProduct(true);
-    
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("product", JSON.stringify({
-  //       ...selectedProduct,
-  //       productId,
-  //       productPrice: Number(selectedProduct.productPrice),
-  //       originalPrice: selectedProduct.originalPrice ? Number(selectedProduct.originalPrice) : undefined,
-  //       notes: selectedProduct.notes,
-  //       rating: selectedProduct.rating || 0,
-  //       reviewCount: selectedProduct.reviewCount || 0
-  //     }));
-      
-  //     if (frontImage) formData.append("frontImage", frontImage);
-  //     if (backImage) formData.append("backImage", backImage);
-      
-  //     const response = await api.put(`/api/products/update/${productId}`, formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-      
-  //     toast({
-  //       title: "Success",
-  //       description: response.data.message || "Product updated successfully",
-  //     });
-      
-  //     setProductDialogOpen(false);
-  //     fetchProductsFromBackend();
-  //     setFrontImage(null);
-  //     setBackImage(null);
-      
-  //   } catch (error: any) {
-  //     console.error("Error updating product:", error);
-      
-  //     let errorMessage = "Failed to update product. ";
-  //     if (error.response?.data?.message) {
-  //       errorMessage = error.response.data.message;
-  //     }
-      
-  //     toast({
-  //       title: "Error",
-  //       description: errorMessage,
-  //       variant: "destructive",
-  //     });
-  //   } finally {
-  //     setIsUpdatingProduct(false);
-  //   }
-  // };
-
-// Handle updating product
-  // Update product handler
-const handleUpdateProduct = async (productId: number) => {
+  // Handle updating product
+  const handleUpdateProduct = async (productId: number) => {
     if (!selectedProduct) return;
     
     setIsUpdatingProduct(true);
@@ -8613,10 +10975,15 @@ const handleUpdateProduct = async (productId: number) => {
             productPrice: Number(selectedProduct.productPrice),
             originalPrice: selectedProduct.originalPrice ? Number(selectedProduct.originalPrice) : null,
             productDescription: selectedProduct.productDescription,
-            notes: selectedProduct.notes || [], // Ensure notes is array
+            notes: selectedProduct.notes || [],
             rating: selectedProduct.rating || 0,
             reviewCount: selectedProduct.reviewCount || 0,
-            deleted: selectedProduct.isDeleted || false
+            deleted: selectedProduct.isDeleted || false,
+            // Stock fields
+            stockQuantity: selectedProduct.stockQuantity || 0,
+            lowStockThreshold: selectedProduct.lowStockThreshold || 5,
+            trackInventory: selectedProduct.trackInventory !== false,
+            allowBackorders: selectedProduct.allowBackorders || false
         };
         
         // Add product as JSON string
@@ -8666,8 +11033,7 @@ const handleUpdateProduct = async (productId: number) => {
     } finally {
         setIsUpdatingProduct(false);
     }
-};
-
+  };
 
   // Soft delete product
   const softDeleteProduct = async (productId: number, productName: string) => {
@@ -8772,7 +11138,11 @@ const handleUpdateProduct = async (productId: number) => {
       notes: [],
       productCategory: "",
       rating: 0,
-      reviewCount: 0
+      reviewCount: 0,
+      stockQuantity: 100,
+      lowStockThreshold: 5,
+      trackInventory: true,
+      allowBackorders: false
     });
     setFrontImage(null);
     setBackImage(null);
@@ -8988,9 +11358,13 @@ const handleUpdateProduct = async (productId: number) => {
           "Category",
           "Price",
           "Original Price",
+          "Stock Quantity",
+          "Low Stock Threshold",
+          "Track Inventory",
+          "Allow Backorders",
+          "Status",
           "Rating",
           "Review Count",
-          "Status",
           "Deleted At",
           "Notes"
         ];
@@ -9002,9 +11376,13 @@ const handleUpdateProduct = async (productId: number) => {
           product.productCategory,
           product.productPrice,
           product.originalPrice || "N/A",
+          product.stockQuantity || 0,
+          product.lowStockThreshold || 5,
+          product.trackInventory ? "Yes" : "No",
+          product.allowBackorders ? "Yes" : "No",
+          product.isDeleted ? "Deleted" : "Active",
           product.rating || 0,
           product.reviewCount || 0,
-          product.isDeleted ? "Deleted" : "Active",
           product.deletedAt || "N/A",
           `"${product.notes.join(", ")}"`
         ]);
@@ -9196,6 +11574,35 @@ const handleUpdateProduct = async (productId: number) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Stock Alert Cards - Only show on products tab */}
+      {activeTab === "products" && !showDeletedProducts && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {stats.lowStockProducts > 0 && (
+            <Alert className="bg-yellow-50 border-yellow-200">
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-yellow-800">
+                <span className="font-semibold">{stats.lowStockProducts}</span> product{stats.lowStockProducts !== 1 ? 's' : ''} {stats.lowStockProducts !== 1 ? 'are' : 'is'} running low on stock.
+                <Button variant="link" className="text-yellow-800 font-semibold px-2" onClick={() => setSearchQuery("")}>
+                  View products
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {stats.outOfStockProducts > 0 && (
+            <Alert className="bg-red-50 border-red-200">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">
+                <span className="font-semibold">{stats.outOfStockProducts}</span> product{stats.outOfStockProducts !== 1 ? 's' : ''} {stats.outOfStockProducts !== 1 ? 'are' : 'is'} out of stock.
+                <Button variant="link" className="text-red-800 font-semibold px-2" onClick={() => setSearchQuery("")}>
+                  View products
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+      )}
 
       {/* Search and Filters */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -9529,6 +11936,50 @@ const handleUpdateProduct = async (productId: number) => {
                             ))}
                           </div>
                         </div>
+
+                        {/* Stock Management Fields */}
+                        <div className="space-y-4 border-t pt-4">
+                          <h3 className="font-semibold">Stock Management</h3>
+                          
+                          <div>
+                            <Label>Initial Stock Quantity</Label>
+                            <Input
+                              type="number"
+                              value={newProduct.stockQuantity || 100}
+                              onChange={(e) => setNewProduct({...newProduct, stockQuantity: Number(e.target.value)})}
+                              min="0"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label>Low Stock Threshold</Label>
+                            <Input
+                              type="number"
+                              value={newProduct.lowStockThreshold || 5}
+                              onChange={(e) => setNewProduct({...newProduct, lowStockThreshold: Number(e.target.value)})}
+                              min="1"
+                            />
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={newProduct.trackInventory}
+                              onCheckedChange={(checked) => setNewProduct({...newProduct, trackInventory: checked})}
+                              id="track-inventory"
+                            />
+                            <Label htmlFor="track-inventory">Track Inventory</Label>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={newProduct.allowBackorders}
+                              onCheckedChange={(checked) => setNewProduct({...newProduct, allowBackorders: checked})}
+                              id="allow-backorders"
+                            />
+                            <Label htmlFor="allow-backorders">Allow Backorders</Label>
+                          </div>
+                        </div>
+
                         <div>
                           <Label>Front Image*</Label>
                           <Input
@@ -9633,6 +12084,7 @@ const handleUpdateProduct = async (productId: number) => {
                       <TableHead>Brand</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Price</TableHead>
+                      <TableHead>Stock</TableHead>
                       <TableHead>Rating</TableHead>
                       <TableHead>Status</TableHead>
                       {showDeletedProducts && <TableHead>Deleted At</TableHead>}
@@ -9672,6 +12124,14 @@ const handleUpdateProduct = async (productId: number) => {
                           </div>
                         </TableCell>
                         <TableCell>
+                          {!showDeletedProducts && getStockStatusBadge(product)}
+                          {showDeletedProducts && (
+                            <span className="text-sm text-muted-foreground">
+                              Stock: {product.stockQuantity || 0}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
                           <div className="flex items-center gap-1">
                             <span className="font-medium">{product.rating?.toFixed(1) || "0.0"}</span>
                             <span className="text-xs text-muted-foreground">
@@ -9703,44 +12163,74 @@ const handleUpdateProduct = async (productId: number) => {
                           <div className="flex gap-2">
                             {!showDeletedProducts ? (
                               <>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => openProductDetails(product)}
-                                  title="Edit product"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => product.productId && softDeleteProduct(product.productId, product.productName)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  title="Move to trash"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => openProductDetails(product)}
+                                        title="Edit product"
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Edit product</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => product.productId && softDeleteProduct(product.productId, product.productName)}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        title="Move to trash"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Move to trash</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </>
                             ) : (
                               <>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => product.productId && restoreProduct(product.productId, product.productName)}
-                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                  title="Restore product"
-                                >
-                                  <Undo className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => product.productId && permanentDeleteProduct(product.productId, product.productName)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  title="Permanently delete"
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                </Button>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => product.productId && restoreProduct(product.productId, product.productName)}
+                                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                        title="Restore product"
+                                      >
+                                        <Undo className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Restore product</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => product.productId && permanentDeleteProduct(product.productId, product.productName)}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        title="Permanently delete"
+                                      >
+                                        <XCircle className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Permanently delete</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </>
                             )}
                           </div>
@@ -10093,6 +12583,46 @@ const handleUpdateProduct = async (productId: number) => {
                 </div>
                 
                 <div>
+                  <h3 className="font-semibold mb-4">Stock Management</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Stock Quantity</Label>
+                      <Input
+                        type="number"
+                        value={selectedProduct.stockQuantity || 0}
+                        onChange={(e) => setSelectedProduct({...selectedProduct, stockQuantity: Number(e.target.value)})}
+                        min="0"
+                      />
+                    </div>
+                    <div>
+                      <Label>Low Stock Threshold</Label>
+                      <Input
+                        type="number"
+                        value={selectedProduct.lowStockThreshold || 5}
+                        onChange={(e) => setSelectedProduct({...selectedProduct, lowStockThreshold: Number(e.target.value)})}
+                        min="1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={selectedProduct.trackInventory}
+                        onCheckedChange={(checked) => setSelectedProduct({...selectedProduct, trackInventory: checked})}
+                        id="edit-track-inventory"
+                      />
+                      <Label htmlFor="edit-track-inventory">Track Inventory</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={selectedProduct.allowBackorders}
+                        onCheckedChange={(checked) => setSelectedProduct({...selectedProduct, allowBackorders: checked})}
+                        id="edit-allow-backorders"
+                      />
+                      <Label htmlFor="edit-allow-backorders">Allow Backorders</Label>
+                    </div>
+                  </div>
+
+                  <Separator className="my-4" />
+
                   <h3 className="font-semibold mb-4">Images</h3>
                   <div className="space-y-4">
                     <div>
@@ -10180,6 +12710,7 @@ const handleUpdateProduct = async (productId: number) => {
     </div>
   );
 }
+
 
 
 
