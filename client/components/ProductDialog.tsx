@@ -5165,21 +5165,42 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
     : 10;
 
   return (
+    // <Dialog open={open} onOpenChange={onClose}>
+    //   <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0 border-0 bg-transparent">
+    //     <div className="bg-background rounded-3xl overflow-hidden border border-border shadow-2xl">
+    //       {/* Close Button */}
+    //       <div className="absolute right-6 top-6 z-50">
+    //         <DialogClose asChild>
+    //           <Button
+    //             variant="ghost"
+    //             size="icon"
+    //             className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm hover:bg-accent border border-border shadow-lg"
+    //           >
+    //             <X className="h-5 w-5" />
+    //           </Button>
+    //         </DialogClose>
+    //       </div>
+
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0 border-0 bg-transparent">
-        <div className="bg-background rounded-3xl overflow-hidden border border-border shadow-2xl">
-          {/* Close Button */}
-          <div className="absolute right-6 top-6 z-50">
-            <DialogClose asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm hover:bg-accent border border-border shadow-lg"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </DialogClose>
-          </div>
+      {/* Remove DialogClose wrapper and use onOpenChange for closing */}
+      <DialogContent 
+        className="max-w-7xl max-h-[95vh] overflow-y-auto p-0 border-0 bg-transparent"
+        // Hide the default close button by styling
+        onInteractOutside={(e) => {
+          // Prevent closing when clicking outside if needed
+          // e.preventDefault();
+        }}
+      >
+        <div className="bg-background rounded-3xl overflow-hidden border border-border shadow-2xl relative">
+          {/* Custom Close Button - Only one close button */}
+          <button
+            onClick={onClose}
+            className="absolute right-6 top-6 z-50 h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm hover:bg-accent border border-border shadow-lg flex items-center justify-center transition-all hover:scale-110"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
 
           {loading ? (
             // Loading Skeleton
