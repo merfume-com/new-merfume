@@ -6395,13 +6395,13 @@ export default function ProductDialog({ productId, open, onClose }: ProductDialo
       >
         <div className="bg-background rounded-3xl overflow-hidden border border-border shadow-2xl relative">
           {/* Custom Close Button - Only one close button */}
-          <button
+          {/* <button
             onClick={onClose}
             className="absolute right-6 top-6 z-50 h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm hover:bg-accent border border-border shadow-lg flex items-center justify-center transition-all hover:scale-110"
             aria-label="Close"
           >
-            {/* <X className="h-5 w-5" /> */}
-          </button>
+            <X className="h-5 w-5" />
+          </button> */}
 
           {loading ? (
             // Loading Skeleton
