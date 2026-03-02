@@ -225,6 +225,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
+import FragranceCareTips from "./pages/FragranceCareTips";
 
 const queryClient = new QueryClient();
 
@@ -290,6 +291,7 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/our-team" element={<TeamPage />} />
+                  <Route path="/how-to-manage-fragrance" element={<FragranceCareTips />} />
               <Route path="/store" element={<Store />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/ceo-vision" element={<CeoVision />} />
