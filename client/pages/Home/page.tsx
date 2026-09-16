@@ -1952,14 +1952,14 @@ export default function Home() {
       )}
 
       {/* Ramadan Special Offer Banner - 50% OFF (No Timer) */}
-      <div className="bg-gradient-to-r from-emerald-700 via-green-600 to-emerald-700 relative overflow-hidden border-b-2 border-yellow-400/30">
+      {/* <div className="bg-gradient-to-r from-emerald-700 via-green-600 to-emerald-700 relative overflow-hidden border-b-2 border-yellow-400/30"> */}
         {/* Decorative Pattern */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI1IiBmaWxsPSIjZmZkYzAwIiBmaWxsLW9wYWNpdHk9IjAuMSIvPjwvc3ZnPg==')] opacity-20"></div>
+        {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI1IiBmaWxsPSIjZmZkYzAwIiBmaWxsLW9wYWNpdHk9IjAuMSIvPjwvc3ZnPg==')] opacity-20"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3"> */}
             {/* Left Section - Ramadan Theme */}
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-400 rounded-full flex items-center justify-center">
                   <Moon className="h-5 w-5 md:h-6 md:w-6 text-emerald-800" />
@@ -1979,10 +1979,10 @@ export default function Home() {
                   <span className="text-xs md:text-sm text-yellow-200">Blessings & Fragrances</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Center Section - 50% OFF */}
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <div className="bg-white px-4 py-2 rounded-full shadow-lg">
                 <span className="text-lg md:text-2xl lg:text-3xl font-black text-emerald-700">
                   50% OFF
@@ -1992,30 +1992,30 @@ export default function Home() {
                 <span>on all</span>
                 <span className="block font-bold text-yellow-300">Premium Perfume</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Right Section - CTA Button */}
-            <Link to="/store?category=ramadan-special" className="flex-shrink-0">
+            {/* <Link to="/store?category=ramadan-special" className="flex-shrink-0">
               <Button className="bg-yellow-400 hover:bg-yellow-500 text-emerald-900 font-bold px-4 md:px-6 py-2 md:py-2.5 text-xs md:text-sm shadow-lg hover:shadow-xl transition-all rounded-full group">
                 <span>Shop Ramadan Deals</span>
                 <ArrowRight className="ml-2 h-3 w-3 md:h-4 md:w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
-        </div>
+        </div> */}
 
         {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-white to-yellow-400"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-white to-yellow-400"></div>
+        {/* <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-white to-yellow-400"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-white to-yellow-400"></div> */}
         
         {/* Arabic Calligraphy Decoration */}
-        <div className="absolute top-1 left-4 opacity-5 text-4xl font-arabic text-white">
+        {/* <div className="absolute top-1 left-4 opacity-5 text-4xl font-arabic text-white">
           رمضان كريم
         </div>
         <div className="absolute bottom-1 right-4 opacity-5 text-4xl font-arabic text-white">
           🌙 ✨
         </div>
-      </div>
+      </div> */}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-cream via-background to-accent/20">
