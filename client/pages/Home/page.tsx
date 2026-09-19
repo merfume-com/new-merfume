@@ -1862,7 +1862,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
-import { ArrowRight, Star, Sparkles, Gift, Bell, Moon, BadgePercent } from "lucide-react";
+import { ArrowRight, Star, Sparkles, Gift, Bell } from "lucide-react";
 import { useState, useEffect } from "react";
 import useFCMNotifications from "@/hooks/useFCMNotifications"; // Default import
 
@@ -1886,18 +1886,6 @@ export default function Home() {
     await initializeFCM();
     setShowNotificationPrompt(false);
   };
-
-  // Islamic Crescent Moon Icon Component
-  const IslamicCrescentIcon = ({ className = "h-5 w-5" }) => (
-    <svg 
-      className={className}
-      viewBox="0 0 24 24" 
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15.93c-3.95-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zm2-15.86c1.03.13 2 .45 2.87.93H13v-.93zM13 7h5.24c.25.31.48.65.68 1H13V7zm0 3h6.74c.08.33.15.66.19 1H13v-1zm0 9.93V19h2.87c-.87.48-1.84.8-2.87.93zM19.24 17H13v-1h6.93c-.2.35-.43.69-.69 1zm.68-3H13v-1h7.13c-.04.34-.11.67-.19 1z"/>
-    </svg>
-  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -1951,13 +1939,16 @@ export default function Home() {
         </div>
       )}
 
+      {/* ==================== RAMADAN OFFER CONTENT - COMMENTED OUT ==================== */}
+
       {/* Ramadan Special Offer Banner - 50% OFF (No Timer) */}
       {/* <div className="bg-gradient-to-r from-emerald-700 via-green-600 to-emerald-700 relative overflow-hidden border-b-2 border-yellow-400/30"> */}
         {/* Decorative Pattern */}
-        {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI1IiBmaWxsPSIjZmZkYzAwIiBmaWxsLW9wYWNpdHk9IjAuMSIvPjwvc3ZnPg==')] opacity-20"></div>
-        
+        {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSI1IiBmaWxsPSIjZmZkYzAwIiBmaWxsLW9wYWNpdHk9IjAuMSIvPjwvc3ZnPg==')] opacity-20"></div> */}
+        {/*
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3"> */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        */}
             {/* Left Section - Ramadan Theme */}
             {/* <div className="flex items-center gap-3">
               <div className="relative">
@@ -2007,15 +1998,17 @@ export default function Home() {
         {/* Decorative Elements */}
         {/* <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-white to-yellow-400"></div>
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-white to-yellow-400"></div> */}
-        
+
         {/* Arabic Calligraphy Decoration */}
         {/* <div className="absolute top-1 left-4 opacity-5 text-4xl font-arabic text-white">
           رمضان كريم
         </div>
         <div className="absolute bottom-1 right-4 opacity-5 text-4xl font-arabic text-white">
           🌙 ✨
-        </div>
-      </div> */}
+        </div> */}
+      {/* </div> */}
+
+      {/* ==================== END RAMADAN OFFER CONTENT ==================== */}
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-cream via-background to-accent/20">
@@ -2030,14 +2023,14 @@ export default function Home() {
               />
             </div>
 
-            {/* Ramadan Badge */}
-            <div className="inline-flex items-center gap-2 mb-4 bg-emerald-100 dark:bg-emerald-900/30 backdrop-blur-sm rounded-full px-4 py-1.5 border border-emerald-500/30">
+            {/* Ramadan Badge - COMMENTED OUT */}
+            {/* <div className="inline-flex items-center gap-2 mb-4 bg-emerald-100 dark:bg-emerald-900/30 backdrop-blur-sm rounded-full px-4 py-1.5 border border-emerald-500/30">
               <IslamicCrescentIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-xs md:text-sm font-semibold text-emerald-800 dark:text-emerald-300">
                 🌙 Ramadan Blessings - Extra 50% Off on Premium Perfumes
               </span>
               <BadgePercent className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            </div>
+            </div> */}
 
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
               Discover Your
@@ -2077,11 +2070,11 @@ export default function Home() {
       <section className="py-16 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            {/* Ramadan Special Tagline */}
-            <div className="inline-flex items-center gap-2 mb-3 bg-gradient-to-r from-emerald-600/10 to-yellow-400/10 px-3 py-1 rounded-full">
+            {/* Ramadan Special Tagline - COMMENTED OUT */}
+            {/* <div className="inline-flex items-center gap-2 mb-3 bg-gradient-to-r from-emerald-600/10 to-yellow-400/10 px-3 py-1 rounded-full">
               <Moon className="h-4 w-4 text-emerald-600" />
               <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">Special Ramadan Offers Live</span>
-            </div>
+            </div> */}
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
               Why Choose Merfume?
             </h2>
@@ -2139,9 +2132,10 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ==================== RAMADAN SPECIAL CTA SECTION - COMMENTED OUT ==================== */}
+
       {/* Ramadan Special CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-emerald-900 via-green-800 to-emerald-900 relative overflow-hidden">
-        {/* Decorative Background */}
+      {/* <section className="py-16 bg-gradient-to-r from-emerald-900 via-green-800 to-emerald-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-yellow-400 rounded-full filter blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-400 rounded-full filter blur-3xl"></div>
@@ -2177,7 +2171,9 @@ export default function Home() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
+
+      {/* ==================== END RAMADAN SPECIAL CTA SECTION ==================== */}
 
       {/* Footer */}
       <footer className="bg-luxury-black text-cream py-12">
