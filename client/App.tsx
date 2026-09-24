@@ -355,6 +355,72 @@ const FCMNotificationHandler = () => {
   return null;
 };
 
+// ✅ MAIN APP COMPONENT — YE MISSING THA
+const App = () => {
+  return (
+    <CartProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <FCMNotificationHandler />
+
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/our-team" element={<TeamPage />} />
+              <Route
+                path="/how-to-manage-fragrance"
+                element={<FragranceCareTips />}
+              />
+              <Route path="/store" element={<Store />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/ceo-vision" element={<CeoVision />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/success" element={<Success />} />
+
+              {/* Blog Routes */}
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+
+              {/* Admin */}
+              <Route
+                path="/adminsyed_musaib_aliposition=ceoemail=merfume.s@gmail.com"
+                element={<AdminDashboard />}
+              />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/orders/:orderId" element={<OrderDetail />} />
+
+              {/* Customer */}
+              <Route
+                path="/customer-dashboard"
+                element={<CustomerDashboard />}
+              />
+
+              {/* Order Tracking */}
+              <Route path="/track-order" element={<OrderTrackingPage />} />
+
+              {/* Policies */}
+              <Route path="/shipping-policy" element={<ShippingPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+              {/* 404 — hamesha last */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </CartProvider>
+  );
+};
+
+// ✅ YE LINE ZAROORI HAI
+export default App;
+
 
 
 // // src/App.tsx
