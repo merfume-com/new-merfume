@@ -197,6 +197,89 @@
 // export default App;
 
 
+// import "./global.css";
+// import { Toaster } from "@/components/ui/toaster";
+// import { Toaster as Sonner } from "@/components/ui/sonner";
+// import { TooltipProvider } from "@/components/ui/tooltip";
+// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// import { BrowserRouter, Routes, Route } from "react-router-dom";
+// import { CartProvider } from "@/components/CartContext";
+// import { useEffect } from "react";
+// import useFCMNotifications from "@/hooks/useFCMNotifications";
+// import Home from "./pages/Home/page";
+// import About from "./pages/About";
+// import { TeamPage } from "./pages/OurTeam";
+// import Blog from "./pages/Blog";
+// import BlogPost from "./pages/BlogPost"; 
+// import Store from "./pages/Store";
+// import CeoVision from "./pages/CeoVision";
+// import Contact from "./pages/Contact";
+// import Cart from "./pages/Cart";
+// import NotFound from "./pages/NotFound";
+// import Success from "./pages/Success";
+// import AdminDashboard from "./pages/AdminDashboard";
+// import CustomerDashboard from "./pages/CustomerDashboard";
+// import OrderDetail from "./pages/OrderDetail";
+// import AdminLogin from "./pages/AdminLogin";
+// import ShippingPolicy from "./pages/ShippingPolicy";
+// import TermsOfService from "./pages/TermsOfService";
+// import RefundPolicy from "./pages/RefundPolicy";
+// import PrivacyPolicy from "./pages/PrivacyPolicy";
+// import OrderTrackingPage from "./pages/OrderTrackingPage";
+// import ProductDetails from "./pages/ProductDetails/ProductDetails";
+// import FragranceCareTips from "./pages/FragranceCareTips";
+
+// const queryClient = new QueryClient();
+
+// // FCM Notification Handler Component
+// const FCMNotificationHandler = () => {
+//   const { setupMessageHandling } = useFCMNotifications();
+
+//   useEffect(() => {
+//     // Setup message handling
+//     const messageHandler = (payload: any) => {
+//       console.log('Message received in App:', payload);
+      
+//       // Handle notification actions
+//       if (payload.data?.action === 'VIEW_PRODUCT' && payload.data?.productId) {
+//         console.log('Product notification received:', payload.data.productId);
+//         // Navigate to product page when notification is clicked
+//         window.location.href = `/product/${payload.data.productId}`;
+//       }
+//     };
+
+//     setupMessageHandling(messageHandler);
+
+//     // Handle service worker messages for notification clicks
+//     const handleServiceWorkerMessage = (event: MessageEvent) => {
+//       if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
+//         console.log('Notification clicked via service worker:', event.data.payload);
+        
+//         if (event.data.payload.productId) {
+//           window.location.href = `/product/${event.data.payload.productId}`;
+//         }
+//       }
+//     };
+
+//     // Add event listener for service worker messages
+//     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+//       navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+//     }
+
+//     // Cleanup function
+//     return () => {
+//       if ('serviceWorker' in navigator) {
+//         navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+//       }
+//     };
+//   }, [setupMessageHandling]);
+
+//   return null;
+// };
+
+
+
+
 import "./global.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -209,8 +292,6 @@ import useFCMNotifications from "@/hooks/useFCMNotifications";
 import Home from "./pages/Home/page";
 import About from "./pages/About";
 import { TeamPage } from "./pages/OurTeam";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost"; 
 import Store from "./pages/Store";
 import CeoVision from "./pages/CeoVision";
 import Contact from "./pages/Contact";
@@ -228,54 +309,52 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
 import FragranceCareTips from "./pages/FragranceCareTips";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
-// FCM Notification Handler Component
 const FCMNotificationHandler = () => {
   const { setupMessageHandling } = useFCMNotifications();
 
   useEffect(() => {
-    // Setup message handling
     const messageHandler = (payload: any) => {
-      console.log('Message received in App:', payload);
-      
-      // Handle notification actions
-      if (payload.data?.action === 'VIEW_PRODUCT' && payload.data?.productId) {
-        console.log('Product notification received:', payload.data.productId);
-        // Navigate to product page when notification is clicked
+      console.log("Message received in App:", payload);
+      if (payload.data?.action === "VIEW_PRODUCT" && payload.data?.productId) {
         window.location.href = `/product/${payload.data.productId}`;
       }
     };
 
     setupMessageHandling(messageHandler);
 
-    // Handle service worker messages for notification clicks
     const handleServiceWorkerMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'NOTIFICATION_CLICK') {
-        console.log('Notification clicked via service worker:', event.data.payload);
-        
+      if (event.data && event.data.type === "NOTIFICATION_CLICK") {
         if (event.data.payload.productId) {
           window.location.href = `/product/${event.data.payload.productId}`;
         }
       }
     };
 
-    // Add event listener for service worker messages
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.addEventListener(
+        "message",
+        handleServiceWorkerMessage
+      );
     }
 
-    // Cleanup function
     return () => {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.removeEventListener(
+          "message",
+          handleServiceWorkerMessage
+        );
       }
     };
   }, [setupMessageHandling]);
 
   return null;
 };
+
 
 
 // // src/App.tsx
