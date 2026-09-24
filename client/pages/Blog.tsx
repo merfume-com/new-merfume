@@ -1,4 +1,3 @@
-// src/pages/Blog.tsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -15,8 +14,6 @@ import {
   Sparkles,
   Heart,
   Crown,
-  Flame,
-  Leaf,
   Star,
 } from "lucide-react";
 
@@ -197,7 +194,6 @@ export default function Blog() {
       <section className="py-10 bg-card border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-            {/* Search Bar */}
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -209,7 +205,6 @@ export default function Blog() {
               />
             </div>
 
-            {/* Category Filter */}
             <div className="flex flex-wrap gap-2 justify-center">
               {categories.map((category) => (
                 <Button
@@ -231,7 +226,7 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Featured Posts Section */}
+      {/* Featured Posts */}
       {selectedCategory === "All" && searchQuery === "" && (
         <section className="py-16 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -299,7 +294,7 @@ export default function Blog() {
         </section>
       )}
 
-      {/* All Posts Section */}
+      {/* All Posts */}
       <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
@@ -319,8 +314,7 @@ export default function Blog() {
                 No articles found
               </h3>
               <p className="text-muted-foreground">
-                Try adjusting your search or filter to find what you're looking
-                for.
+                Try adjusting your search or filter.
               </p>
             </div>
           ) : (
@@ -391,7 +385,7 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Newsletter CTA Section */}
+      {/* Newsletter CTA */}
       <section className="py-20 bg-gradient-to-r from-gold/10 via-accent/20 to-gold/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-card rounded-2xl p-8 md:p-12 shadow-lg border border-gold/20 text-center">
@@ -401,8 +395,7 @@ export default function Blog() {
             </h2>
             <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
               Subscribe to our newsletter for exclusive fragrance tips, new
-              product launches, and special offers delivered straight to your
-              inbox.
+              product launches, and special offers.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <Input
