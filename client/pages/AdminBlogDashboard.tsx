@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,18 +16,13 @@ import {
   CheckCircle,
   Clock,
   Archive,
-  LogOut,
   Loader2,
 } from "lucide-react";
 import { supabase, Post } from "@/lib/supabase";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type StatusFilter = "all" | "draft" | "published" | "archived";
 
 export default function AdminBlogDashboard() {
-  const { loading: authLoading, isAdmin } = useAdminAuth();
-  const navigate = useNavigate();
-
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -55,8 +50,8 @@ export default function AdminBlogDashboard() {
   };
 
   useEffect(() => {
-    if (isAdmin) fetchPosts();
-  }, [isAdmin]);
+    fetchPosts();
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
@@ -77,7 +72,8 @@ export default function AdminBlogDashboard() {
     setActionLoading(id);
     const newStatus = currentStatus === "published" ? "draft" : "published";
     const updates: any = { status: newStatus };
-    if (newStatus === "published") updates.published_at = new Date().toISOString();
+    if (newStatus === "published")
+      updates.published_at = new Date().toISOString();
 
     const { error } = await supabase
       .from("posts")
@@ -90,7 +86,11 @@ export default function AdminBlogDashboard() {
       setPosts((prev) =>
         prev.map((p) =>
           p.id === id
-            ? { ...p, status: newStatus, published_at: updates.published_at || p.published_at }
+            ? {
+                ...p,
+                status: newStatus,
+                published_at: updates.published_at || p.published_at,
+              }
             : p
         )
       );
@@ -115,11 +115,6 @@ export default function AdminBlogDashboard() {
     setActionLoading(null);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin/login");
-  };
-
   const filteredPosts = posts.filter((post) => {
     const matchesStatus =
       statusFilter === "all" || post.status === statusFilter;
@@ -135,14 +130,6 @@ export default function AdminBlogDashboard() {
     drafts: posts.filter((p) => p.status === "draft").length,
     archived: posts.filter((p) => p.status === "archived").length,
   };
-
-  if (authLoading || !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-gold" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,22 +150,12 @@ export default function AdminBlogDashboard() {
                 Create, edit, and manage all your blog articles
               </p>
             </div>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={handleLogout}
-                className="border-gold/30 text-gold hover:bg-gold hover:text-luxury-black"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
+            <Link to="/admin/blog/new">
+              <Button className="bg-gold hover:bg-gold-dark text-luxury-black font-semibold">
+                <Plus className="w-4 h-4 mr-2" />
+                New Post
               </Button>
-              <Link to="/admin/blog/new">
-                <Button className="bg-gold hover:bg-gold-dark text-luxury-black font-semibold">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Post
-                </Button>
-              </Link>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -317,7 +294,6 @@ export default function AdminBlogDashboard() {
                 >
                   <CardContent className="p-4">
                     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-                      {/* Cover Image */}
                       <div className="w-full md:w-32 h-24 flex-shrink-0 rounded-md overflow-hidden bg-accent/20">
                         {post.cover_image_url ? (
                           <img
@@ -332,7 +308,6 @@ export default function AdminBlogDashboard() {
                         )}
                       </div>
 
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <h3 className="font-semibold text-foreground line-clamp-1">
@@ -369,7 +344,6 @@ export default function AdminBlogDashboard() {
                         </div>
                       </div>
 
-                      {/* Actions */}
                       <div className="flex items-center gap-2 flex-wrap">
                         <Button
                           size="sm"
