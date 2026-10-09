@@ -289,6 +289,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/components/CartContext";
 import { useEffect } from "react";
 import useFCMNotifications from "@/hooks/useFCMNotifications";
+
+// Pages
 import Home from "./pages/Home/page";
 import About from "./pages/About";
 import { TeamPage } from "./pages/OurTeam";
@@ -309,11 +311,18 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
 import FragranceCareTips from "./pages/FragranceCareTips";
+
+// Blog Pages
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
+// Admin Blog Pages
+import AdminBlogDashboard from "./pages/AdminBlogDashboard";
+import AdminBlogEditor from "./pages/AdminBlogEditor";
+
 const queryClient = new QueryClient();
 
+// FCM Notification Handler
 const FCMNotificationHandler = () => {
   const { setupMessageHandling } = useFCMNotifications();
 
@@ -355,7 +364,7 @@ const FCMNotificationHandler = () => {
   return null;
 };
 
-// ✅ MAIN APP COMPONENT — YE MISSING THA
+// Main App Component
 const App = () => {
   return (
     <CartProvider>
@@ -367,6 +376,7 @@ const App = () => {
             <FCMNotificationHandler />
 
             <Routes>
+              {/* Main Pages */}
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/our-team" element={<TeamPage />} />
@@ -381,7 +391,7 @@ const App = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/success" element={<Success />} />
 
-              {/* Blog Routes */}
+              {/* Public Blog Routes */}
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:id" element={<BlogPost />} />
 
@@ -392,6 +402,14 @@ const App = () => {
               />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/orders/:orderId" element={<OrderDetail />} />
+
+              {/* ✅ Admin Blog Management */}
+              <Route path="/admin/blog" element={<AdminBlogDashboard />} />
+              <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
+              <Route
+                path="/admin/blog/edit/:id"
+                element={<AdminBlogEditor />}
+              />
 
               {/* Customer */}
               <Route
@@ -418,7 +436,6 @@ const App = () => {
   );
 };
 
-// ✅ YE LINE ZAROORI HAI
 export default App;
 
 
