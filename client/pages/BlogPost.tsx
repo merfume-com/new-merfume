@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -12,21 +12,99 @@ import {
   Share2,
   BookOpen,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
-import { blogPosts } from "./Blog";
+import { supabase, Post } from "@/lib/supabase";
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const post = blogPosts.find((p) => p.id === Number(id));
+  const [post, setPost] = useState<Post | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // If post not found
-  if (!post) {
+  useEffect(() => {
+    const fetchPost = async () => {
+      setLoading(true);
+      setNotFound(false);
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select(
+          `*,
+          category:categories(id, name, slug),
+          author:profiles(id, full_name, email)
+          `
+        )
+        .eq("id", id)
+        .eq("status", "published")
+        .single();
+
+      if (error || !data) {
+        console.error("Error fetching post:", error);
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+
+      setPost(data);
+
+      // Increment views_count (fire and forget)
+      supabase
+        .from("posts")
+        .update({ views_count: (data.views_count || 0) + 1 })
+        .eq("id", data.id)
+        .then();
+
+      // Fetch related posts (same category)
+      if (data.category_id) {
+        const { data: related } = await supabase
+          .from("posts")
+          .select(
+            `*,
+            category:categories(id, name, slug)
+            `
+          )
+          .eq("status", "published")
+          .eq("category_id", data.category_id)
+          .neq("id", data.id)
+          .limit(3);
+
+        setRelatedPosts(related || []);
+      }
+
+      setLoading(false);
+    };
+
+    if (id) fetchPost();
+  }, [id]);
+
+  const getReadTime = (content: string) => {
+    const words = content.replace(/<[^>]*>/g, "").split(/\s+/).length;
+    const minutes = Math.max(1, Math.ceil(words / 200));
+    return `${minutes} min read`;
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="w-10 h-10 animate-spin text-gold" />
+        </div>
+      </div>
+    );
+  }
+
+  // Not found
+  if (notFound || !post) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -49,21 +127,21 @@ export default function BlogPost() {
     );
   }
 
-  const relatedPosts = blogPosts
-    .filter((p) => p.id !== post.id && p.category === post.category)
-    .slice(0, 3);
-
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
       {/* Hero Section with Image */}
       <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-        <img
-          src={post.image}
-          alt={post.title}
-          className="w-full h-full object-cover"
-        />
+        {post.cover_image_url ? (
+          <img
+            src={post.cover_image_url}
+            alt={post.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gold/30 via-accent/40 to-luxury-black" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-luxury-black via-luxury-black/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
           <div className="max-w-4xl mx-auto">
@@ -76,12 +154,16 @@ export default function BlogPost() {
               Back to Blog
             </Button>
             <div className="flex items-center gap-3 mb-4 text-xs text-cream/80 flex-wrap">
-              <span className="bg-gold text-luxury-black font-semibold px-3 py-1 rounded-full">
-                {post.category}
-              </span>
+              {post.category && (
+                <span className="bg-gold text-luxury-black font-semibold px-3 py-1 rounded-full">
+                  {post.category.name}
+                </span>
+              )}
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                {new Date(post.date).toLocaleDateString("en-US", {
+                {new Date(
+                  post.published_at || post.created_at
+                ).toLocaleDateString("en-US", {
                   month: "long",
                   day: "numeric",
                   year: "numeric",
@@ -89,7 +171,11 @@ export default function BlogPost() {
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {post.readTime}
+                {getReadTime(post.content)}
+              </span>
+              <span className="flex items-center gap-1">
+                <BookOpen className="w-3 h-3" />
+                {post.views_count} views
               </span>
             </div>
             <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-cream leading-tight">
@@ -109,7 +195,9 @@ export default function BlogPost() {
                 <User className="w-6 h-6 text-luxury-black" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">{post.author}</p>
+                <p className="font-semibold text-foreground">
+                  {post.author?.full_name || "Merfume Team"}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   Fragrance Expert
                 </p>
@@ -122,7 +210,7 @@ export default function BlogPost() {
                 if (navigator.share) {
                   navigator.share({
                     title: post.title,
-                    text: post.excerpt,
+                    text: post.excerpt || "",
                     url: window.location.href,
                   });
                 } else {
@@ -144,26 +232,29 @@ export default function BlogPost() {
               prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
               prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
               prose-ul:text-muted-foreground prose-li:mb-2
-              prose-strong:text-gold"
+              prose-strong:text-gold
+              prose-a:text-gold prose-a:no-underline hover:prose-a:underline"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
           {/* Tags */}
-          <div className="mt-12 pt-8 border-t border-border">
-            <div className="flex items-center gap-3 flex-wrap">
-              <Tag className="w-4 h-4 text-gold" />
-              <span className="text-sm text-muted-foreground">Tags:</span>
-              <span className="bg-gold/10 text-gold text-xs font-medium px-3 py-1 rounded-full">
-                {post.category}
-              </span>
-              <span className="bg-gold/10 text-gold text-xs font-medium px-3 py-1 rounded-full">
-                Perfume
-              </span>
-              <span className="bg-gold/10 text-gold text-xs font-medium px-3 py-1 rounded-full">
-                Fragrance
-              </span>
+          {post.category && (
+            <div className="mt-12 pt-8 border-t border-border">
+              <div className="flex items-center gap-3 flex-wrap">
+                <Tag className="w-4 h-4 text-gold" />
+                <span className="text-sm text-muted-foreground">Tags:</span>
+                <span className="bg-gold/10 text-gold text-xs font-medium px-3 py-1 rounded-full">
+                  {post.category.name}
+                </span>
+                <span className="bg-gold/10 text-gold text-xs font-medium px-3 py-1 rounded-full">
+                  Perfume
+                </span>
+                <span className="bg-gold/10 text-gold text-xs font-medium px-3 py-1 rounded-full">
+                  Fragrance
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Back Button */}
           <div className="mt-10">
@@ -196,16 +287,24 @@ export default function BlogPost() {
                 >
                   <Card className="overflow-hidden border-border/50 hover:border-gold/50 transition-all duration-300 hover:shadow-xl h-full">
                     <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={relatedPost.image}
-                        alt={relatedPost.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      {relatedPost.cover_image_url ? (
+                        <img
+                          src={relatedPost.cover_image_url}
+                          alt={relatedPost.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-accent/20">
+                          <BookOpen className="w-10 h-10 text-gold/30" />
+                        </div>
+                      )}
                     </div>
                     <CardContent className="p-6">
-                      <span className="text-xs text-gold font-semibold">
-                        {relatedPost.category}
-                      </span>
+                      {relatedPost.category && (
+                        <span className="text-xs text-gold font-semibold">
+                          {relatedPost.category.name}
+                        </span>
+                      )}
                       <h3 className="text-lg font-bold text-foreground mt-2 mb-3 group-hover:text-gold transition-colors line-clamp-2">
                         {relatedPost.title}
                       </h3>
