@@ -10,8 +10,7 @@ import {
   Image as ImageIcon,
   Star,
 } from "lucide-react";
-import { supabase, Category } from "@/lib/supabase";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { supabase, Category, ADMIN_USER_ID } from "@/lib/supabase";
 
 const slugify = (text: string) =>
   text
@@ -25,7 +24,6 @@ export default function AdminBlogEditor() {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
-  const { loading: authLoading, isAdmin, userId } = useAdminAuth();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
@@ -51,12 +49,12 @@ export default function AdminBlogEditor() {
         .order("name");
       setCategories(data || []);
     };
-    if (isAdmin) fetchCategories();
-  }, [isAdmin]);
+    fetchCategories();
+  }, []);
 
   // Fetch post if editing
   useEffect(() => {
-    if (!isEdit || !isAdmin) return;
+    if (!isEdit) return;
     const fetchPost = async () => {
       const { data, error } = await supabase
         .from("posts")
@@ -83,9 +81,9 @@ export default function AdminBlogEditor() {
       setLoadingPost(false);
     };
     fetchPost();
-  }, [id, isEdit, isAdmin, navigate]);
+  }, [id, isEdit, navigate]);
 
-  // Auto-generate slug from title (only when creating)
+  // Auto-generate slug
   useEffect(() => {
     if (!isEdit && form.title && !form.slug) {
       setForm((prev) => ({ ...prev, slug: slugify(prev.title) }));
@@ -94,10 +92,16 @@ export default function AdminBlogEditor() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) return;
 
     if (!form.title || !form.slug || !form.content) {
       alert("Title, slug, and content are required.");
+      return;
+    }
+
+    if (!isEdit && !ADMIN_USER_ID) {
+      alert(
+        "ADMIN_USER_ID is not set. Add VITE_ADMIN_USER_ID to your .env file."
+      );
       return;
     }
 
@@ -126,7 +130,7 @@ export default function AdminBlogEditor() {
     } else {
       const res = await supabase.from("posts").insert({
         ...payload,
-        author_id: userId,
+        author_id: ADMIN_USER_ID,
       });
       error = res.error;
     }
@@ -143,7 +147,7 @@ export default function AdminBlogEditor() {
   const update = (field: string, value: any) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  if (authLoading || !isAdmin || loadingPost) {
+  if (loadingPost) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-gold" />
@@ -183,7 +187,6 @@ export default function AdminBlogEditor() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <Card className="border-border/50">
               <CardContent className="p-6 space-y-5">
-                {/* Title */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Title *
@@ -198,7 +201,6 @@ export default function AdminBlogEditor() {
                   />
                 </div>
 
-                {/* Slug */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Slug *
@@ -216,7 +218,6 @@ export default function AdminBlogEditor() {
                   </p>
                 </div>
 
-                {/* Excerpt */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Excerpt
@@ -230,7 +231,6 @@ export default function AdminBlogEditor() {
                   />
                 </div>
 
-                {/* Cover Image */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Cover Image URL
@@ -260,7 +260,6 @@ export default function AdminBlogEditor() {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Content * (HTML supported)
@@ -281,7 +280,6 @@ export default function AdminBlogEditor() {
               </CardContent>
             </Card>
 
-            {/* Sidebar: Category, Status, Featured */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="border-border/50">
                 <CardContent className="p-5">
@@ -345,7 +343,6 @@ export default function AdminBlogEditor() {
               </Card>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3 justify-end pt-4 border-t border-border">
               <Button
                 type="button"
