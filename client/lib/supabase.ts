@@ -5,12 +5,18 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
-    "Missing database env vars. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env"
+    "Missing Supabase env vars. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env"
   );
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// ✅ Admin user ID (env se aata hai)
+export const ADMIN_USER_ID =
+  import.meta.env.VITE_ADMIN_USER_ID ||
+  "00000000-0000-0000-0000-000000000001";
+
+// ✅ Types
 export interface Post {
   id: string;
   author_id: string;
@@ -26,7 +32,6 @@ export interface Post {
   published_at: string | null;
   created_at: string;
   updated_at: string;
-  // Joined fields
   category?: { id: string; name: string; slug: string } | null;
   author?: { id: string; full_name: string | null; email: string } | null;
 }
